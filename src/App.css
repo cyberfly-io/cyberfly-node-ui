@@ -1,0 +1,55 @@
+
+
+.primary-color {
+  color: #493ede !important;
+}
+
+
+/* Main app */
+.header{
+  padding-top: 15px;
+}
+
+/* sider */
+.sider{
+  height: 100vh;
+  position: sticky !important;
+  top: 0;
+  left: 0;
+  bottom: 0;
+}
+
+.logo{
+  margin: 10px 0;
+  font-size: 1.5rem;
+}
+
+
+.menu-bar{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-weight: 500;
+}
+
+.ant-menu-item-selected{
+  background-color: #5854dc !important;
+  color: #fff !important;
+}
+
+
+
+.ant-btn:hover{
+  color: #3742da !important;
+  border-color: #5153d4 !important;
+}
+
+
+.divider{
+  border: 2px solid rgb(0, 9, 128);
+  height: 50px;
+}
+
+.card{
+  background-image: linear-gradient(to bottom, #4c7f4c79, #87e8de);
+}
