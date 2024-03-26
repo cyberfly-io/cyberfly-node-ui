@@ -8,6 +8,9 @@ import "./App.css"
 import CustomHeader from './components/CustomHeader'
 import MainContent from './components/MainContent'
 import { useDarkMode } from './contexts/DarkModeContext';
+import PubSubPage from './pages/pubsub';
+
+
 
 const {Sider, Header, Content} = Layout
 const { defaultAlgorithm, darkAlgorithm } = theme;
@@ -39,8 +42,9 @@ const App = () => {
          <Routes>
          <Route path="/">
       <Route index element={<MainContent />} />
-      <Route path="tools" element={<Tools />} />
-      <Route path="settings" element={<Settings />} />
+      <Route path="/tools" element={<Tools />} />
+      <Route path='/pubsub' element={<PubSubPage/>} />
+      <Route path="/settings" element={<Settings />} />
     </Route>
     </Routes>
         

@@ -1,4 +1,4 @@
-import { Flex, } from 'antd'
+import { Flex,Divider, List, } from 'antd'
 import React, {useEffect, useState} from 'react'
 import { getNodeInfo, getPeers } from '../services/node-services'
 import { StatisticCard, PageContainer } from '@ant-design/pro-components';
@@ -29,13 +29,12 @@ const [nodeInfo, setNodeInfo] = useState(null)
  useEffect(()=>{
   if(peers.length>0){
     setConnected(true)
-    console.log(connected)
   }
  },[peers, connected])
 
   return (
     <PageContainer title="Dashboard">
-    <Flex gap="middle" vertical={false} >
+    <Flex gap="middle" vertical={false}>
   
   
   <StatisticCard
@@ -80,11 +79,21 @@ const [nodeInfo, setNodeInfo] = useState(null)
       />
 
 
- 
+
 
 
 </Flex>
-
+<Divider orientation="left">Connected Peers</Divider>
+{peers && (
+    <List
+      bordered
+      dataSource={peers}
+      renderItem={(item) => (
+        <List.Item>
+            {item.addresses[0].multiaddr}/p2p/{item.id}
+        </List.Item>
+      )}
+    />)}
 </PageContainer>
   )
 }

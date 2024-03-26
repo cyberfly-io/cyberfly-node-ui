@@ -1,4 +1,4 @@
-import { DashboardOutlined, DatabaseOutlined, SettingOutlined } from '@ant-design/icons';
+import { DashboardOutlined, DatabaseOutlined, SettingOutlined, MessageOutlined } from '@ant-design/icons';
 import { Flex, Menu, Image } from 'antd'
 import React from 'react'
 import { Outlet, Link } from 'react-router-dom';
@@ -33,6 +33,11 @@ const Sidebar = () => {
             icon: <DatabaseOutlined />,
             label: <Link to="/tools">DB Tools</Link>,
         },
+        {
+          key:'3',
+          icon: <MessageOutlined />,
+          label: <Link to="/pubsub">Pub Sub</Link>,
+      },
         {
             key:'4',
             icon: <SettingOutlined/>,

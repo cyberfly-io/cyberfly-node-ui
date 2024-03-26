@@ -4,12 +4,18 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { DarkModeProvider } from './contexts/DarkModeContext';
+import { EckoWalletProvider } from './contexts/eckoWalletContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
 <DarkModeProvider>
+
+  <EckoWalletProvider>
     <App />
+    </EckoWalletProvider>
+
+
     </DarkModeProvider>
   </React.StrictMode>
 );

@@ -22,9 +22,11 @@ const Tools = () => {
   };
 
   const readDb = ()=>{
-    getReadDB(dbaddress).then((data)=>{
-      setDbInfo(data)
-    })
+    if(dbaddress!==''){
+      getReadDB(dbaddress).then((data)=>{
+        setDbInfo(data)
+      })
+    }
   }
   return (
    <PageContainer title="Database Tool">

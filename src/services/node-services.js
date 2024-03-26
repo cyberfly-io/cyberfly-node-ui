@@ -14,7 +14,7 @@ export const getPeers = async()=>{
 export const getNodeInfo = async()=>{
   const res =await fetch("http://"+getHost()+":3000/nodeinfo")
   const data = await res.json()
-return data
+   return data
 }
 
 export const getDBInfo = async(dbaddress)=>{

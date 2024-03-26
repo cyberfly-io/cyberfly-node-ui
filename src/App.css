@@ -53,3 +53,8 @@
 .card{
   background-image: linear-gradient(to bottom, #4c7f4c79, #87e8de);
 }
+
+@media (max-width: 768px) {
+  .ant-divider-horizontal {
+    margin: 16px 0;
+  }}
