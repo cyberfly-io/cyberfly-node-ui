@@ -5,6 +5,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { DarkModeProvider } from './contexts/DarkModeContext';
 import { EckoWalletProvider } from './contexts/eckoWalletContext';
+import { Libp2pProvider } from './contexts/Libp2pContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -12,7 +13,9 @@ root.render(
 <DarkModeProvider>
 
   <EckoWalletProvider>
+    <Libp2pProvider>
     <App />
+    </Libp2pProvider>
     </EckoWalletProvider>
 
 

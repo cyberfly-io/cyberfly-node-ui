@@ -16,3 +16,5 @@ export const NETWORK = `${process.env.REACT_APP_KDA_NETWORK}/chainweb/${NETWORK_
 export const creationTime = () => Math.round(new Date().getTime() / 1000) - 10;
 
 export const isMainnet = () => NETWORK_TYPE === 'mainnet';
+
+export const bootStrapNode = "/ip4/170.187.249.181/tcp/31002/ws/p2p/QmVydtrKsPcLdscLP9YMSynmc7GCNA7ZeUE9ViALuWijqV"

@@ -1,4 +1,4 @@
-import { Flex,Divider, List, } from 'antd'
+import { Flex,Divider, List,Collapse } from 'antd'
 import React, {useEffect, useState} from 'react'
 import { getNodeInfo, getPeers } from '../services/node-services'
 import { StatisticCard, PageContainer } from '@ant-design/pro-components';
@@ -8,29 +8,52 @@ import {ApartmentOutlined, InfoCircleOutlined, DeploymentUnitOutlined} from '@an
 
 const MainContent = () => {
 const [peers, setPeers] = useState([])
-const [peerCount, setPeerCount] = useState(0)
-
+const [peerItems, setPeerItems] = useState([])
+const [cCount, setCCount] = useState(0)
+const [dCount, setDCount] = useState(0)
 const [connected, setConnected] = useState(false);
 const [loading, setLoading] = useState(true);
 const [nodeInfo, setNodeInfo] = useState(null)
 
   useEffect(()=>{
-    getPeers().then((data)=>{setPeers(data)
-      setPeerCount(data.length)
+    getPeers().then((data)=>{
+      setPeers(data)
       setLoading(false)
-     
     })
     getNodeInfo().then((data)=>{
        setNodeInfo(data)
+       setCCount(data.connected)
+       setDCount(data.discovered)
     })
     
  }, [])
 
  useEffect(()=>{
-  if(peers.length>0){
+  if(peers){
+    const items = peers.map((item) => ({
+      key: item.id,
+      label: item.id,
+      children: (
+        <List
+        bordered
+          itemLayout="horizontal"
+          dataSource={item.addresses}
+          renderItem={(address) => (
+            <List.Item>
+              <List.Item.Meta
+                title={address.multiaddr}
+              />
+            </List.Item>
+          )}
+        />
+      ),
+    }));
+    setPeerItems(items)
     setConnected(true)
   }
+  
  },[peers, connected])
+
 
   return (
     <PageContainer title="Dashboard">
@@ -41,7 +64,7 @@ const [nodeInfo, setNodeInfo] = useState(null)
         bordered={true}
         boxShadow
           statistic={{
-            title: 'Peer Id',
+            title: 'Node Peer Id',
             value: nodeInfo?.peerId,
             valueStyle: {fontSize:15},
             icon:(<DeploymentUnitOutlined />)
@@ -62,6 +85,22 @@ const [nodeInfo, setNodeInfo] = useState(null)
           }}
      
         />
+
+<StatisticCard
+      bordered={true}
+      boxShadow
+      statistic={{
+     
+        loading:loading,
+        title: 'Discovered',
+        status:'processing',
+        value: dCount,
+        description:"peers",
+        icon: (
+<ApartmentOutlined />        ),
+      }}
+
+      />
   <StatisticCard
       bordered={true}
       boxShadow
@@ -70,7 +109,7 @@ const [nodeInfo, setNodeInfo] = useState(null)
         loading:loading,
         title: 'Connected',
         status:'success',
-        value: peerCount,
+        value: cCount,
         description:"peers",
         icon: (
 <ApartmentOutlined />        ),
@@ -82,18 +121,11 @@ const [nodeInfo, setNodeInfo] = useState(null)
 
 
 
+
+
 </Flex>
-<Divider orientation="left">Connected Peers</Divider>
-{peers && (
-    <List
-      bordered
-      dataSource={peers}
-      renderItem={(item) => (
-        <List.Item>
-            {item.addresses[0].multiaddr}/p2p/{item.id}
-        </List.Item>
-      )}
-    />)}
+<Divider orientation="left">Discovered Peers</Divider>
+<Collapse items={peerItems} />
 </PageContainer>
   )
 }

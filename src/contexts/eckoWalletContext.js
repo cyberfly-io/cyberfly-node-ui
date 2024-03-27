@@ -226,7 +226,7 @@ const initialEckoWalletState = {
           disconnectWallet,
           requestSign,
           logout,
-         
+          messageApi
         }}
       >
         {contextHolder}
