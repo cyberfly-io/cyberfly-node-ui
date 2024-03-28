@@ -43,16 +43,36 @@ if(libp2pState){
     console.log(data)
     api.success({message:"Connected"})
   })
+  libp2pState.addEventListener('peer:connect', (evt) => {
+    const peerId = evt.detail
+    console.log('Connection established to:', peerId.toString()) // Emitted when a peer has been found
+  })
+  
+  libp2pState.addEventListener('peer:discovery', (evt) => {
+    const peerInfo = evt.detail
+    console.log('Discovered:', peerInfo.id.toString())
+    console.log(peerInfo)
+  })
+}
+
+
+  },[libp2pState])
+
+  useEffect(()=>{
+ if(libp2pState){
   libp2pState.services.pubsub.addEventListener('message', event => {
     const topic = event.detail.topic
     const message = toString(event.detail.data)
    if(topics.includes(topic)){
-    api.info({message:`message received for topic${topic}`, description:message,placement:"topRight"})
+    api.info({message:`message received for topic- ${topic}`, description:message,placement:"topRight"})
+   }
+   else{
+
    }
 
   })
-}
-  },[libp2pState])
+ }
+  }, [topics])
  
 
   return (

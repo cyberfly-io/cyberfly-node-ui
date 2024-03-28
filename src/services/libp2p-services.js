@@ -15,7 +15,7 @@ import {mplex} from "@libp2p/mplex";
   return {
     peerDiscovery: [
     pubsubPeerDiscovery({
-      interval: 1000,
+      interval: 10000,
       topics: ["cyberfly._peer-discovery._p2p._pubsub"],
       listenOnly: false,
     }),
@@ -39,12 +39,9 @@ import {mplex} from "@libp2p/mplex";
     ],
     connectionEncryption: [noise()],
     streamMuxers: [yamux(), mplex()],
-    connectionGater: {
-      denyDialMultiaddr: () => false,
-    },
     services: {
       identify: identify(),
-      pubsub: gossipsub({ allowPublishToZeroTopicPeers: true, }),
+      pubsub: gossipsub({ allowPublishToZeroTopicPeers: true }),
       dcutr: dcutr()
 
     }

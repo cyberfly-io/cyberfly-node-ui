@@ -26,7 +26,7 @@ const onFinishFailed = (errorInfo) => {
   console.log('Failed:', errorInfo);
 };
   return (
-    <PageContainer>
+    <PageContainer title="PubSub Test">
       {contextHolder}
        <Flex vertical={true}>
       <Form
