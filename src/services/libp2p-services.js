@@ -6,10 +6,13 @@ import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { createLibp2p } from 'libp2p'
 import { webSockets } from '@libp2p/websockets'
 import * as filters from '@libp2p/websockets/filters'
-import { webRTC } from '@libp2p/webrtc'
+import { webRTC, webRTCDirect } from '@libp2p/webrtc'
+import { webTransport } from '@libp2p/webtransport'
 import { circuitRelayTransport } from '@libp2p/circuit-relay-v2'
 import { dcutr } from '@libp2p/dcutr'
 import {mplex} from "@libp2p/mplex";
+import { kadDHT } from '@libp2p/kad-dht'
+
 
  const getLibp2pOptions = ()=> {
   return {
@@ -29,20 +32,37 @@ import {mplex} from "@libp2p/mplex";
             filter: filters.all
           }),
           // support dialing/listening on WebRTC addresses
-          webRTC(),
+          webTransport(),
           // support dialing/listening on Circuit Relay addresses
           circuitRelayTransport({
             // make a reservation on any discovered relays - this will let other
             // peers use the relay to contact us
             discoverRelays: 1
-          })
+          }),
+          webRTC({
+            rtcConfiguration: {
+              iceServers: [{
+                urls: [
+                  'stun:stun.l.google.com:19302',
+                  'stun:global.stun.twilio.com:3478'
+                ]
+              }]
+            }
+          }),
+          webRTCDirect(),
     ],
     connectionEncryption: [noise()],
     streamMuxers: [yamux(), mplex()],
     services: {
       identify: identify(),
       pubsub: gossipsub({ allowPublishToZeroTopicPeers: true }),
-      dcutr: dcutr()
+      dcutr: dcutr(),
+      dht: kadDHT({
+        protocol: "/cyberfly-connectivity/kad/1.0.0",
+        maxInboundStreams: 5000,
+        maxOutboundStreams: 5000,
+        clientMode: true,
+      }),
 
     }
   }

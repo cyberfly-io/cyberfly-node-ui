@@ -213,7 +213,7 @@ const initialEckoWalletState = {
     };
   
     const showNetworkError = () => {
-  
+     messageApi.open({type:"error", content:`Please change network to ${NETWORKID}`})
     };
   
 

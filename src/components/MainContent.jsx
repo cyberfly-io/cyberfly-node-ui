@@ -3,6 +3,7 @@ import React, {useEffect, useState} from 'react'
 import { getNodeInfo, getPeers } from '../services/node-services'
 import { StatisticCard, PageContainer } from '@ant-design/pro-components';
 import {ApartmentOutlined, InfoCircleOutlined, DeploymentUnitOutlined} from '@ant-design/icons'
+import { useLibp2p } from '../contexts/Libp2pContext';
 
 
 
@@ -14,6 +15,8 @@ const [dCount, setDCount] = useState(0)
 const [connected, setConnected] = useState(false);
 const [loading, setLoading] = useState(true);
 const [nodeInfo, setNodeInfo] = useState(null)
+const {signal} = useLibp2p()
+
 
   useEffect(()=>{
     getPeers().then((data)=>{
@@ -26,26 +29,26 @@ const [nodeInfo, setNodeInfo] = useState(null)
        setDCount(data.discovered)
     })
     
- }, [])
+ }, [signal])
 
  useEffect(()=>{
   if(peers){
     const items = peers.map((item) => ({
-      key: item.id,
-      label: item.id,
+      key: item.remotePeer,
+      label: item.remotePeer,
       children: (
         <List
         bordered
           itemLayout="horizontal"
-          dataSource={item.addresses}
-          renderItem={(address) => (
-            <List.Item>
+        header={<>Multi Address</>}
+        >
+ <List.Item>
               <List.Item.Meta
-                title={address.multiaddr}
+                title={item.remoteAddr}
               />
             </List.Item>
-          )}
-        />
+
+        </List>
       ),
     }));
     setPeerItems(items)
@@ -56,7 +59,16 @@ const [nodeInfo, setNodeInfo] = useState(null)
 
 
   return (
-    <PageContainer title="Dashboard">
+    <PageContainer title="Dashboard" tabList={[
+      {
+        tab: 'Node Info',
+        key: 'node',
+      },
+      {
+        tab: 'Browser Node Info',
+        key: 'browser',
+      },
+    ]} onTabChange={()=>console.log("tab changed")}>
     <Flex gap="middle" vertical={false}>
   
   
@@ -124,7 +136,7 @@ const [nodeInfo, setNodeInfo] = useState(null)
 
 
 </Flex>
-<Divider orientation="left">Discovered Peers</Divider>
+<Divider orientation="left">Connected Peers</Divider>
 <Collapse items={peerItems} />
 </PageContainer>
   )

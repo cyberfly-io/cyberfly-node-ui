@@ -25,7 +25,7 @@ const { defaultAlgorithm, darkAlgorithm } = theme;
 const App = () => {
   const [collapsed, setCollapsed] = useState(false)
   const { isDarkMode } = useDarkMode();
-  const { libp2pState ,setLibp2pState, topics }  = useLibp2p();
+  const { libp2pState ,setLibp2pState, topics, setSignal, signal }  = useLibp2p();
   const [api, contextHolder] = notification.useNotification();
 
   useEffect(()=>{
@@ -45,13 +45,19 @@ if(libp2pState){
   })
   libp2pState.addEventListener('peer:connect', (evt) => {
     const peerId = evt.detail
+    setSignal(signal+1)
     console.log('Connection established to:', peerId.toString()) // Emitted when a peer has been found
   })
   
   libp2pState.addEventListener('peer:discovery', (evt) => {
     const peerInfo = evt.detail
+    setSignal(signal+1)
     console.log('Discovered:', peerInfo.id.toString())
     console.log(peerInfo)
+  })
+  libp2pState.addEventListener('peer:disconnect', (evt) => {
+    const peerInfo = evt.detail
+    setSignal(signal+1)
   })
 }
 
