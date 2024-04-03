@@ -87,7 +87,9 @@ if(libp2pState){
 
     <Layout>
       {contextHolder}
-      <Sider collapsible collapsed={collapsed} theme={isDarkMode? 'dark':'light'} className='sider' onCollapse={(value) => setCollapsed(value)}>
+      <Sider collapsible   
+ collapsed={collapsed} theme={isDarkMode? 'dark':'light'} className='sider' onCollapse={(value) => setCollapsed(value)}
+ >
         <Sidebar/>
 
         </Sider>

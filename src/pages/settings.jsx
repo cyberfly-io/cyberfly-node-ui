@@ -5,6 +5,7 @@ import { getNodeInfo } from '../services/node-services'
 
 const Settings = () => {
   const [nodeInfo, setNodeInfo] = useState(null)
+
   useEffect(()=>{
   getNodeInfo().then((data)=>{
    setNodeInfo(data)
@@ -19,8 +20,8 @@ const Settings = () => {
    }
   }, [nodeInfo])
   return (
-    <PageContainer>
-      <div>Settings</div>
+    <PageContainer title="settings">
+
     </PageContainer>
   )
 }

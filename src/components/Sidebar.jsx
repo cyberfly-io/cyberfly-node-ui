@@ -1,9 +1,8 @@
-import { DashboardOutlined, DatabaseOutlined, SettingOutlined, MessageOutlined } from '@ant-design/icons';
+import { DashboardOutlined, DatabaseOutlined, MessageOutlined } from '@ant-design/icons';
 import { Flex, Menu, Image } from 'antd'
 import React from 'react'
 import { Outlet, Link } from 'react-router-dom';
 import { useDarkMode } from '../contexts/DarkModeContext';
-
 
 const Sidebar = () => {
   const { isDarkMode } = useDarkMode();
@@ -37,12 +36,7 @@ const Sidebar = () => {
           key:'3',
           icon: <MessageOutlined />,
           label: <Link to="/pubsub">Pub Sub</Link>,
-      },
-        {
-            key:'4',
-            icon: <SettingOutlined/>,
-            label: <Link to="/settings">Settings</Link>,
-        }
+      }
       ]}
       />
       <Outlet/>
