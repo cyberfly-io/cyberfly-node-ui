@@ -26,19 +26,22 @@ const {initializeEckoWallet, account  } = useEckoWalletContext()
 const [submitted, setSubmitted] = useState(false)
 
   useEffect(()=>{
-    getPeers().then((data)=>{
-      setPeers(data)
-      setLoading(false)
-    })
-    getNodeInfo().then((data)=>{
-       setNodeInfo(data)
-       setCCount(data.connected)
-       setDCount(data.discovered)
-       setTableData({peerId:data.peerId, multiAddr:data.multiAddr, publicKey:data.publicKey})
-    })
-
-    
- }, [signal])
+ function getInfo (){
+  getPeers().then((data)=>{
+    setPeers(data)
+    setLoading(false)
+  })
+  getNodeInfo().then((data)=>{
+     setNodeInfo(data)
+     setCCount(data.connected)
+     setDCount(data.discovered)
+     setTableData({peerId:data.peerId, multiAddr:data.multiAddr, publicKey:data.publicKey})
+  })
+ }
+ getInfo()
+    const interval = setInterval(getInfo, 1000);
+    return () => clearInterval(interval);
+ },[])
 
  useEffect(()=>{
      if(nodeInfo){
