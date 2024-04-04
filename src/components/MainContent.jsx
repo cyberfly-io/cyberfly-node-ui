@@ -1,4 +1,6 @@
-import { Flex,Divider, List,Collapse, Modal, Button } from 'antd'
+import { Col, Row,Divider, List,Collapse, Modal, Button, Space,  } from 'antd'
+import { GridContent } from '@ant-design/pro-components';
+
 import React, {useEffect, useState} from 'react'
 import { getNodeInfo, getPeers } from '../services/node-services'
 import { StatisticCard, PageContainer } from '@ant-design/pro-components';
@@ -96,25 +98,34 @@ const handleCancel = () => {
 };
   return (
     <PageContainer title="Dashboard">
-    <Flex gap="middle" vertical={false}>
+    <GridContent>
   
-  
+    <Row
+          gutter={24}
+          style={{
+            marginTop: 24,
+          }}
+        >
+          
+                    <Col xl={12} lg={24} md={24} sm={24} xs={24}>
+
   <StatisticCard
         bordered={true}
         boxShadow
           statistic={{
             title: 'Node Peer Id',
             value: nodeInfo?.peerId,
-            valueStyle: {fontSize:15},
+            valueStyle: {fontSize:16},
             icon:(<DeploymentUnitOutlined />)
           }}
       
         />
-      
-    
+        </Col>
+        <Col xl={12} lg={24} md={24} sm={24} xs={24}>
+
         <StatisticCard
-              bordered={true}
-              boxShadow
+          bordered={true}
+          boxShadow
           statistic={{
             title: 'Node Version',
             value: nodeInfo?.version,
@@ -124,7 +135,9 @@ const handleCancel = () => {
           }}
      
         />
-
+        </Col>
+       
+        <Col xl={12} lg={24} md={24} sm={24} xs={24}>
 <StatisticCard
       bordered={true}
       boxShadow
@@ -136,10 +149,12 @@ const handleCancel = () => {
         value: dCount,
         description:"peers",
         icon: (
-<ApartmentOutlined />        ),
+<ApartmentOutlined />),
       }}
 
       />
+      </Col>
+   <Col xl={12} lg={24} md={24} sm={24} xs={24}>
   <StatisticCard
       bordered={true}
       boxShadow
@@ -155,11 +170,11 @@ const handleCancel = () => {
       }}
 
       />
+</Col>
+</Row>
 
 
 
-
-</Flex>
 <Divider orientation="left">Connected Peers</Divider>
 <Collapse items={peerItems} />
 <Modal
@@ -176,6 +191,7 @@ const handleCancel = () => {
         {!account && (<Button style={{float:"right"}} type='primary' onClick={initializeEckoWallet}>Connect Wallet</Button>)}
         <KeyValueTable data={tableData} />
       </Modal>
+      </GridContent>
 </PageContainer>
   )
 }

@@ -17,6 +17,7 @@ import defaultProps from './components/defaultprops';
 import {SunOutlined, MoonOutlined, UserOutlined, WalletOutlined} from '@ant-design/icons'
 import { useEckoWalletContext } from "./contexts/eckoWalletContext";
 import { TrackerCard } from '@kadena/react-ui';
+import { PageContainer } from '@ant-design/pro-components';
 const { defaultAlgorithm, darkAlgorithm } = theme;
 
 const { Paragraph } = Typography;
@@ -118,42 +119,38 @@ if(libp2pState){
     setPathname(item.path || '/');
   }}>{dom}</Link>
  )}
- menuFooterRender={(props) => {
-  return (
-    <>
-  <Space direction='vertical'>
-  <Button onClick={toggleDarkMode} icon={isDarkMode? <SunOutlined />: <MoonOutlined />}/>
-    <Dropdown
-    menu={{
-      items,
-    }}
-    trigger={['click']}
-  >
-   <Button icon={<WalletOutlined />}></Button>
-  </Dropdown>
-  </Space>
-  </>
-  );
+actionsRender={(props)=>{
+  return (<>  <Button onClick={toggleDarkMode} icon={isDarkMode? <SunOutlined />: <MoonOutlined />}/>
+  <Dropdown
+  menu={{
+    items,
+  }}
+  trigger={['click']}
+>
+ <Button icon={<WalletOutlined />}></Button>
+</Dropdown></>)
 }}
+
     >
       {contextHolder}
     
   
    
        
-          <Flex gap={'large'}>
-        
-         <Routes>
-         <Route path="/">
-      <Route index element={<MainContent />} />
-      <Route path="/tools" element={<Tools />} />
-      <Route path='/pubsub' element={<PubSubPage/>} />
-      <Route path="/settings" element={<Settings />} />
-    </Route>
-    </Routes>
-        
-           
-          </Flex>
+    <Flex gap={'large'}>
+  
+   <Routes>
+   <Route path="/">
+<Route index element={<MainContent />} />
+<Route path="/tools" element={<Tools />} />
+<Route path='/pubsub' element={<PubSubPage/>} />
+<Route path="/settings" element={<Settings />} />
+</Route>
+</Routes>
+  
+     
+    </Flex>
+    
    
     </ProLayout>
     <Modal title="Account" open={open} onCancel={onClose} cancelText="Cancel" okText="LogOut" onOk={()=>{
