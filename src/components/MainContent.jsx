@@ -1,4 +1,4 @@
-import { Col, Row,Divider, List,Collapse, Modal, Button, Space,  } from 'antd'
+import { Col, Row,Divider, List,Collapse, Modal, Button } from 'antd'
 import { GridContent } from '@ant-design/pro-components';
 
 import React, {useEffect, useState} from 'react'
@@ -21,7 +21,7 @@ const [connected, setConnected] = useState(false);
 const [loading, setLoading] = useState(true);
 const [nodeInfo, setNodeInfo] = useState(null)
 const [tableData, setTableData] = useState({})
-const {signal, libp2pState} = useLibp2p()
+const {libp2pState} = useLibp2p()
 const [open, setOpen] = useState(false);
 const [confirmLoading, setConfirmLoading] = useState(false);
 const {initializeEckoWallet, account  } = useEckoWalletContext()
@@ -53,6 +53,7 @@ const [submitted, setSubmitted] = useState(false)
         }
       })
      }
+ // eslint-disable-next-line react-hooks/exhaustive-deps
  },[nodeInfo])
 
  useEffect(()=>{
@@ -121,7 +122,7 @@ const handleCancel = () => {
       
         />
         </Col>
-        <Col xl={12} lg={24} md={24} sm={24} xs={24}>
+        <Col xl={12} lg={24} md={24} sm={24} xs={24} style={{ marginBottom: 15 }}>  
 
         <StatisticCard
           bordered={true}
