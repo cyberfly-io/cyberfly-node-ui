@@ -1,11 +1,9 @@
-import {  Flex, Layout, ConfigProvider, theme, notification } from 'antd'
+import {  Flex, ConfigProvider, theme, notification, Button, Avatar, Dropdown, Modal, Typography, Space } from 'antd'
 import React, { useEffect, useState } from 'react'
-import { Route, BrowserRouter, Routes } from 'react-router-dom';
+import { Route, BrowserRouter, Routes, Link } from 'react-router-dom';
 import Tools from './pages/tools'
 import Settings from './pages/settings'
-import Sidebar from './components/Sidebar'
 import "./App.css"
-import CustomHeader from './components/CustomHeader'
 import MainContent from './components/MainContent'
 import { useDarkMode } from './contexts/DarkModeContext';
 import PubSubPage from './pages/pubsub';
@@ -14,19 +12,22 @@ import { useLibp2p } from './contexts/Libp2pContext';
 import { multiaddr } from '@multiformats/multiaddr'
 import { bootStrapNode } from './constants/contextConstants';
 import { toString } from 'uint8arrays/to-string'
-
-
-const {Sider, Header, Content} = Layout
+import ProLayout from '@ant-design/pro-layout';
+import defaultProps from './components/defaultprops';
+import {SunOutlined, MoonOutlined, UserOutlined, WalletOutlined} from '@ant-design/icons'
+import { useEckoWalletContext } from "./contexts/eckoWalletContext";
+import { TrackerCard } from '@kadena/react-ui';
 const { defaultAlgorithm, darkAlgorithm } = theme;
 
+const { Paragraph } = Typography;
 
 
 
 const App = () => {
-  const [collapsed, setCollapsed] = useState(false)
-  const { isDarkMode } = useDarkMode();
+  const { isDarkMode, toggleDarkMode } = useDarkMode();
   const { libp2pState ,setLibp2pState, topics, setSignal, signal }  = useLibp2p();
   const [api, contextHolder] = notification.useNotification();
+  const [pathname, setPathname] = useState('/');
 
   useEffect(()=>{
     async function startLibp2p (){
@@ -34,6 +35,7 @@ const App = () => {
       setLibp2pState(lib)
     }
     startLibp2p();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   },[])
 
   useEffect(()=>{
@@ -57,11 +59,13 @@ if(libp2pState){
   })
   libp2pState.addEventListener('peer:disconnect', (evt) => {
     const peerInfo = evt.detail
+    console.log('Disconnected:', peerInfo)
     setSignal(signal+1)
   })
 }
 
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   },[libp2pState])
 
   useEffect(()=>{
@@ -78,26 +82,65 @@ if(libp2pState){
 
   })
  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [topics])
  
+  const [open, setOpen] = useState(false);
+  const showModal = () => {
+    setOpen(true);
+  };
+  const onClose = () => {
+    setOpen(false);
+  };
+  const {initializeEckoWallet, account, disconnectWallet  } = useEckoWalletContext()
+ 
+  const items = [
+    {
+      label: account? <Button type="primary" onClick={showModal} icon={<Avatar size={24} icon={<UserOutlined />}/>}>Account</Button>:<Button onClick={async ()=>{
+        initializeEckoWallet()
+      }}  icon={<Avatar size={24} src={<img src={"https://wallet.ecko.finance/icon_eckoWALLET.svg?v=2"} alt="avatar" />} />}>EckoWallet</Button>,
+      key: '0',
+    },
+  ];
 
   return (
     <BrowserRouter>
       <ConfigProvider theme={{algorithm: isDarkMode ? darkAlgorithm : defaultAlgorithm}}>
 
-    <Layout>
+    <ProLayout {...defaultProps}
+ title="Cyberfly Node" logo="https://cyberfly.io/assets/images/newlogo.png"
+ location={{
+  pathname,
+}}
+ onMenuHeaderClick={(e) => console.log(e)}
+ menuItemRender={(item, dom) => (
+  <Link to={item.path} onClick={() => {
+    setPathname(item.path || '/');
+  }}>{dom}</Link>
+ )}
+ menuFooterRender={(props) => {
+  return (
+    <>
+  <Space direction='vertical'>
+  <Button onClick={toggleDarkMode} icon={isDarkMode? <SunOutlined />: <MoonOutlined />}/>
+    <Dropdown
+    menu={{
+      items,
+    }}
+    trigger={['click']}
+  >
+   <Button icon={<WalletOutlined />}></Button>
+  </Dropdown>
+  </Space>
+  </>
+  );
+}}
+    >
       {contextHolder}
-      <Sider collapsible   
- collapsed={collapsed} theme={isDarkMode? 'dark':'light'} className='sider' onCollapse={(value) => setCollapsed(value)}
- >
-        <Sidebar/>
-
-        </Sider>
-      <Layout>
-        <Header className='header' style={{backgroundColor:isDarkMode? '#000':'#fff'}}>
-          <CustomHeader/>
-        </Header>
-        <Content className='content'>
+    
+  
+   
+       
           <Flex gap={'large'}>
         
          <Routes>
@@ -111,9 +154,30 @@ if(libp2pState){
         
            
           </Flex>
-        </Content>
-      </Layout>
-    </Layout>
+   
+    </ProLayout>
+    <Modal title="Account" open={open} onCancel={onClose} cancelText="Cancel" okText="LogOut" onOk={()=>{
+          setOpen(false)
+          disconnectWallet()
+        }}>
+       
+
+       <TrackerCard
+  icon="KadenaOverview"
+  labelValues={[
+    {
+      isAccount: true,
+      label: 'Account',
+      value: account
+    },
+   {
+    label: <Paragraph copyable={{ text: account }} style={{float:"right"}}/>
+   }
+  ]}
+  variant="vertical"
+/>
+
+      </Modal>
     </ConfigProvider>
 
     </BrowserRouter>

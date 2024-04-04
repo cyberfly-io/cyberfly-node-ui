@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@ant-design/pro-components": "^2.6.52",
+    "@ant-design/pro-layout": "^7.19.0",
     "@chainsafe/libp2p-gossipsub": "^13.0.0",
     "@chainsafe/libp2p-noise": "^15.0.0",
     "@chainsafe/libp2p-yamux": "^6.0.2",
