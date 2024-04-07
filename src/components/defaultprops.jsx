@@ -17,7 +17,7 @@ const config = {
       },
       {
         path: '/tools',
-        name: 'Db tools',
+        name: 'DB tools',
         icon: <DatabaseOutlined />,
         component: '../pages/tools',
       },
