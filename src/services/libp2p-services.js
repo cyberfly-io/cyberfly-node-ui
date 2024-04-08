@@ -12,11 +12,22 @@ import { circuitRelayTransport } from '@libp2p/circuit-relay-v2'
 import { dcutr } from '@libp2p/dcutr'
 import {mplex} from "@libp2p/mplex";
 import { kadDHT } from '@libp2p/kad-dht'
+import { autoNAT } from "@libp2p/autonat";
+import { bootstrap } from '@libp2p/bootstrap';
+import { bootStrapNode } from '../constants/contextConstants';
 
 
  const getLibp2pOptions = ()=> {
   return {
+    start: false,
+    connectionGater: {
+      denyDialMultiaddr: () => false,
+    },
     peerDiscovery: [
+      bootstrap({
+        list: [bootStrapNode],
+        timeout: 0,
+      }),
     pubsubPeerDiscovery({
       interval: 10000,
       topics: ["cyberfly._peer-discovery._p2p._pubsub"],
@@ -24,7 +35,7 @@ import { kadDHT } from '@libp2p/kad-dht'
     }),
     ],
     addresses: {
-      listen: ['/webrtc']
+      listen: ['/webrtc', '/webtransport']
     },
     transports: [
         webSockets({
@@ -56,6 +67,7 @@ import { kadDHT } from '@libp2p/kad-dht'
     services: {
       identify: identify(),
       pubsub: gossipsub({ allowPublishToZeroTopicPeers: true }),
+      autoNAT: autoNAT(),
       dcutr: dcutr(),
       dht: kadDHT({
         protocol: "/cyberfly-connectivity/kad/1.0.0",
@@ -69,6 +81,14 @@ import { kadDHT } from '@libp2p/kad-dht'
 }
 
 export const startLibp2pNode = async()=>{
+  try{
     const libp2p = await createLibp2p(getLibp2pOptions())
+    console.log(libp2p)
+    await libp2p.start()
     return libp2p
+  }
+  catch(e){
+     console.log(e)
+  }
+    
 }

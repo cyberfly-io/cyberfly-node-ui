@@ -1,4 +1,4 @@
-import {  Flex, ConfigProvider, theme, notification, Button, Avatar, Dropdown, Modal, Typography, Space } from 'antd'
+import {  Flex, ConfigProvider, theme, notification, Button, Avatar, Dropdown, Modal, Typography } from 'antd'
 import React, { useEffect, useState } from 'react'
 import { Route, BrowserRouter, Routes, Link } from 'react-router-dom';
 import Tools from './pages/tools'
@@ -17,7 +17,6 @@ import defaultProps from './components/defaultprops';
 import {SunOutlined, MoonOutlined, UserOutlined, WalletOutlined} from '@ant-design/icons'
 import { useEckoWalletContext } from "./contexts/eckoWalletContext";
 import { TrackerCard } from '@kadena/react-ui';
-import { PageContainer } from '@ant-design/pro-components';
 const { defaultAlgorithm, darkAlgorithm } = theme;
 
 const { Paragraph } = Typography;
@@ -36,7 +35,7 @@ const App = () => {
       setLibp2pState(lib)
     }
     startLibp2p();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line
   },[])
 
   useEffect(()=>{

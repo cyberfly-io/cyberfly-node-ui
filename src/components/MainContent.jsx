@@ -30,7 +30,9 @@ const [submitted, setSubmitted] = useState(false)
   useEffect(()=>{
  function getInfo (){
   getPeers().then((data)=>{
-    setPeers(data)
+    if(data!==peers){
+      setPeers(data)
+    }
     setLoading(false)
   })
   getNodeInfo().then((data)=>{
@@ -41,8 +43,7 @@ const [submitted, setSubmitted] = useState(false)
   })
  }
  getInfo()
-    const interval = setInterval(getInfo, 1000);
-    return () => clearInterval(interval);
+    
  },[])
 
  useEffect(()=>{
@@ -82,7 +83,7 @@ const [submitted, setSubmitted] = useState(false)
   
  },
  // eslint-disable-next-line
- [peers, connected])
+ [peers])
 
  const handleOk = () => {
   setConfirmLoading(true);
@@ -96,6 +97,7 @@ const [submitted, setSubmitted] = useState(false)
 };
 const handleCancel = () => { 
   setOpen(false);
+  setSubmitted(true)
 };
   return (
     <PageContainer title="Dashboard">
@@ -180,7 +182,7 @@ const handleCancel = () => {
 <Collapse items={peerItems} />
 <Modal
         title="Register Node to get reward"
-        open={open}
+        open={open && !submitted}
         onOk={handleOk}
         confirmLoading={confirmLoading}
         onCancel={handleCancel}
