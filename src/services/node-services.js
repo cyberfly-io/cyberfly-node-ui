@@ -9,25 +9,40 @@ const getHost = ()=>{
     var newname = name+'_31003'
     return hostname.replace(name, newname)
   }
-  return hostname
+  return hostname+":31003"
 }
 
 
 
 export const getPeers = async()=>{
-    const res =await fetch("https://"+getHost()+"/peers")
+  const host = getHost(); // Get the host without protocol
+  const protocol = window.location.protocol; // Get the current protocol
+
+  // Construct the URL using the current protocol and the retrieved host
+  const url = `${protocol}//${host}/peers`;
+    const res =await fetch(url)
     const data = await res.json()
   return data
 }
 
 export const getNodeInfo = async()=>{
-  const res =await fetch("https://"+getHost()+"/nodeinfo")
+  const host = getHost(); // Get the host without protocol
+  const protocol = window.location.protocol; // Get the current protocol
+
+  // Construct the URL using the current protocol and the retrieved host
+  const url = `${protocol}//${host}/nodeinfo`;
+  const res =await fetch(url)
   const data = await res.json()
    return data
 }
 
 export const getDBInfo = async(dbaddress)=>{
-  const res =await fetch("https://"+getHost()+"/dbinfo", {method:'POST',  headers: {
+  const host = getHost(); // Get the host without protocol
+  const protocol = window.location.protocol; // Get the current protocol
+
+  // Construct the URL using the current protocol and the retrieved host
+  const url = `${protocol}//${host}/dbinfo`;
+  const res =await fetch(url, {method:'POST',  headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json'
   },body:JSON.stringify({dbaddress:dbaddress})})
@@ -36,7 +51,12 @@ return data
 }
 
 export const getReadDB = async(dbaddress)=>{
-  const res =await fetch("https://"+getHost()+"/read", {method:'POST',  headers: {
+  const host = getHost(); // Get the host without protocol
+  const protocol = window.location.protocol; // Get the current protocol
+
+  // Construct the URL using the current protocol and the retrieved host
+  const url = `${protocol}//${host}/read`;
+  const res =await fetch(url, {method:'POST',  headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json'
   },body:JSON.stringify({dbaddress:dbaddress})})
