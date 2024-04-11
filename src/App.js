@@ -65,7 +65,7 @@ if(libp2pState){
 }
 
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line 
   },[libp2pState])
 
   useEffect(()=>{

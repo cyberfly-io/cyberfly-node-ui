@@ -30,9 +30,7 @@ const [submitted, setSubmitted] = useState(false)
   useEffect(()=>{
  function getInfo (){
   getPeers().then((data)=>{
-    if(data!==peers){
       setPeers(data)
-    }
     setLoading(false)
   })
   getNodeInfo().then((data)=>{
@@ -83,7 +81,7 @@ const [submitted, setSubmitted] = useState(false)
   
  },
  // eslint-disable-next-line
- [peers])
+ [connected])
 
  const handleOk = () => {
   setConfirmLoading(true);
