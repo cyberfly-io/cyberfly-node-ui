@@ -17,4 +17,4 @@ export const creationTime = () => Math.round(new Date().getTime() / 1000) - 10;
 
 export const isMainnet = () => NETWORK_TYPE === 'mainnet';
 
-export const bootStrapNode = "/ip4/170.187.249.181/tcp/31002/wss/p2p/QmVydtrKsPcLdscLP9YMSynmc7GCNA7ZeUE9ViALuWijqV"
+export const bootStrapNode = "/dns4/node.cyberfly.io/tcp/443/wss/p2p/QmVydtrKsPcLdscLP9YMSynmc7GCNA7ZeUE9ViALuWijqV"
