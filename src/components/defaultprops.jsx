@@ -2,7 +2,8 @@ import {
    
     MessageOutlined,
     DatabaseOutlined,
-    DashboardOutlined
+    DashboardOutlined,
+    ArrowsAltOutlined
   } from '@ant-design/icons';
   
 const config = {
@@ -21,13 +22,19 @@ const config = {
         icon: <DatabaseOutlined />,
         component: '../pages/tools',
       },
+  
       {
         path: '/pubsub',
         name: 'Pub Sub',
         icon: <MessageOutlined />,
         component: '../pages/tools',
       },
-
+      {
+        path: '/dialer',
+        name: 'Connection checker',
+        icon: <ArrowsAltOutlined />,
+        component: '../pages/dialer',
+      },
     ],
   },
   location: {

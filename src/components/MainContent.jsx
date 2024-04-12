@@ -41,18 +41,19 @@ const [submitted, setSubmitted] = useState(false)
   })
  }
  getInfo()
-    
+ const int = setInterval(getInfo, 1000);
+ return clearInterval(int)
  },[])
 
  useEffect(()=>{
      if(nodeInfo){
       getNode(nodeInfo.peerId).then((data)=>{
         if(data.result.status==="failure" && data.result.error.message.includes("row not found") && !submitted){
-          setOpen(true)
+          
         }
       })
      }
- // eslint-disable-next-line react-hooks/exhaustive-deps
+ // eslint-disable-next-line
  },[nodeInfo])
 
  useEffect(()=>{
@@ -81,7 +82,7 @@ const [submitted, setSubmitted] = useState(false)
   
  },
  // eslint-disable-next-line
- [connected])
+ [connected, peers])
 
  const handleOk = () => {
   setConfirmLoading(true);
