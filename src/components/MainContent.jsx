@@ -17,7 +17,6 @@ const [peers, setPeers] = useState([])
 const [peerItems, setPeerItems] = useState([])
 const [cCount, setCCount] = useState(0)
 const [dCount, setDCount] = useState(0)
-const [connected, setConnected] = useState(false);
 const [loading, setLoading] = useState(true);
 const [nodeInfo, setNodeInfo] = useState(null)
 const [tableData, setTableData] = useState({})
@@ -41,7 +40,7 @@ const [submitted, setSubmitted] = useState(false)
   })
  }
  getInfo()
- const int = setInterval(getInfo, 1000);
+ const int = setInterval(getInfo, 5000);
  return clearInterval(int)
  },[])
 
@@ -77,12 +76,11 @@ const [submitted, setSubmitted] = useState(false)
       ),
     }));
     setPeerItems(items)
-    setConnected(true)
   }
   
  },
  // eslint-disable-next-line
- [connected, peers])
+ [peers])
 
  const handleOk = () => {
   setConfirmLoading(true);
@@ -117,7 +115,7 @@ const handleCancel = () => {
           statistic={{
             title: 'Node Peer Id',
             value: nodeInfo?.peerId,
-            valueStyle: {fontSize:16},
+            valueStyle: {fontSize:15},
             icon:(<DeploymentUnitOutlined />)
           }}
       
