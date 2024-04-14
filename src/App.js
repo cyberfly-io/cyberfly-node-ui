@@ -113,6 +113,7 @@ if(libp2pState){
  location={{
   pathname,
 }}
+token={{bgLayout:"linear-gradient(62deg, #E0C3FC 0%, #8EC5FC 100%)"}}
  onMenuHeaderClick={(e) => console.log(e)}
  menuItemRender={(item, dom) => (
   <Link to={item.path} onClick={() => {
