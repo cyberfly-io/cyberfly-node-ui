@@ -1,4 +1,4 @@
-import { Col, Row,Divider,Typography,Collapse, Modal, Button } from 'antd'
+import { Col, Row,Divider,Typography,Collapse, Modal, Button, Spin } from 'antd'
 import { GridContent } from '@ant-design/pro-components';
 
 import React, {useEffect, useState} from 'react'
@@ -86,8 +86,10 @@ const handleCancel = () => {
 };
   return (
     <PageContainer title="Dashboard">
+      
+      <Spin spinning={loading} tip="Loading" fullscreen size='large'/>
     <GridContent>
-  
+    
     <Row
           gutter={24}
           style={{
