@@ -1,4 +1,4 @@
-import { Col, Row,Divider, List,Collapse, Modal, Button } from 'antd'
+import { Col, Row,Divider,Typography,Collapse, Modal, Button } from 'antd'
 import { GridContent } from '@ant-design/pro-components';
 
 import React, {useEffect, useState} from 'react'
@@ -10,6 +10,7 @@ import { getNode, registerNode } from '../services/pact-services';
 import { useEckoWalletContext } from '../contexts/eckoWalletContext';
 import KeyValueTable from './KeyValueTable';
 
+const { Paragraph } = Typography;
 
 
 const MainContent = () => {
@@ -58,22 +59,9 @@ const [submitted, setSubmitted] = useState(false)
  useEffect(()=>{
   if(peers && libp2pState){
     const items = peers.map((item) => ({
-      key: item.remotePeer,
-      label: item.remotePeer===libp2pState.peerId.toString()? item.remotePeer+' - This browser tab':item.remotePeer,
-      children: (
-        <List
-        bordered
-          itemLayout="horizontal"
-        header={<>Multi Address</>}
-        >
- <List.Item>
-              <List.Item.Meta
-                title={item.remoteAddr}
-              />
-            </List.Item>
-
-        </List>
-      ),
+      key: item,
+      label:   <Paragraph  copyable={{tooltips:['Copy', 'Copied']}}>{item===libp2pState.peerId.toString()? item+' - This browser tab':item}</Paragraph>,
+  
     }));
     setPeerItems(items)
   }
@@ -114,8 +102,10 @@ const handleCancel = () => {
         boxShadow
           statistic={{
             title: 'Node Peer Id',
+            loading:loading,
+
             value: nodeInfo?.peerId,
-            valueStyle: {fontSize:15},
+            valueStyle: {fontSize:14},
             icon:(<DeploymentUnitOutlined />)
           }}
       
@@ -127,6 +117,8 @@ const handleCancel = () => {
           bordered={true}
           boxShadow
           statistic={{
+            loading:loading,
+
             title: 'Node Version',
             value: nodeInfo?.version,
             icon: (
@@ -176,7 +168,7 @@ const handleCancel = () => {
 
 
 <Divider orientation="left">Connected Peers</Divider>
-<Collapse items={peerItems} />
+<Collapse items={peerItems} collapsible="icon"/>
 <Modal
         title="Register Node to get reward"
         open={open && !submitted}
