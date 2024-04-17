@@ -21,7 +21,6 @@ const [dCount, setDCount] = useState(0)
 const [loading, setLoading] = useState(true);
 const [nodeInfo, setNodeInfo] = useState(null)
 const [tableData, setTableData] = useState({})
-const {libp2pState} = useLibp2p()
 const [open, setOpen] = useState(false);
 const [confirmLoading, setConfirmLoading] = useState(false);
 const {initializeEckoWallet, account  } = useEckoWalletContext()
@@ -29,15 +28,13 @@ const [submitted, setSubmitted] = useState(false)
 
   useEffect(()=>{
  function getInfo (){
-  getPeers().then((data)=>{
-      setPeers(data)
-    setLoading(false)
-  })
   getNodeInfo().then((data)=>{
      setNodeInfo(data)
      setCCount(data.connected)
      setDCount(data.discovered)
      setTableData({peerId:data.peerId, multiAddr:data.multiAddr, publicKey:data.publicKey})
+     setPeers(data.peers)
+     setLoading(false)
   })
  }
  getInfo()

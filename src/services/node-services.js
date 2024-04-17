@@ -13,18 +13,6 @@ const getHost = ()=>{
 }
 
 
-
-export const getPeers = async()=>{
-  const host = getHost(); // Get the host without protocol
-  const protocol = window.location.protocol; // Get the current protocol
-
-  // Construct the URL using the current protocol and the retrieved host
-  const url = `${protocol}//${host}/peers`;
-    const res =await fetch(url)
-    const data = await res.json()
-  return data
-}
-
 export const getSysInfo = async()=>{
   const host = getHost(); // Get the host without protocol
   const protocol = window.location.protocol; // Get the current protocol
@@ -41,7 +29,7 @@ export const getNodeInfo = async()=>{
   const protocol = window.location.protocol; // Get the current protocol
 
   // Construct the URL using the current protocol and the retrieved host
-  const url = `${protocol}//${host}/nodeinfo`;
+  const url = `${protocol}//${host}/`;
   const res =await fetch(url)
   const data = await res.json()
    return data
