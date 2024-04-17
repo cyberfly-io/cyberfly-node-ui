@@ -30,6 +30,7 @@ const initialEckoWalletState = {
         ...eckoWalletState,
         isInstalled: Boolean(kadena?.isKadena),
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [eckoWalletState]);
   
     useEffect(() => {
@@ -54,12 +55,14 @@ const initialEckoWalletState = {
       if (kadenaExt && eckoWalletState.isConnected) {
         setAccountData();
       }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [kadenaExt]);
   
     useEffect(() => {
       if (eckoWalletState.isConnected && (!account?.account)) {
         disconnectWallet();
       }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [eckoWalletState, account]);
   
     /**

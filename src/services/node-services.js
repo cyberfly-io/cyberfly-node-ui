@@ -25,6 +25,17 @@ export const getPeers = async()=>{
   return data
 }
 
+export const getSysInfo = async()=>{
+  const host = getHost(); // Get the host without protocol
+  const protocol = window.location.protocol; // Get the current protocol
+
+  // Construct the URL using the current protocol and the retrieved host
+  const url = `${protocol}//${host}/sysinfo`;
+    const res =await fetch(url)
+    const data = await res.json()
+  return data
+}
+
 export const getNodeInfo = async()=>{
   const host = getHost(); // Get the host without protocol
   const protocol = window.location.protocol; // Get the current protocol

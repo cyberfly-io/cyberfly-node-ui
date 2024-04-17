@@ -3,8 +3,9 @@ import {
     MessageOutlined,
     DatabaseOutlined,
     DashboardOutlined,
-    ArrowsAltOutlined
-  } from '@ant-design/icons';
+    ArrowsAltOutlined,
+    VideoCameraOutlined
+    } from '@ant-design/icons';
   
 const config = {
   route: {
@@ -29,6 +30,12 @@ const config = {
         icon: <MessageOutlined />,
         component: '../pages/tools',
       },
+      /*{
+        path: '/stream',
+        name: 'Stream',
+        icon: <VideoCameraOutlined />,
+        component: './MainContent',
+      },*/
       {
         path: '/dialer',
         name: 'Connection checker',
