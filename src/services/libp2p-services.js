@@ -19,7 +19,6 @@ import { bootStrapNode } from '../constants/contextConstants';
 
  const getLibp2pOptions = ()=> {
   return {
-    start: false,
     connectionGater: {
       denyDialMultiaddr: () => false,
     },
@@ -71,8 +70,6 @@ import { bootStrapNode } from '../constants/contextConstants';
       dcutr: dcutr(),
       dht: kadDHT({
         protocol: "/cyberfly-connectivity/kad/1.0.0",
-        maxInboundStreams: 5000,
-        maxOutboundStreams: 5000,
         clientMode: true,
       }),
 
@@ -84,7 +81,6 @@ export const startLibp2pNode = async()=>{
   try{
     const libp2p = await createLibp2p(getLibp2pOptions())
     console.log(libp2p)
-    await libp2p.start()
     return libp2p
   }
   catch(e){

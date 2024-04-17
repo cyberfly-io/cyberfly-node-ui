@@ -57,10 +57,10 @@ const [submitted, setSubmitted] = useState(false)
  },[nodeInfo])
 
  useEffect(()=>{
-  if(peers && libp2pState){
+  if(peers){
     const items = peers.map((item) => ({
       key: item,
-      label:   <Paragraph  copyable={{tooltips:['Copy', 'Copied']}}>{item===libp2pState.peerId.toString()? item+' - This browser tab':item}</Paragraph>,
+      label:   <Paragraph  copyable={{tooltips:['Copy', 'Copied']}}>{item}</Paragraph>,
   
     }));
     setPeerItems(items)
