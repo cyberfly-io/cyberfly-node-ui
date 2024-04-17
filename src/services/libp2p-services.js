@@ -11,7 +11,6 @@ import { webTransport } from '@libp2p/webtransport'
 import { circuitRelayTransport } from '@libp2p/circuit-relay-v2'
 import { dcutr } from '@libp2p/dcutr'
 import {mplex} from "@libp2p/mplex";
-import { kadDHT } from '@libp2p/kad-dht'
 import { autoNAT } from "@libp2p/autonat";
 import { bootstrap } from '@libp2p/bootstrap';
 import { bootStrapNode } from '../constants/contextConstants';
@@ -68,10 +67,6 @@ import { bootStrapNode } from '../constants/contextConstants';
       pubsub: gossipsub({ allowPublishToZeroTopicPeers: true }),
       autoNAT: autoNAT(),
       dcutr: dcutr(),
-      dht: kadDHT({
-        protocol: "/cyberfly-connectivity/kad/1.0.0",
-        clientMode: true,
-      }),
 
     }
   }
