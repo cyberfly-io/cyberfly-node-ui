@@ -53,7 +53,7 @@ const App = () => {
  location={{
   pathname,
 }}
-token={{bgLayout:"linear-gradient(62deg, #E0C3FC 0%, #8EC5FC 100%)"}}
+token={{bgLayout: isDarkMode? "linear-gradient(62deg, rgba(64,85,143,0.8155637254901961) 0%, rgba(48,20,66,0.9416141456582633) 100%)":"linear-gradient(62deg, #E0C3FC 0%, #8EC5FC 100%)"}}
  onMenuHeaderClick={(e) => console.log(e)}
  menuItemRender={(item, dom) => (
   <Link to={item.path} onClick={() => {
