@@ -35,13 +35,13 @@ const config = {
         name: 'Stream',
         icon: <VideoCameraOutlined />,
         component: './MainContent',
-      },*/
+      },
       {
         path: '/dialer',
         name: 'Connection checker',
         icon: <ArrowsAltOutlined />,
         component: '../pages/dialer',
-      },
+      },*/
     ],
   },
   location: {
