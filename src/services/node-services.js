@@ -62,3 +62,5 @@ export const getReadDB = async(dbaddress)=>{
   const data = await res.json()
 return data
 }
+
+

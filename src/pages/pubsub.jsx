@@ -1,25 +1,41 @@
 import { PageContainer } from '@ant-design/pro-components'
-import React from 'react'
-import { Flex, Form, Input, Button, Tag, Divider, message } from 'antd'
-import { useLibp2p } from '../contexts/Libp2pContext'
-import { fromString } from 'uint8arrays/from-string'
+import React, { useState } from 'react'
+import { Flex, Form, Input, Button, Tag, Divider, message as msg, notification } from 'antd'
+import { io } from "socket.io-client";
+
 const PubSubPage = () => {
 
-const {libp2pState, topics, setTopics} = useLibp2p()
+const [topics, setTopics] = useState([])
 const [form]  = Form.useForm();
-const [messageApi, contextHolder] = message.useMessage();
+const [messageApi, contextHolder] = msg.useMessage();
+const [api, notificationContextHolder] = notification.useNotification();
+const socket = io("https://node.cyberfly.io");
+socket.on("connect",()=>{
+  messageApi.open({
+    type:"success",
+    "content":"Websocket connected"
+  })
+})
 
+socket.on("onmessage", (data)=>{
+  const {topic, message} = data
+  console.log(topic, message)
+  console.log(topics)
+    api.info({message:`message received for topic- ${topic}`, description:message,placement:"topRight"})
+
+
+ })
 const onFinish = async (values) => {
   form.resetFields()
   console.log('Received values:', values);
-  const updatedTopics = [...topics, values.topic];
- setTopics(updatedTopics)
-await libp2pState.services.pubsub.subscribe(values.topic)
+  let updatedTopics = [...topics];
+  updatedTopics.push(values.topic)
+socket.emit("subscribe", values.topic)
 messageApi.open({
   type: 'success',
   content: "Subscribed to "+values.topic,
 });
-
+setTopics(updatedTopics)
 };
 
 const onFinishFailed = (errorInfo) => {
@@ -28,6 +44,7 @@ const onFinishFailed = (errorInfo) => {
   return (
     <PageContainer title="PubSub Test">
       {contextHolder}
+      {notificationContextHolder}
        <Flex vertical={true}>
       <Form
       form={form}
@@ -65,7 +82,7 @@ const onFinishFailed = (errorInfo) => {
       </Flex>
       {topics.length>0 && (<Divider orientation="left">Subscribed Topics</Divider>)}
 
-      {topics.map((tag, index) => (
+      { topics.map((tag, index) => (
         <Tag closeIcon key={index}>{tag}</Tag>
       ))}
  <Divider orientation="left">Publish Message</Divider>
@@ -79,7 +96,7 @@ const onFinishFailed = (errorInfo) => {
         remember: true,
       }}
       onFinish={async(values)=>{
-        await libp2pState.services.pubsub.publish(values.topic, fromString(values.message))
+        socket.emit("publish",values.topic, values.message)
         messageApi.open({type:"success", content:"Message published"})
       
       }}
