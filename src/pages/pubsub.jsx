@@ -96,7 +96,7 @@ const onFinishFailed = (errorInfo) => {
         remember: true,
       }}
       onFinish={async(values)=>{
-        socket.emit("publish",values.topic, values.message)
+        socket.emit("publish",{topic:values.topic, message:values.message})
         messageApi.open({type:"success", content:"Message published"})
       
       }}
