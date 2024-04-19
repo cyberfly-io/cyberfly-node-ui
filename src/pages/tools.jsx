@@ -1,19 +1,21 @@
 import { PageContainer } from '@ant-design/pro-components'
 import React, { useState } from 'react'
-import { Form, Input, Button, Flex } from 'antd';
+import { Form, Input, Button, Flex, Spin } from 'antd';
 import ReactJson from 'react-json-view';
 import { useDarkMode } from '../contexts/DarkModeContext';
 import { getDBInfo, getReadDB } from '../services/node-services';
 
 const Tools = () => {
   const { isDarkMode } = useDarkMode();
-
+const [loading, setLoading] = useState(false)
    const [dbinfo, setDbInfo] = useState(null)
    const [dbaddress, setDbAddress] = useState()
   const onFinish = (values) => {
     console.log('Received values:', values);
+    setLoading(true)
     getDBInfo(values.dbaddress).then((data)=>{
       setDbInfo(data)
+      setLoading(false)
     })
   };
 
@@ -23,13 +25,17 @@ const Tools = () => {
 
   const readDb = ()=>{
     if(dbaddress!==''){
+      setLoading(true)
       getReadDB(dbaddress).then((data)=>{
         setDbInfo(data)
+        setLoading(false)
       })
     }
   }
   return (
    <PageContainer title="Database Tool">
+          <Spin spinning={loading} tip="Loading" fullscreen size='large'/>
+
       <Flex vertical={true}>
       <Form
       name="basic"
