@@ -38,8 +38,8 @@ const [submitted, setSubmitted] = useState(false)
   })
  }
  getInfo()
- const int = setInterval(getInfo, 5000);
- return clearInterval(int)
+ const intervalId = setInterval(getInfo, 5000);
+ return ()=>clearInterval(intervalId)
  },[])
 
  useEffect(()=>{
