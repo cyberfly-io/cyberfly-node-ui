@@ -1,3 +1,2 @@
 yarn build
-docker build . -t cyberfly/cyberfly_node_ui
-docker push cyberfly/cyberfly_node_ui
+docker buildx build --platform linux/amd64,linux/arm64 -t cyberfly/cyberfly_node_ui . --push
