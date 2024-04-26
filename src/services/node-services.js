@@ -23,7 +23,8 @@ export const getSysInfo = async()=>{
 
   // Construct the URL using the current protocol and the retrieved host
   const url = `${protocol}//${host}/api/sysinfo`;
-    const res =await fetch(url)
+    const res =await fetch(url, {headers:{ 'Accept': 'application/json',
+    'Content-Type': 'application/json'}})
     const data = await res.json()
   return data
 }
@@ -34,7 +35,8 @@ export const getNodeInfo = async()=>{
 
   // Construct the URL using the current protocol and the retrieved host
   const url = `${protocol}//${host}/api/`;
-  const res =await fetch(url)
+  const res =await fetch(url, {headers:{ 'Accept': 'application/json',
+  'Content-Type': 'application/json'}})
   const data = await res.json()
    return data
 }
