@@ -22,7 +22,7 @@ export const getSysInfo = async()=>{
   const protocol = window.location.protocol; // Get the current protocol
 
   // Construct the URL using the current protocol and the retrieved host
-  const url = `${protocol}//${host}/sysinfo`;
+  const url = `${protocol}//${host}/api/sysinfo`;
     const res =await fetch(url)
     const data = await res.json()
   return data
@@ -33,7 +33,7 @@ export const getNodeInfo = async()=>{
   const protocol = window.location.protocol; // Get the current protocol
 
   // Construct the URL using the current protocol and the retrieved host
-  const url = `${protocol}//${host}/`;
+  const url = `${protocol}//${host}/api/`;
   const res =await fetch(url)
   const data = await res.json()
    return data
@@ -44,7 +44,7 @@ export const getDBInfo = async(dbaddress)=>{
   const protocol = window.location.protocol; // Get the current protocol
 
   // Construct the URL using the current protocol and the retrieved host
-  const url = `${protocol}//${host}/dbinfo`;
+  const url = `${protocol}//${host}/api/dbinfo`;
   const res =await fetch(url, {method:'POST',  headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json'
@@ -58,7 +58,7 @@ export const getReadDB = async(dbaddress)=>{
   const protocol = window.location.protocol; // Get the current protocol
 
   // Construct the URL using the current protocol and the retrieved host
-  const url = `${protocol}//${host}/read`;
+  const url = `${protocol}//${host}/api/read`;
   const res =await fetch(url, {method:'POST',  headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json'
