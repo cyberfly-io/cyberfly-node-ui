@@ -4,9 +4,7 @@
 const getHost = ()=>{
   let hostname = window.location.hostname
   if(hostname.includes('runonflux')){
-    var name = hostname.split('.')[0]
-    var newname = name+'_31003'
-    return hostname.replace(name, newname)
+    return hostname
   }
   else if(hostname==="node.cyberfly.io"){
   return hostname
