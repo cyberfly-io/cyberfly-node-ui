@@ -1,20 +1,17 @@
 import { PageContainer } from '@ant-design/pro-components'
 import React from 'react'
 import { Form, Input, Button, Flex, notification } from 'antd';
-import { multiaddr } from '@multiformats/multiaddr'
-import { useLibp2p } from '../contexts/Libp2pContext';
+import { dialNode } from '../services/node-services';
 
 const Dialer = () => {
   const [api, contextHolder] = notification.useNotification();
 
-  const { libp2pState }  = useLibp2p();
 
   const onFinish = (values) => {
     console.log('Received values:', values);
-    const ma = multiaddr(values.multiaddr)
-    libp2pState.dial(ma).then((data)=>{
+    dialNode(values.multiaddr).then((data)=>{
       console.log(data)
-      api.success({message:"Connected"})
+      api.success({message:data.info})
     })
   };
 

@@ -68,3 +68,15 @@ return data
 }
 
 
+export const dialNode = async(multiAddr)=>{
+  const host = getHost(); // Get the host without protocol
+  const protocol = window.location.protocol; // Get the current protocol
+  const url = `${protocol}//${host}/api/dial`;
+
+  const res =await fetch(url, {method:'POST',  headers: {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+  },body:JSON.stringify({multiAddr:multiAddr})})
+  const data = await res.json()
+return data
+}
