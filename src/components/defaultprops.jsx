@@ -4,9 +4,10 @@ import {
     DatabaseOutlined,
     DashboardOutlined,
     ArrowsAltOutlined,
-    VideoCameraOutlined
+    VideoCameraOutlined,
     } from '@ant-design/icons';
-  
+    import { FiMapPin } from "react-icons/fi";
+
 const config = {
   route: {
     path: '/',
@@ -16,6 +17,12 @@ const config = {
         name: 'Dashboard',
         icon: <DashboardOutlined />,
         component: './MainContent',
+      },
+      {
+        path: '/map',
+        name: 'Node Map',
+        icon: <FiMapPin />,
+        component: '../pages/tools',
       },
       {
         path: '/tools',

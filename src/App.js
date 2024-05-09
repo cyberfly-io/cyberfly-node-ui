@@ -14,6 +14,7 @@ import {SunOutlined, MoonOutlined, UserOutlined, WalletOutlined} from '@ant-desi
 import { useEckoWalletContext } from "./contexts/eckoWalletContext";
 import { TrackerCard } from '@kadena/react-ui';
 import Dialer from './pages/dialer';
+import NodeMap from './pages/node-map';
 
 const { defaultAlgorithm, darkAlgorithm } = theme;
 
@@ -86,6 +87,7 @@ actionsRender={(props)=>{
 <Route path='/pubsub' element={<PubSubPage/>} />
 <Route path="/settings" element={<Settings />} />
 <Route path="/dialer" element={<Dialer />} />
+<Route path="/map" element={<NodeMap />} />
 
 
 </Route>

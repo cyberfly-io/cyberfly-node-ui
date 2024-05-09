@@ -1,11 +1,9 @@
 import { Col, Row,Divider,Typography,Collapse, Modal, Button, Spin } from 'antd'
 import { GridContent } from '@ant-design/pro-components';
-
 import React, {useEffect, useState} from 'react'
-import { getNodeInfo, getPeers } from '../services/node-services'
+import { getNodeInfo } from '../services/node-services'
 import { StatisticCard, PageContainer } from '@ant-design/pro-components';
 import {ApartmentOutlined, InfoCircleOutlined, DeploymentUnitOutlined} from '@ant-design/icons'
-import { useLibp2p } from '../contexts/Libp2pContext';
 import { getNode, registerNode } from '../services/pact-services';
 import { useEckoWalletContext } from '../contexts/eckoWalletContext';
 import KeyValueTable from './KeyValueTable';
@@ -56,9 +54,9 @@ const [submitted, setSubmitted] = useState(false)
  useEffect(()=>{
   if(peers){
     const items = peers.map((item) => ({
-      key: item,
-      label:   <Paragraph  copyable={{tooltips:['Copy', 'Copied']}}>{item}</Paragraph>,
-  
+      key: item.remotePeer,
+      label:   <Paragraph  copyable={{tooltips:['Copy', 'Copied']}}>{item.remotePeer}</Paragraph>,
+      children: <Paragraph  copyable={{tooltips:['Copy', 'Copied']}}>{item.remoteAddr}</Paragraph>,
     }));
     setPeerItems(items)
   }

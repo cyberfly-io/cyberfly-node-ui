@@ -1,7 +1,7 @@
 
 
 
-const getHost = ()=>{
+export const getHost = ()=>{
   let hostname = window.location.hostname
   if(hostname.includes('runonflux')){
     return hostname
