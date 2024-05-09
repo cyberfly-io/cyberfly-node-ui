@@ -11,12 +11,13 @@ const [form]  = Form.useForm();
 const [messageApi, contextHolder] = msg.useMessage();
 const [api, notificationContextHolder] = notification.useNotification();
 const host = getHost(); // Get the host without protocol
-
 const protocol = window.location.protocol; // Get the current protocol
-let url = `${protocol}://${host}`
-if(host.includes('3100')){
+let url = `${protocol}//${host}`
+console.log(url)
+if(host.includes(':3100')){
   url = "https://node.cyberfly.io"
 }
+console.log(url)
 const socket = io(url);
 socket.on("connect",()=>{
   messageApi.open({
@@ -30,8 +31,6 @@ socket.on("onmessage", (data)=>{
   console.log(topic, message)
   console.log(topics)
     api.info({message:`message received for topic- ${topic}`, description:message,placement:"topRight"})
-
-
  })
 const onFinish = async (values) => {
   form.resetFields()

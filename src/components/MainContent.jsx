@@ -54,9 +54,8 @@ const [submitted, setSubmitted] = useState(false)
  useEffect(()=>{
   if(peers){
     const items = peers.map((item) => ({
-      key: item.remotePeer,
-      label:   <Paragraph  copyable={{tooltips:['Copy', 'Copied']}}>{item.remotePeer}</Paragraph>,
-      children: <Paragraph  copyable={{tooltips:['Copy', 'Copied']}}>{item.remoteAddr}</Paragraph>,
+      key: item,
+      label:   <Paragraph  copyable={{tooltips:['Copy', 'Copied']}}>{item}</Paragraph>,
     }));
     setPeerItems(items)
   }
