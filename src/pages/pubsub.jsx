@@ -2,6 +2,7 @@ import { PageContainer } from '@ant-design/pro-components'
 import React, { useState } from 'react'
 import { Flex, Form, Input, Button, Tag, Divider, message as msg, notification } from 'antd'
 import { io } from "socket.io-client";
+import { getHost } from '../services/node-services';
 
 const PubSubPage = () => {
 
@@ -9,7 +10,14 @@ const [topics, setTopics] = useState([])
 const [form]  = Form.useForm();
 const [messageApi, contextHolder] = msg.useMessage();
 const [api, notificationContextHolder] = notification.useNotification();
-const socket = io("https://node.cyberfly.io");
+const host = getHost(); // Get the host without protocol
+
+const protocol = window.location.protocol; // Get the current protocol
+let url = `${protocol}://${host}`
+if(host.includes('3100')){
+  url = "https://node.cyberfly.io"
+}
+const socket = io(url);
 socket.on("connect",()=>{
   messageApi.open({
     type:"success",
