@@ -115,8 +115,9 @@ const handleCancel = () => {
           statistic={{
             loading:loading,
 
-            title: 'Node Version',
-            value: nodeInfo?.version,
+            title: 'Node Owner',
+            value: nodeInfo?.account,
+            valueStyle: {fontSize:14},
             icon: (
               <InfoCircleOutlined />
             )
