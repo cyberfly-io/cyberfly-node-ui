@@ -15,7 +15,7 @@ const NodeMap = ()=>{
     useEffect(()=>{
         const getInfo = ()=>{
           getNodeInfo().then(data=>{
-            const peers = data.peers
+            const peers = data.connections
             let iparray = []
             peers.forEach(element => {
                 iparray.push(element.remoteAddr.split('/')[2])

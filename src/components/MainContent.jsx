@@ -1,6 +1,6 @@
 import { Col, Row,Divider,Typography,Collapse, Modal, Button, Spin } from 'antd'
 import { GridContent } from '@ant-design/pro-components';
-import React, {useEffect, useState} from 'react'
+import React, {Children, useEffect, useState} from 'react'
 import { getNodeInfo } from '../services/node-services'
 import { StatisticCard, PageContainer } from '@ant-design/pro-components';
 import {ApartmentOutlined, InfoCircleOutlined, DeploymentUnitOutlined} from '@ant-design/icons'
@@ -31,7 +31,7 @@ const [submitted, setSubmitted] = useState(false)
      setCCount(data.connected)
      setDCount(data.discovered)
      setTableData({peerId:data.peerId, multiAddr:data.multiAddr, publicKey:data.publicKey})
-     setPeers(data.peers)
+     setPeers(data.connections)
      setLoading(false)
   })
  }
@@ -54,8 +54,9 @@ const [submitted, setSubmitted] = useState(false)
  useEffect(()=>{
   if(peers){
     const items = peers.map((item) => ({
-      key: item,
-      label:   <Paragraph  copyable={{tooltips:['Copy', 'Copied']}}>{item}</Paragraph>,
+      key: item.remotePeer,
+      label:   <Paragraph  copyable={{tooltips:['Copy', 'Copied']}}>{item.remotePeer}</Paragraph>,
+      children: <Paragraph  copyable={{tooltips:['Copy', 'Copied']}}>{item.remoteAddr}</Paragraph>,
     }));
     setPeerItems(items)
   }

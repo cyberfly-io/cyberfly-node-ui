@@ -18,12 +18,12 @@ const config = {
         icon: <DashboardOutlined />,
         component: './MainContent',
       },
-      /*{
+      {
         path: '/map',
         name: 'Node Map',
         icon: <FiMapPin />,
         component: '../pages/tools',
-      },*/
+      },
       {
         path: '/tools',
         name: 'DB tools',
