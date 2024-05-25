@@ -41,6 +41,7 @@ const NodeMap = ()=>{
           }
         };
         fetchIpData()
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [ipAddresses]);
 return(
    <PageContainer title="Node Map">
