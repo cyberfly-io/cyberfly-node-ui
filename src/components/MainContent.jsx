@@ -1,6 +1,6 @@
 import { Col, Row,Divider,Typography,Collapse, Modal, Button, Spin } from 'antd'
 import { GridContent } from '@ant-design/pro-components';
-import React, {Children, useEffect, useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import { getNodeInfo } from '../services/node-services'
 import { StatisticCard, PageContainer } from '@ant-design/pro-components';
 import {ApartmentOutlined, InfoCircleOutlined, DeploymentUnitOutlined} from '@ant-design/icons'
