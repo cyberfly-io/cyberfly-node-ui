@@ -118,7 +118,7 @@ const handleCancel = () => {
 
             title: 'Node Owner',
             value: nodeInfo?.account,
-            valueStyle: {fontSize:14},
+            valueStyle: {fontSize:11},
             icon: (
               <InfoCircleOutlined />
             )
