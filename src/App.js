@@ -15,6 +15,10 @@ import { useEckoWalletContext } from "./contexts/eckoWalletContext";
 import { TrackerCard } from '@kadena/react-ui';
 import Dialer from './pages/dialer';
 import NodeMap from './pages/node-map';
+import WebcamStreaming from './pages/stream';
+import MyNode from './pages/mynode';
+import enUS from 'antd/locale/en_US';
+
 
 const { defaultAlgorithm, darkAlgorithm } = theme;
 
@@ -35,19 +39,17 @@ const App = () => {
     setOpen(false);
   };
   const {initializeEckoWallet, account, disconnectWallet  } = useEckoWalletContext()
- 
+  
   const items = [
     {
-      label: account? <Button type="primary" onClick={showModal} icon={<Avatar size={24} icon={<UserOutlined />}/>}>Account</Button>:<Button onClick={async ()=>{
-        initializeEckoWallet()
-      }}  icon={<Avatar size={24} src={<img src={"https://wallet.ecko.finance/icon_eckoWALLET.svg?v=2"} alt="avatar" />} />}>EckoWallet</Button>,
+      label: account? <Button type="primary" onClick={showModal} icon={<Avatar size={24} icon={<UserOutlined />}/>}>Account</Button>:<Button onClick={initializeEckoWallet}  icon={<Avatar size={24} src={<img src={"https://wallet.ecko.finance/icon_eckoWALLET.svg?v=2"} alt="avatar" />} />}>EckoWallet</Button>,
       key: '0',
     },
   ];
 
   return (
     <BrowserRouter>
-      <ConfigProvider theme={{algorithm: isDarkMode ? darkAlgorithm : defaultAlgorithm}}>
+      <ConfigProvider theme={{algorithm: isDarkMode ? darkAlgorithm : defaultAlgorithm}} locale={enUS}>
 
     <ProLayout {...defaultProps}
  title="Cyberfly Node" logo="https://cyberfly.io/assets/images/newlogo.png"
@@ -70,7 +72,9 @@ actionsRender={(props)=>{
   trigger={['click']}
 >
  <Button icon={<WalletOutlined />}></Button>
-</Dropdown></>)
+
+</Dropdown>
+</>)
 }}
 
     >
@@ -83,11 +87,14 @@ actionsRender={(props)=>{
    <Routes>
    <Route path="/">
 <Route index element={<MainContent />} />
+<Route path='/mynode' element={<MyNode/>} />
 <Route path="/tools" element={<Tools />} />
 <Route path='/pubsub' element={<PubSubPage/>} />
 <Route path="/settings" element={<Settings />} />
 <Route path="/dialer" element={<Dialer />} />
 <Route path="/map" element={<NodeMap />} />
+<Route path="/stream" element={<WebcamStreaming />} />
+
 
 
 </Route>

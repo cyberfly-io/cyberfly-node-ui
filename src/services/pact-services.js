@@ -18,9 +18,145 @@ export const getNode = async (peerId) =>{
   return res
   }
 
+  export const getMyNodes = async (account) =>{
+    const unsignedTransaction = Pact.builder
+    .execution(`(free.cyberfly_node.get-account-nodes "${account}")`)
+    .setMeta({
+      chainId: '1',
+      senderAccount: 'cyberfly-account-gas',
+      gasLimit: 150000
+    })
+    .setNetworkId('testnet04')
+    .createTransaction();
+  const res = await client.local(unsignedTransaction, { signatureVerification:false, preflight:false});
+  return res.result.data
+  }
+
+  export const getNodeStake = async (peerId) =>{
+    const unsignedTransaction = Pact.builder
+    .execution(`(free.cyberfly_node.get-node-stake "${peerId}")`)
+    .setMeta({
+      chainId: '1',
+      senderAccount: 'cyberfly-account-gas',
+      gasLimit: 150000
+    })
+    .setNetworkId('testnet04')
+    .createTransaction();
+  const res = await client.local(unsignedTransaction, { signatureVerification:false, preflight:false});
+  return res.result.data
+  }
+
+  export const getNodeClaimable = async (peerId) =>{
+    const unsignedTransaction = Pact.builder
+    .execution(`(free.cyberfly_node.calculate-days-and-reward "${peerId}")`)
+    .setMeta({
+      chainId: '1',
+      senderAccount: 'cyberfly-account-gas',
+      gasLimit: 150000
+    })
+    .setNetworkId('testnet04')
+    .createTransaction();
+  const res = await client.local(unsignedTransaction, { signatureVerification:false, preflight:false});
+  return res.result.data
+  }
+
+
   const getGuard = (account, pubkey)=>{
     return {pred:"keys-any", keys:[account.split(':')[1], pubkey]}
   }
+
+  const getPubkey = (account)=>{
+    return account.split(":")[1]
+  }
+
+  export const nodeStake = async (account, peerId)=>{
+    const utxn = Pact.builder.execution(`(free.cyberfly_node.stake "${account}" "${peerId}")`)
+    .addSigner(getPubkey(account), (withCapability)=>[
+      withCapability('free.cyberfly-account-gas-station.GAS_PAYER', 'cyberfly-account-gas', { int: 1 }, 1.0),
+      withCapability('free.cyberfly_node.ACCOUNT_AUTH', account),
+      withCapability('free.cyberfly_node.NODE_GUARD', peerId),
+      withCapability('free.cyberfly.TRANSFER', account, 'cyberfly-staking-bank', 50000.0),
+    ])
+    .setMeta({chainId:"1",senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000,})
+    .setNetworkId("testnet04")
+    .createTransaction();
+    const  signTransaction = createEckoWalletSign()
+    const signedTx = await signTransaction(utxn)
+    const res = await client.local(signedTx)
+    if(res.result.status==="success"){
+      const txn = await client.submit(signedTx)
+      console.log(txn)
+      pollForTransaction(txn.requestKey, "Stake for a node", ()=>{console.log("Staking success")})
+      return txn
+    }
+    else{
+      notification.error({
+        message: res.result.error.message,
+        duration: 50000,
+        placement: 'bottomRight',
+      });
+    }
+  }
+
+  export const nodeUnStake = async (account, peerId)=>{
+    const utxn = Pact.builder.execution(`(free.cyberfly_node.unstake "${account}" "${peerId}")`)
+    .addSigner(getPubkey(account), (withCapability)=>[
+      withCapability('free.cyberfly-account-gas-station.GAS_PAYER', 'cyberfly-account-gas', { int: 1 }, 1.0),
+      withCapability('free.cyberfly_node.ACCOUNT_AUTH', account),
+      withCapability('free.cyberfly_node.BANK_DEBIT'),
+      withCapability('free.cyberfly.TRANSFER', 'cyberfly-staking-bank', account, 50000.0),
+    ])
+    .setMeta({chainId:"1",senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000,})
+    .setNetworkId("testnet04")
+    .createTransaction();
+    const  signTransaction = createEckoWalletSign()
+    const signedTx = await signTransaction(utxn)
+    const res = await client.local(signedTx)
+    if(res.result.status==="success"){
+      const txn = await client.submit(signedTx)
+      console.log(txn)
+      pollForTransaction(txn.requestKey, "Un Staking for a node", ()=>{console.log("UnStaking success")})
+      return txn
+    }
+    else{
+      notification.error({
+        message: res.result.error.message,
+        duration: 50000,
+        placement: 'bottomRight',
+      });
+    }
+  }
+
+  export const claimReward = async (account, peerId)=>{
+    const utxn = Pact.builder.execution(`(free.cyberfly_node.claim-reward "${account}" "${peerId}")`)
+    .addSigner(getPubkey(account), (withCapability)=>[
+      withCapability('free.cyberfly-account-gas-station.GAS_PAYER', 'cyberfly-account-gas', { int: 1 }, 1.0),
+      withCapability('free.cyberfly_node.ACCOUNT_AUTH', account),
+      withCapability('free.cyberfly_node.BANK_DEBIT'),
+    ])
+    .setMeta({chainId:"1",senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000,})
+    .setNetworkId("testnet04")
+    .createTransaction();
+    const  signTransaction = createEckoWalletSign()
+    const signedTx = await signTransaction(utxn)
+    const res = await client.local(signedTx)
+    if(res.result.status==="success"){
+      const txn = await client.submit(signedTx)
+      console.log(txn)
+      pollForTransaction(txn.requestKey, "Claim reward for a node", ()=>{console.log("Claim success")})
+      return txn
+    }
+    else{
+      notification.error({
+        message: res.result.error.message,
+        duration: 50000,
+        placement: 'bottomRight',
+      });
+    }
+  }
+
+
+
 
   export const registerNode = async (peerId, multiaddr, account, pubkey)=>{
     const utxn = Pact.builder.execution(`(free.cyberfly_node.new-node "${peerId}" "active" "${multiaddr}" "${account}" (read-keyset "ks"))`)
@@ -39,6 +175,7 @@ export const getNode = async (peerId) =>{
       const txn = await client.submit(signedTx)
       console.log(txn)
       pollForTransaction(txn.requestKey, "Registering node", ()=>{console.log("node register success")})
+      return txn
     }
   }
 

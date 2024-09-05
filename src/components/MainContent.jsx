@@ -100,9 +100,8 @@ const handleCancel = () => {
           statistic={{
             title: 'Node Peer Id',
             loading:loading,
-
             value: nodeInfo?.peerId,
-            valueStyle: {fontSize:14},
+            valueStyle: {fontSize:12},
             icon:(<DeploymentUnitOutlined />)
           }}
       

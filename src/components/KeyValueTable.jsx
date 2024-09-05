@@ -1,5 +1,6 @@
 import React from 'react';
 import { Table } from 'antd';
+import { render } from '@testing-library/react';
 
 const KeyValueTable = ({ data }) => {
   // Convert data into a format accepted by Ant Design Table
@@ -13,7 +14,10 @@ const KeyValueTable = ({ data }) => {
     {
       title: 'Key',
       dataIndex: 'key',
-      key: 'key'
+      key: 'key',
+      render: (_, record)=>{
+        return (<b>{_}</b>)
+      }
     },
     {
       title: 'Value',
@@ -22,7 +26,9 @@ const KeyValueTable = ({ data }) => {
     }
   ];
 
-  return <Table dataSource={dataSource} columns={columns} />;
+  return <Table dataSource={dataSource} columns={columns} scroll={{ x: 'max-content', y: 'calc(100vh - 300px)' }}
+  pagination={{ position: ['none'] }}
+/>;
 };
 
 export default KeyValueTable;

@@ -3,6 +3,8 @@ import {
     DatabaseOutlined,
     DashboardOutlined,
     ArrowsAltOutlined,
+    VideoCameraOutlined,
+    CloudServerOutlined
     } from '@ant-design/icons';
     import { FiMapPin } from "react-icons/fi";
 
@@ -15,6 +17,12 @@ const config = {
         name: 'Dashboard',
         icon: <DashboardOutlined />,
         component: './MainContent',
+      },
+      {
+        path: '/mynode',
+        name: 'My Node',
+        icon: <CloudServerOutlined />,
+        component: '../pages/mynode',
       },
       {
         path: '/map',
@@ -35,11 +43,11 @@ const config = {
         icon: <MessageOutlined />,
         component: '../pages/tools',
       },
-      /*{
+     /* {
         path: '/stream',
         name: 'Stream',
         icon: <VideoCameraOutlined />,
-        component: './MainContent',
+        component: '../pages/stream',
       },*/
       {
         path: '/dialer',
