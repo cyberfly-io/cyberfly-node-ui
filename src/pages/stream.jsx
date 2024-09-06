@@ -1,172 +1,133 @@
-import { useState, useRef, useEffect, useCallback } from "react";
-import { startLibp2pNode } from "../services/libp2p-services";
-import { multiaddr } from '@multiformats/multiaddr';
-import { pipe } from 'it-pipe';
+import React, { useEffect, useRef, useState } from 'react';
+import { startLibp2pNode } from '../services/libp2p-services';
+import { multiaddr } from '@multiformats/multiaddr'
 
-const WebcamStreaming = () => {
-  const [node, setNode] = useState(null);
-  const [peerId, setPeerId] = useState('');
-  const [isStreaming, setIsStreaming] = useState(false);
-  const [peerAddress, setPeerAddress] = useState('');
+
+const VideoStreaming = () => {
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
-  const mediaRecorder = useRef(null);
-  const mediaSource = useRef(null);
-  const sourceBuffer = useRef(null);
-  const chunks = useRef([]);
+  const [peerId, setPeerId] = useState(null);
+  const [libp2p, setLibp2p] = useState(null);
+  const [remotePeerIdInput, setRemotePeerIdInput] = useState('');
 
   useEffect(() => {
-    const startLibp2p = async () => {
+    const initLibp2p = async () => {
       try {
-        const node = await startLibp2pNode();
-        setNode(node);
+      
+        const node = await startLibp2pNode()
+        setLibp2p(node);
         setPeerId(node.peerId.toString());
 
-        node.handle('/webcam', async ({ stream: libp2pStream }) => {
-          const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-          const videoTrack = stream.getVideoTracks()[0];
-          const mediaStream = new MediaStream([videoTrack]);
+        // Handle incoming video streams
+        await node.handle('/video/1.0.0', async ({ stream }) => {
+          console.log('Received incoming stream');
+          if (!stream || typeof stream.source !== 'object') {
+            console.error('Invalid stream object:', stream);
+            return;
+          }
 
-          mediaRecorder.current = new MediaRecorder(mediaStream, { mimeType: 'video/webm; codecs=vp9' });
-          mediaRecorder.current.ondataavailable = async (event) => {
-            if (event.data.size > 0) {
-              try {
-                const chunk = new Uint8Array(await event.data.arrayBuffer());
-                await libp2pStream.sink([chunk]);
-              } catch (error) {
-                console.error("Failed to push data to stream:", error);
+          const reader = stream.source;
+          const mediaSource = new MediaSource();
+          remoteVideoRef.current.src = URL.createObjectURL(mediaSource);
+
+          mediaSource.addEventListener('sourceopen', async () => {
+            const sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vp8"');
+            try {
+              for await (const chunk of reader) {
+                if (chunk instanceof Uint8Array) {
+                  sourceBuffer.appendBuffer(chunk);
+                } else {
+                  console.error('Invalid chunk:', chunk);
+                }
               }
+            } catch (err) {
+              console.error('Error processing stream:', err);
             }
-          };
-
-          mediaRecorder.current.start(1000); // Capture in 1-second chunks
+          });
         });
-      } catch (error) {
-        console.error("Error starting libp2p node:", error);
+      } catch (err) {
+        console.error('Error initializing libp2p:', err);
       }
     };
 
-    startLibp2p();
+    initLibp2p();
 
     return () => {
-      // Cleanup
-      if (mediaRecorder.current) {
-        mediaRecorder.current.stop();
-      }
-      if (node) {
-        node.stop();
+      if (libp2p) {
+        libp2p.stop().catch(err => console.error('Error stopping libp2p:', err));
       }
     };
   }, []);
 
-  const startStreaming = useCallback(async () => {
-    if (!node) return;
+  const startStreaming = async () => {
+    if (!libp2p) {
+      console.error('libp2p not initialized');
+      return;
+    }
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = stream;
-      }
-      setIsStreaming(true);
-    } catch (error) {
-      console.error("Error starting local stream:", error);
-    }
-  }, [node]);
+      localVideoRef.current.srcObject = stream;
 
-  const connectToPeer = useCallback(async () => {
-    if (!node) return;
+      const mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm; codecs="vp8"' });
+      mediaRecorder.ondataavailable = async (event) => {
+        if (event.data.size > 0 && libp2p) {
+          try {
+            const { stream } = await libp2p.dialProtocol(remotePeerIdInput, '/video/1.0.0');
+            if (!stream || typeof stream.sink !== 'function') {
+              console.error('Invalid stream object:', stream);
+              return;
+            }
+            const writer = stream.sink;
+            await writer(new Uint8Array(await event.data.arrayBuffer()));
+          } catch (err) {
+            console.error('Failed to send video data:', err);
+          }
+        }
+      };
+      mediaRecorder.start(1000); // Send data every second
+    } catch (err) {
+      console.error('Error starting streaming:', err);
+    }
+  };
+
+  const dialPeer = async () => {
+    if (!libp2p || !remotePeerIdInput) {
+      console.error('libp2p not initialized or remote peer ID not provided');
+      return;
+    }
 
     try {
-      const conn = await node.dial(multiaddr(peerAddress));
-      const stream = await conn.newStream('/webcam');
-
-      mediaSource.current = new MediaSource();
-      if (remoteVideoRef.current) {
-        remoteVideoRef.current.src = URL.createObjectURL(mediaSource.current);
-      }
-
-      mediaSource.current.addEventListener('sourceopen', async () => {
-        try {
-          sourceBuffer.current = mediaSource.current.addSourceBuffer('video/webm; codecs="vp9"');
-        } catch (e) {
-          console.error('Error adding source buffer:', e);
-          return;
-        }
-
-        const appendChunks = async () => {
-          if (!sourceBuffer.current.updating && chunks.current.length > 0) {
-            const blob = new Blob(chunks.current, { type: 'video/webm; codecs="vp9"' });
-            const chunk = new Uint8Array(await blob.arrayBuffer());
-            try {
-              if (mediaSource.current.readyState === 'open') {
-                sourceBuffer.current.appendBuffer(chunk);
-                chunks.current = [];
-              } else {
-                console.error('MediaSource is not open');
-              }
-            } catch (e) {
-              console.error('Error appending buffer:', e);
-            }
-          }
-        };
-
-        sourceBuffer.current.addEventListener('updateend', appendChunks);
-
-        try {
-          await pipe(
-            stream,
-            async function (source) {
-              for await (const chunk of source) {
-                chunks.current.push(chunk);
-                // Adjust chunk size and append logic based on performance and network conditions
-                if (chunks.current.length >= 10) {
-                  await appendChunks();
-                }
-              }
-              // Append any remaining chunks
-              await appendChunks();
-            }
-          );
-        } catch (e) {
-          console.error('Error piping stream:', e);
-        }
-      });
-
-      mediaSource.current.addEventListener('sourceended', () => {
-        console.log('MediaSource ended');
-      });
-
-      mediaSource.current.addEventListener('sourceclose', () => {
-        console.log('MediaSource closed');
-      });
-
-    } catch (error) {
-      console.error('Failed to connect to peer:', error);
+      const ma = multiaddr(`/p2p/${remotePeerIdInput}`);
+      const connection = await libp2p.dial(ma);
+      console.log('Connected to peer:', connection.remotePeer.toString());
+    } catch (err) {
+      console.error('Failed to connect to peer:', err);
     }
-  }, [node, peerAddress]);
+  };
 
   return (
     <div>
-      <h1>Libp2p Webcam Streaming (WebSocket)</h1>
-      <p>Your PeerId: {peerId}</p>
-      <button onClick={startStreaming} disabled={isStreaming}>
-        {isStreaming ? 'Streaming...' : 'Start Streaming'}
-      </button>
-      <video ref={localVideoRef} autoPlay playsInline muted />
-
+      <h1>libp2p Video Streaming</h1>
+      <p>Your Peer ID: {peerId}</p>
       <div>
-        <input
-          type="text"
-          value={peerAddress}
-          onChange={(e) => setPeerAddress(e.target.value)}
-          placeholder="Enter peer multiaddr"
-        />
-        <button onClick={connectToPeer}>Connect to Peer</button>
+        <h2>Local Video</h2>
+        <video ref={localVideoRef} autoPlay playsInline muted />
+        <button onClick={startStreaming}>Start Streaming</button>
       </div>
-
-      <video ref={remoteVideoRef} autoPlay playsInline />
+      <div>
+        <h2>Remote Video</h2>
+        <video ref={remoteVideoRef} autoPlay playsInline />
+        <input 
+          type="text" 
+          value={remotePeerIdInput} 
+          onChange={(e) => setRemotePeerIdInput(e.target.value)} 
+          placeholder="Enter remote peer ID"
+        />
+        <button onClick={dialPeer}>Connect to Peer</button>
+      </div>
     </div>
   );
 };
 
-export default WebcamStreaming;
+export default VideoStreaming;

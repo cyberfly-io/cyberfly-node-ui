@@ -5,6 +5,7 @@ import { Table, Spin, Result, Button, Tooltip, Modal, Col, Row, Statistic, Card,
 import { useEckoWalletContext } from '../contexts/eckoWalletContext';
 import {WalletOutlined, EyeOutlined} from "@ant-design/icons"
 import KeyValueTable from '../components/KeyValueTable';
+const { Countdown } = Statistic;
 
 const MyNode = () => {
   const [mynodes, setMyNodes] = useState([])
@@ -15,6 +16,7 @@ const MyNode = () => {
   const [node, setNode] = useState({})
   const [stake, setStake] = useState(null)
   const [claimable, setClaimable] = useState(0)
+  const [deadline, setDeadline] = useState(Date.now());
 
   const [canStake, setCanStake] = useState(true)
 
@@ -91,6 +93,10 @@ else{
         if(data.active)
         setCanStake(false)
         setStake(data)
+        const originalDate = new Date(data.last_claim.timep);
+        const nextDay = new Date(originalDate);
+              nextDay.setDate(originalDate.getDate() + 1);
+              setDeadline(nextDay)
       }
       getNodeClaimable(peer_id).then((reward)=>{
         if(reward)
@@ -157,7 +163,7 @@ else{
 
       <Statistic title="Claimable" value={claimable} precision={2} suffix="CFLY" />
    {claimable>0 && (   <Button type='primary' style={{ marginTop: 16 }} onClick={()=>{
-      claimReward(node.account, node.peer_id).then(data=>{
+      claimReward(node.account, node.peer_id, claimable).then(data=>{
         
       })
     }} >
@@ -177,6 +183,12 @@ else{
       <Statistic title="Claimed" value={stake.claimed} suffix="CFLY" />
       </Card>
     </Col>
+ {!claimable>0 && (   <Col span={6}>
+    <Card bordered={false} >
+
+    <Countdown title="Next Claim" value={deadline}  />
+    </Card>
+    </Col>) }
   </Row>)}
   <Row gutter={16}>
   <Col span={12}>

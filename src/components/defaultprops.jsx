@@ -43,7 +43,7 @@ const config = {
         icon: <MessageOutlined />,
         component: '../pages/tools',
       },
-     /* {
+      /*{
         path: '/stream',
         name: 'Stream',
         icon: <VideoCameraOutlined />,

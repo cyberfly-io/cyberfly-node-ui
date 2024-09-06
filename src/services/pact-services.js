@@ -127,7 +127,7 @@ export const getNode = async (peerId) =>{
     }
   }
 
-  export const claimReward = async (account, peerId)=>{
+  export const claimReward = async (account, peerId, amount)=>{
     const utxn = Pact.builder.execution(`(free.cyberfly_node.claim-reward "${account}" "${peerId}")`)
     .addSigner(getPubkey(account), (withCapability)=>[
       withCapability('free.cyberfly-account-gas-station.GAS_PAYER', 'cyberfly-account-gas', { int: 1 }, 1.0),
