@@ -162,7 +162,7 @@ else{
     <Card bordered={false}>
 
       <Statistic title="Claimable" value={claimable} precision={2} suffix="CFLY" />
-   {claimable>0 && (   <Button type='primary' style={{ marginTop: 16 }} onClick={()=>{
+   {claimable>0 && stake.active && (   <Button type='primary' style={{ marginTop: 16 }} onClick={()=>{
       claimReward(node.account, node.peer_id, claimable).then(data=>{
         
       })
@@ -183,7 +183,7 @@ else{
       <Statistic title="Claimed" value={stake.claimed} suffix="CFLY" />
       </Card>
     </Col>
- {!claimable>0 && (   <Col span={6}>
+ {!claimable>0 && stake.active && (   <Col span={6}>
     <Card bordered={false} >
 
     <Countdown title="Next Claim" value={deadline}  />
