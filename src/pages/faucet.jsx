@@ -14,7 +14,7 @@ const Faucet = () => {
     <PageContainer title="Testnet Faucet">
         <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
 
-      <Row>
+  {account && (    <Row>
       <Col>
       <Segmented
       defaultValue="new"
@@ -32,7 +32,7 @@ const Faucet = () => {
     ]}
   />
       </Col>
-      </Row>
+      </Row>)}
 
 <Row>
   <Col>
