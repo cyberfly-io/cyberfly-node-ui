@@ -180,7 +180,7 @@ export const getNode = async (peerId) =>{
   }
 
 
-  export const claimFaucet = async (account)=>{
+  export const claimCreateFaucet = async (account)=>{
   
     const utxn = Pact.builder.execution(`(free.cyberfly_faucet.create-and-request-coin "${account}" (read-keyset 'ks) 50000.0)`)
     .addSigner(getPubkey(account), (withCapability)=>[
@@ -211,6 +211,36 @@ export const getNode = async (peerId) =>{
     }
   }
 
+  export const claimFaucet = async (account)=>{
+  
+    const utxn = Pact.builder.execution(`(free.cyberfly_faucet.request-coin "${account}" 50000.0)`)
+    .addSigner(getPubkey(account), (withCapability)=>[
+      withCapability('free.cyberfly-account-gas-station.GAS_PAYER', 'cyberfly-account-gas', { int: 1 }, 1.0),
+      withCapability('free.cyberfly_node.ALLOW_FUNDING'),
+      withCapability('free.cyberfly_node.BANK_DEBIT'),
+    ])
+    .addData("ks",{pred:"keys-all", keys:[account.split(':')[1]]})
+
+    .setMeta({chainId:"1",senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000,})
+    .setNetworkId("testnet04")
+    .createTransaction();
+    const  signTransaction = createEckoWalletSign()
+    const signedTx = await signTransaction(utxn)
+    const res = await client.local(signedTx)
+    if(res.result.status==="success"){
+      const txn = await client.submit(signedTx)
+      console.log(txn)
+      pollForTransaction(txn.requestKey, "Claim Testnet Faucet - 50k CFLY", ()=>{console.log("Claim success")})
+      return txn
+    }
+    else{
+      notification.error({
+        message: res.result.error.message,
+        duration: 50000,
+        placement: 'bottomRight',
+      });
+    }
+  }
 
 
 export const pollForTransaction = async (requestKey, message, callback) => {
