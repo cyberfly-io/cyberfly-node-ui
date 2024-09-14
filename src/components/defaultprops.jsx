@@ -4,7 +4,8 @@ import {
     DashboardOutlined,
     ArrowsAltOutlined,
     VideoCameraOutlined,
-    CloudServerOutlined
+    CloudServerOutlined,
+    TransactionOutlined
     } from '@ant-design/icons';
     import { FiMapPin } from "react-icons/fi";
 
@@ -54,6 +55,12 @@ const config = {
         name: 'Connection checker',
         icon: <ArrowsAltOutlined />,
         component: '../pages/dialer',
+      },
+      {
+        path: '/faucet',
+        name: 'Testnet Faucet',
+        icon: <TransactionOutlined />,
+        component: '../pages/faucet',
       },
     ],
   },

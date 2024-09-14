@@ -71,7 +71,7 @@ const VideoStreaming = () => {
 
       const mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm; codecs="vp8"' });
       mediaRecorder.ondataavailable = async (event) => {
-        if (event.data.size > 0 && libp2p) {
+        if (event.data.size > 0 && libp2p && remotePeerIdInput!=='') {
           try {
             const { stream } = await libp2p.dialProtocol(remotePeerIdInput, '/video/1.0.0');
             if (!stream || typeof stream.sink !== 'function') {

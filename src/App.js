@@ -18,6 +18,7 @@ import NodeMap from './pages/node-map';
 import WebcamStreaming from './pages/stream';
 import MyNode from './pages/mynode';
 import enUS from 'antd/locale/en_US';
+import Faucet from './pages/faucet';
 
 
 const { defaultAlgorithm, darkAlgorithm } = theme;
@@ -94,6 +95,8 @@ actionsRender={(props)=>{
 <Route path="/dialer" element={<Dialer />} />
 <Route path="/map" element={<NodeMap />} />
 <Route path="/stream" element={<WebcamStreaming />} />
+<Route path="/faucet" element={<Faucet />} />
+
 
 
 

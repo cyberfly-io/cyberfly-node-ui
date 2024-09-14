@@ -17,7 +17,6 @@ const MyNode = () => {
   const [stake, setStake] = useState(null)
   const [claimable, setClaimable] = useState(0)
   const [deadline, setDeadline] = useState(Date.now());
-
   const [canStake, setCanStake] = useState(true)
 
 
@@ -183,7 +182,13 @@ else{
       <Statistic title="Claimed" value={stake.claimed} suffix="CFLY" />
       </Card>
     </Col>
- {!claimable>0 && stake.active && (   <Col span={6}>
+    <Col span={6}>
+    <Card bordered={false} >
+
+      <Statistic title="Earning Status" value={node.status==="active"? "Earning":"Not Earning"} />
+      </Card>
+    </Col>
+ {!claimable>0 && stake.active && node.status === "active" && (   <Col span={6}>
     <Card bordered={false} >
 
     <Countdown title="Next Claim" value={deadline}  />
