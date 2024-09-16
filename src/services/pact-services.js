@@ -75,7 +75,8 @@ export const getNode = async (peerId) =>{
       withCapability('free.cyberfly-account-gas-station.GAS_PAYER', 'cyberfly-account-gas', { int: 1 }, 1.0),
       withCapability('free.cyberfly_node.ACCOUNT_AUTH', account),
       withCapability('free.cyberfly_node.NODE_GUARD', peerId),
-      withCapability('free.cyberfly.TRANSFER', account, 'cyberfly-staking-bank', 50000.0),
+      withCapability('free.cyberfly_token.TRANSFER', account, 'cyberfly-staking-bank', 50000.0),
+      withCapability('free.cyberfly_node.STAKE'),
     ])
     .setMeta({chainId:"1",senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000,})
     .setNetworkId("testnet04")
@@ -104,7 +105,7 @@ export const getNode = async (peerId) =>{
       withCapability('free.cyberfly-account-gas-station.GAS_PAYER', 'cyberfly-account-gas', { int: 1 }, 1.0),
       withCapability('free.cyberfly_node.ACCOUNT_AUTH', account),
       withCapability('free.cyberfly_node.BANK_DEBIT'),
-      withCapability('free.cyberfly.TRANSFER', 'cyberfly-staking-bank', account, 50000.0),
+      withCapability('free.cyberfly_token.TRANSFER', 'cyberfly-staking-bank', account, 50000.0),
     ])
     .setMeta({chainId:"1",senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000,})
     .setNetworkId("testnet04")
