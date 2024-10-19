@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { Upload, FileText, Image as ImageIcon, File, Video } from 'lucide-react';
 import { Alert, Card, Input, Tabs, Tag, Button, Progress, Typography, Space } from 'antd';
 import { UploadOutlined, DownloadOutlined, SearchOutlined } from '@ant-design/icons';
-
+import { getHost } from '../services/node-services';
 const { TabPane } = Tabs;
 const { Text, Title } = Typography;
 
@@ -75,8 +75,8 @@ export default function FileUpload() {
 
       const formData = new FormData();
       formData.append('file', file);
-
-      const response = await fetch('http://localhost:31003/api/upload', {
+      const url = getHost()+'/api/upload'
+      const response = await fetch(url, {
         method: 'POST',
         body: formData,
       });
@@ -114,7 +114,8 @@ export default function FileUpload() {
 
   const fetchAndRenderFile = async (cid) => {
     try {
-      const response = await fetch(`http://localhost:31003/api/file/${cid}`);
+      const url = getHost()+'/api/file/'+cid
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error('Failed to fetch file');
       }
