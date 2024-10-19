@@ -9159,6 +9159,7 @@ __metadata:
     "@testing-library/user-event": ^13.5.0
     antd: 5.20.4
     libp2p: 1.9.3
+    lucide-react: ^0.453.0
     pigeon-maps: ^0.21.5
     react: ^18.2.0
     react-dom: ^18.2.0
@@ -13940,6 +13941,15 @@ __metadata:
   dependencies:
     yallist: ^4.0.0
   checksum: f97f499f898f23e4585742138a22f22526254fdba6d75d41a1c2526b3b6cc5747ef59c5612ba7375f42aca4f8461950e925ba08c991ead0651b4918b7c978297
+  languageName: node
+  linkType: hard
+
+"lucide-react@npm:^0.453.0":
+  version: 0.453.0
+  resolution: "lucide-react@npm:0.453.0"
+  peerDependencies:
+    react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0-rc
+  checksum: 1a48153fd9338266d8bb14c735bfe8bfb046c505ab91421586cbae0a8ac1924536e813d430d1f91c883bb4ea67f0664bfca273f58e478438f0ad8f8f09fced76
   languageName: node
   linkType: hard
 

@@ -19,6 +19,7 @@ import WebcamStreaming from './pages/stream';
 import MyNode from './pages/mynode';
 import enUS from 'antd/locale/en_US';
 import Faucet from './pages/faucet';
+import Files from './pages/files';
 
 
 const { defaultAlgorithm, darkAlgorithm } = theme;
@@ -90,6 +91,7 @@ actionsRender={(props)=>{
 <Route index element={<MainContent />} />
 <Route path='/mynode' element={<MyNode/>} />
 <Route path="/tools" element={<Tools />} />
+<Route path="/files" element={<Files />} />
 <Route path='/pubsub' element={<PubSubPage/>} />
 <Route path="/settings" element={<Settings />} />
 <Route path="/dialer" element={<Dialer />} />

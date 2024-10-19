@@ -5,7 +5,8 @@ import {
     ArrowsAltOutlined,
     VideoCameraOutlined,
     CloudServerOutlined,
-    TransactionOutlined
+    TransactionOutlined,
+    FileAddOutlined
     } from '@ant-design/icons';
     import { FiMapPin } from "react-icons/fi";
 
@@ -43,6 +44,12 @@ const config = {
         name: 'Pub Sub',
         icon: <MessageOutlined />,
         component: '../pages/tools',
+      },
+      {
+        path: '/files',
+        name: 'Files',
+        icon: < FileAddOutlined/>,
+        component: '../pages/files',
       },
       /*{
         path: '/stream',
