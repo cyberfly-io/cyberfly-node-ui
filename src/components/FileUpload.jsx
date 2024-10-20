@@ -393,7 +393,7 @@ export default function FileUpload() {
       <Tabs defaultActiveKey="1">
         <TabPane tab="Upload File" key="1">
           <UploadTab />
-          {uploading && (    
+          {uploadProgress > 0 && (    
             <Progress percent={uploadProgress.toFixed()} percentPosition={{ align: 'center', type: 'inner' }} size={[400, 20]} />
 
 )}
