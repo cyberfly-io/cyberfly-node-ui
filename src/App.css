@@ -58,3 +58,17 @@
   .ant-divider-horizontal {
     margin: 16px 0;
   }}
+
+  .video-container {
+    position: relative;
+    width: 100%;
+    background: #000;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  
+  .video-container video {
+    display: block;
+    width: 100%;
+    height: auto;
+  }

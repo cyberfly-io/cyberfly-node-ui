@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { File, Music } from 'lucide-react';
 import { Alert, Card, Input, Tabs, Tag, Button, Progress,Upload, Typography, Space } from 'antd';
 import { UploadOutlined, DownloadOutlined, SearchOutlined } from '@ant-design/icons';
@@ -18,6 +18,12 @@ export default function FileUpload() {
   const [retrieveCid, setRetrieveCid] = useState('');
   const [retrieving, setRetrieving] = useState(false);
   const [fileList, setFileList] = useState([]);
+
+  const videoPlayerRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [buffering, setBuffering] = useState(false);
   const CHUNK_SIZE =   800 * 1024; // 1MB chunks
 
   const formatBytes = (bytes, decimals = 2) => {
@@ -166,6 +172,26 @@ export default function FileUpload() {
     try {
       const protocol = window.location.protocol;
       const host = getHost();
+      
+      // First fetch metadata to get content type
+      const metadataUrl = `${protocol}//${host}/api/metadata/${cid}`;
+      const metadataResponse = await fetch(metadataUrl);
+      
+      if (!metadataResponse.ok) {
+        throw new Error('Failed to fetch file metadata');
+      }
+      
+      const metadata = await metadataResponse.json();
+      setFileType(metadata.contentType);
+
+      // For video files, we'll just set the URL for streaming
+      if (metadata.contentType.startsWith('video/')) {
+        const streamUrl = `${protocol}//${host}/api/file/${cid}`;
+        setFileContent(streamUrl);
+        return;
+      }
+
+      // For other file types, keep existing logic
       const url = `${protocol}//${host}/api/file/${cid}`;
       const response = await fetch(url);
       
@@ -174,12 +200,10 @@ export default function FileUpload() {
       }
       
       const blob = await response.blob();
-      setFileType(blob.type);
-
+      
       if (blob.type === 'application/octet-stream') {
         setFileContent(blob);
       } else if (blob.type.startsWith('image/') || 
-                 blob.type.startsWith('video/') || 
                  blob.type.startsWith('audio/') || 
                  blob.type === 'application/pdf') {
         const mediaUrl = URL.createObjectURL(blob);
@@ -197,6 +221,8 @@ export default function FileUpload() {
     }
   };
 
+ 
+
   useEffect(() => {
     return () => {
       if (preview) {
@@ -207,6 +233,93 @@ export default function FileUpload() {
       }
     };
   }, [preview, fileContent]);
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
+  // 4. Add this new VideoPlayer component
+  const VideoPlayer = ({ src, type }) => {
+    const videoRef = useRef(null);
+    const [isBuffering, setIsBuffering] = useState(false);
+    const [error, setError] = useState(null);
+    const [loaded, setLoaded] = useState(false);
+  
+    useEffect(() => {
+      const video = videoRef.current;
+      if (!video) return;
+  
+      const handleWaiting = () => setIsBuffering(true);
+      const handlePlaying = () => setIsBuffering(false);
+      const handleError = (e) => setError('Error loading video');
+      const handleCanPlay = () => setLoaded(true);
+  
+      video.addEventListener('waiting', handleWaiting);
+      video.addEventListener('playing', handlePlaying);
+      video.addEventListener('error', handleError);
+      video.addEventListener('canplay', handleCanPlay);
+  
+      // Optional: preload metadata
+      video.preload = 'metadata';
+  
+      return () => {
+        video.removeEventListener('waiting', handleWaiting);
+        video.removeEventListener('playing', handlePlaying);
+        video.removeEventListener('error', handleError);
+        video.removeEventListener('canplay', handleCanPlay);
+      };
+    }, []);
+  
+    return (
+      <Card>
+        <div className="video-container" style={{ position: 'relative' }}>
+          <video
+            ref={videoRef}
+            controls
+            style={{ width: '100%', height: 'auto', backgroundColor: '#000' }}
+            playsInline // Better mobile support
+          >
+            <source src={src} type={type} />
+            Your browser does not support the video tag.
+          </video>
+          
+          {isBuffering && (
+            <div style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              background: 'rgba(0,0,0,0.7)',
+              color: 'white',
+              padding: '10px 20px',
+              borderRadius: '4px',
+              zIndex: 2
+            }}>
+              Buffering...
+            </div>
+          )}
+          
+          {error && (
+            <div style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              background: 'rgba(255,0,0,0.7)',
+              color: 'white',
+              padding: '10px 20px',
+              borderRadius: '4px',
+              zIndex: 2
+            }}>
+              {error}
+            </div>
+          )}
+        </div>
+      </Card>
+    );
+  };
 
   const FileViewer = ({ content, type }) => {
     if (!content) return null;
@@ -237,28 +350,8 @@ export default function FileUpload() {
     }
 
     if (type?.startsWith('video/')) {
-      return (
-        <Card>
-          <video 
-            controls 
-            style={{ maxWidth: '100%', height: 'auto' }}
-            controlsList="nodownload"
-          >
-            <source src={content} type={type} />
-            Your browser does not support the video element.
-          </video>
-          <Space style={{ marginTop: '16px' }}>
-            <Button 
-              type="primary"
-              icon={<DownloadOutlined />}
-              onClick={() => downloadBlob(new Blob([content], { type }), file?.name || 'video')}
-            >
-              Download Video
-            </Button>
-          </Space>
-        </Card>
-      );
-    }
+        return <VideoPlayer src={content} type={type} />;
+      }
 
     if (type === 'application/octet-stream' || 
         (!type?.startsWith('image/') && 
