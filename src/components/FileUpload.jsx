@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
-import { Upload, FileText, Image as ImageIcon, File, Video, Music } from 'lucide-react';
-import { Alert, Card, Input, Tabs, Tag, Button, Progress, Typography, Space } from 'antd';
+import { FileText, Image as ImageIcon, File, Video, Music } from 'lucide-react';
+import { Alert, Card, Input, Tabs, Tag, Button, Progress,Upload, Typography, Space } from 'antd';
 import { UploadOutlined, DownloadOutlined, SearchOutlined } from '@ant-design/icons';
 import { getHost } from '../services/node-services';
 const { TabPane } = Tabs;
@@ -17,6 +17,7 @@ export default function FileUpload() {
   const [fileType, setFileType] = useState(null);
   const [retrieveCid, setRetrieveCid] = useState('');
   const [retrieving, setRetrieving] = useState(false);
+  const [fileList, setFileList] = useState([]);
   const CHUNK_SIZE = 1 * 1024 * 1024; // 1MB chunks
 
   const formatBytes = (bytes, decimals = 2) => {
@@ -42,27 +43,25 @@ export default function FileUpload() {
     URL.revokeObjectURL(url);
   };
 
-  const handleFileSelect = (event) => {
-    const selectedFile = event.target.files[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-      setError('');
-      setFileType(selectedFile.type);
-    }
-  };
 
-  const handleDrop = (event) => {
-    event.preventDefault();
-    const droppedFile = event.dataTransfer.files[0];
-    if (droppedFile) {
-      setFile(droppedFile);
-      setError('');
-      setFileType(droppedFile.type);
-    }
-  };
 
-  const handleDragOver = (event) => {
-    event.preventDefault();
+
+
+  const props = {
+    onRemove: (file) => {
+      const index = fileList.indexOf(file);
+      const newFileList = fileList.slice();
+      newFileList.splice(index, 1);
+      setFileList(newFileList);
+    },
+    beforeUpload: (file) => {
+      setFileList([...fileList, file]);
+      setFile(file);
+      setError('');
+      setFileType(file.type);
+      return false;
+    },
+    fileList,
   };
 
   const uploadChunk = async (chunk, chunkIndex, totalChunks, fileName) => {
@@ -346,56 +345,23 @@ export default function FileUpload() {
   };
 
   const UploadTab = () => (
-    <div
-      style={{
-        border: '2px dashed #d9d9d9',
-        borderRadius: '8px',
-        padding: '32px',
-        textAlign: 'center',
-        background: file ? '#f0f5ff' : '#fafafa',
-        borderColor: file ? '#1890ff' : '#d9d9d9'
-      }}
-      onDrop={handleDrop}
-      onDragOver={handleDragOver}
-    >
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
-        <div>
-          <FileTypeIcon type={fileType} />
-        </div>
-        
-        <div>
-          <input
-            type="file"
-            onChange={handleFileSelect}
-            disabled={uploading}
-            style={{ 
-              width: '100%',
-              marginBottom: '16px'
-            }}
-          />
-          
-          {file && (
-            <Text type="secondary">
-              Selected: {file.name} ({formatBytes(file.size)})
-            </Text>
-          )}
-        </div>
-
-        {uploading && (
-          <Progress percent={uploadProgress} status="active" />
-        )}
-
-        <Button
-          type="primary"
-          onClick={handleUpload}
-          disabled={!file || uploading}
-          icon={<UploadOutlined />}
-          loading={uploading}
-        >
-          {uploading ? 'Uploading...' : 'Upload File'}
-        </Button>
-      </Space>
-    </div>
+   <>
+     <Upload {...props} maxCount={1}>
+        <Button icon={<UploadOutlined />}>Select File</Button>
+      </Upload>
+      <Button
+        type="primary"
+        onClick={handleUpload}
+        disabled={fileList.length === 0}
+        loading={uploading}
+        style={{
+          marginTop: 16,
+        }}
+      >
+        {uploading ? 'Uploading' : 'Start Upload'}
+      </Button>
+      </>
+    
   );
 
   const RetrieveTab = () => (
