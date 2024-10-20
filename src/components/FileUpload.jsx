@@ -17,7 +17,7 @@ export default function FileUpload() {
   const [fileType, setFileType] = useState(null);
   const [retrieveCid, setRetrieveCid] = useState('');
   const [retrieving, setRetrieving] = useState(false);
-  const CHUNK_SIZE = 2 * 1024 * 1024; // 2MB chunks
+  const CHUNK_SIZE = 1 * 1024 * 1024; // 1MB chunks
 
   const formatBytes = (bytes, decimals = 2) => {
     if (bytes === 0) return '0 Bytes';
