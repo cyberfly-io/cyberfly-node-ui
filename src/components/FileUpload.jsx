@@ -75,7 +75,9 @@ export default function FileUpload() {
 
       const formData = new FormData();
       formData.append('file', file);
-      const url = getHost()+'/api/upload'
+      const protocol = window.location.protocol; // Get the current protocol
+       const url = `${protocol}//${getHost()}/api/upload`;
+      console.log(url)
       const response = await fetch(url, {
         method: 'POST',
         body: formData,
@@ -114,7 +116,8 @@ export default function FileUpload() {
 
   const fetchAndRenderFile = async (cid) => {
     try {
-      const url = getHost()+'/api/file/'+cid
+      const protocol = window.location.protocol; // Get the current protocol
+      const url = `${protocol}//${getHost()}/api/file/${cid}`;
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error('Failed to fetch file');
