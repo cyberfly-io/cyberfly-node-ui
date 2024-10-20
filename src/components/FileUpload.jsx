@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { Upload, FileText, Image as ImageIcon, File, Video } from 'lucide-react';
+import { Upload, FileText, Image as ImageIcon, File, Video, Music } from 'lucide-react';
 import { Alert, Card, Input, Tabs, Tag, Button, Progress, Typography, Space } from 'antd';
 import { UploadOutlined, DownloadOutlined, SearchOutlined } from '@ant-design/icons';
 import { getHost } from '../services/node-services';
@@ -17,6 +17,7 @@ export default function FileUpload() {
   const [fileType, setFileType] = useState(null);
   const [retrieveCid, setRetrieveCid] = useState('');
   const [retrieving, setRetrieving] = useState(false);
+  const CHUNK_SIZE = 2 * 1024 * 1024; // 2MB chunks
 
   const formatBytes = (bytes, decimals = 2) => {
     if (bytes === 0) return '0 Bytes';
@@ -46,6 +47,7 @@ export default function FileUpload() {
     if (selectedFile) {
       setFile(selectedFile);
       setError('');
+      setFileType(selectedFile.type);
     }
   };
 
@@ -55,11 +57,35 @@ export default function FileUpload() {
     if (droppedFile) {
       setFile(droppedFile);
       setError('');
+      setFileType(droppedFile.type);
     }
   };
 
   const handleDragOver = (event) => {
     event.preventDefault();
+  };
+
+  const uploadChunk = async (chunk, chunkIndex, totalChunks, fileName) => {
+    const formData = new FormData();
+    formData.append('file', chunk);
+    formData.append('fileName', fileName);
+    formData.append('chunkIndex', chunkIndex);
+    formData.append('totalChunks', totalChunks);
+
+    const host = getHost();
+    const protocol = window.location.protocol;
+    const url = `${protocol}//${host}/api/upload`;
+
+    const response = await fetch(url, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Chunk ${chunkIndex} upload failed`);
+    }
+
+    return response.json();
   };
 
   const handleUpload = useCallback(async () => {
@@ -73,24 +99,46 @@ export default function FileUpload() {
       setUploadProgress(0);
       setError('');
 
-      const formData = new FormData();
-      formData.append('file', file);
-      const host = getHost();
-      const protocol = window.location.protocol; // Get the current protocol
-       const url = `${protocol}//${host}/api/upload`;
-      console.log(url)
-      const response = await fetch(url, {
-        method: 'POST',
-        body: formData,
-      });
+      const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+      let uploadedChunks = 0;
 
-      if (!response.ok) {
-        throw new Error('Upload failed');
+      // Upload chunks
+      for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+        const start = chunkIndex * CHUNK_SIZE;
+        const end = Math.min(start + CHUNK_SIZE, file.size);
+        const chunk = file.slice(start, end);
+
+        await uploadChunk(chunk, chunkIndex, totalChunks, file.name);
+        
+        uploadedChunks++;
+        const progress = (uploadedChunks / totalChunks) * 100;
+        setUploadProgress(progress);
       }
 
-      const result = await response.json();
+      // Notify server that upload is complete
+      const host = getHost();
+      const protocol = window.location.protocol;
+      const completeUrl = `${protocol}//${host}/api/upload/complete`;
+      
+      const completeResponse = await fetch(completeUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fileName: file.name,
+          mimeType: file.type || 'application/octet-stream',
+          totalChunks,
+        }),
+      });
+
+      if (!completeResponse.ok) {
+        throw new Error('Failed to complete upload');
+      }
+
+      const result = await completeResponse.json();
       setUploadResult(result);
-      //await fetchAndRenderFile(result.metadataCid);
+      setUploadProgress(100);
     } catch (err) {
       setError(err.message || 'Failed to upload file');
     } finally {
@@ -117,10 +165,11 @@ export default function FileUpload() {
 
   const fetchAndRenderFile = async (cid) => {
     try {
-      const protocol = window.location.protocol; // Get the current protocol
+      const protocol = window.location.protocol;
       const host = getHost();
       const url = `${protocol}//${host}/api/file/${cid}`;
       const response = await fetch(url);
+      
       if (!response.ok) {
         throw new Error('Failed to fetch file');
       }
@@ -130,7 +179,10 @@ export default function FileUpload() {
 
       if (blob.type === 'application/octet-stream') {
         setFileContent(blob);
-      } else if (blob.type.startsWith('image/') || blob.type.startsWith('video/') || blob.type === 'application/pdf') {
+      } else if (blob.type.startsWith('image/') || 
+                 blob.type.startsWith('video/') || 
+                 blob.type.startsWith('audio/') || 
+                 blob.type === 'application/pdf') {
         const mediaUrl = URL.createObjectURL(blob);
         setFileContent(mediaUrl);
       } else if (blob.type.startsWith('text/') || blob.type === 'application/json') {
@@ -160,6 +212,31 @@ export default function FileUpload() {
   const FileViewer = ({ content, type }) => {
     if (!content) return null;
 
+    if (type?.startsWith('audio/')) {
+      return (
+        <Card>
+          <Space direction="vertical" size="large" style={{ width: '100%' }}>
+            <Music style={{ width: 48, height: 48, color: '#8c8c8c' }} />
+            <audio 
+              controls 
+              style={{ width: '100%' }}
+              controlsList="nodownload"
+            >
+              <source src={content} type={type} />
+              Your browser does not support the audio element.
+            </audio>
+            <Button 
+              type="primary"
+              icon={<DownloadOutlined />}
+              onClick={() => downloadBlob(new Blob([content], { type }), file?.name || 'audio')}
+            >
+              Download Audio
+            </Button>
+          </Space>
+        </Card>
+      );
+    }
+
     if (type?.startsWith('video/')) {
       return (
         <Card>
@@ -184,7 +261,13 @@ export default function FileUpload() {
       );
     }
 
-    if (type === 'application/octet-stream' || (!type?.startsWith('image/') && !type?.startsWith('text/') && !type?.startsWith('video/') && type !== 'application/pdf' && type !== 'application/json')) {
+    if (type === 'application/octet-stream' || 
+        (!type?.startsWith('image/') && 
+         !type?.startsWith('text/') && 
+         !type?.startsWith('video/') && 
+         !type?.startsWith('audio/') && 
+         type !== 'application/pdf' && 
+         type !== 'application/json')) {
       return (
         <Card style={{ textAlign: 'center' }}>
           <Space direction="vertical" size="large" style={{ width: '100%' }}>
@@ -293,7 +376,7 @@ export default function FileUpload() {
           
           {file && (
             <Text type="secondary">
-              Selected: {file.name} ({(file.size / 1024).toFixed(1)} KB)
+              Selected: {file.name} ({formatBytes(file.size)})
             </Text>
           )}
         </div>
@@ -341,6 +424,7 @@ export default function FileUpload() {
   const FileTypeIcon = ({ type }) => {
     if (type?.startsWith('image/')) return <ImageIcon style={{ width: 48, height: 48, color: '#8c8c8c' }} />;
     if (type?.startsWith('video/')) return <Video style={{ width: 48, height: 48, color: '#8c8c8c' }} />;
+    if (type?.startsWith('audio/')) return <Music style={{ width: 48, height: 48, color: '#8c8c8c' }} />;
     if (type?.startsWith('text/')) return <FileText style={{ width: 48, height: 48, color: '#8c8c8c' }} />;
     return <Upload style={{ width: 48, height: 48, color: '#8c8c8c' }} />;
   };
