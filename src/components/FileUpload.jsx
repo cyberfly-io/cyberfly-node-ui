@@ -18,7 +18,7 @@ export default function FileUpload() {
   const [retrieveCid, setRetrieveCid] = useState('');
   const [retrieving, setRetrieving] = useState(false);
   const [fileList, setFileList] = useState([]);
-  const CHUNK_SIZE = 1 * 1024 * 1024; // 1MB chunks
+  const CHUNK_SIZE =   800 * 1024; // 1MB chunks
 
   const formatBytes = (bytes, decimals = 2) => {
     if (bytes === 0) return '0 Bytes';
@@ -387,26 +387,13 @@ export default function FileUpload() {
     </Card>
   );
 
-  const FileTypeIcon = ({ type }) => {
-    if (type?.startsWith('image/')) return <ImageIcon style={{ width: 48, height: 48, color: '#8c8c8c' }} />;
-    if (type?.startsWith('video/')) return <Video style={{ width: 48, height: 48, color: '#8c8c8c' }} />;
-    if (type?.startsWith('audio/')) return <Music style={{ width: 48, height: 48, color: '#8c8c8c' }} />;
-    if (type?.startsWith('text/')) return <FileText style={{ width: 48, height: 48, color: '#8c8c8c' }} />;
-    return <Upload style={{ width: 48, height: 48, color: '#8c8c8c' }} />;
-  };
 
   return (
     <div style={{ maxWidth: '800px', margin: '24px auto', padding: '24px' }}>
       <Tabs defaultActiveKey="1">
         <TabPane tab="Upload File" key="1">
           <UploadTab />
-        </TabPane>
-        <TabPane tab="Retrieve File" key="2">
-          <RetrieveTab />
-        </TabPane>
-      </Tabs>
-
-      {error && (
+          {error && (
         <Alert
           message="Error"
           description={error}
@@ -425,12 +412,20 @@ export default function FileUpload() {
           style={{ marginTop: '24px' }}
         />
       )}
-
-      {fileContent && (
+        </TabPane>
+        <TabPane tab="Retrieve File" key="2">
+          <RetrieveTab />
+          {fileContent && (
         <div style={{ marginTop: '24px' }}>
           <FileViewer content={fileContent} type={fileType} />
         </div>
       )}
+        </TabPane>
+      </Tabs>
+
+    
+
+  
     </div>
   );
 }
