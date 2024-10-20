@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { FileText, Image as ImageIcon, File, Video, Music } from 'lucide-react';
+import { File, Music } from 'lucide-react';
 import { Alert, Card, Input, Tabs, Tag, Button, Progress,Upload, Typography, Space } from 'antd';
 import { UploadOutlined, DownloadOutlined, SearchOutlined } from '@ant-design/icons';
 import { getHost } from '../services/node-services';
@@ -393,6 +393,10 @@ export default function FileUpload() {
       <Tabs defaultActiveKey="1">
         <TabPane tab="Upload File" key="1">
           <UploadTab />
+          {uploading && (    
+            <Progress percent={uploadProgress.toFixed()} percentPosition={{ align: 'center', type: 'inner' }} size={[400, 20]} />
+
+)}
           {error && (
         <Alert
           message="Error"
