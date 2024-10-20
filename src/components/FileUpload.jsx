@@ -119,7 +119,7 @@ export default function FileUpload() {
     try {
       const protocol = window.location.protocol; // Get the current protocol
       const host = getHost();
-      const url = `${protocol}//${host}}/api/file/${cid}`;
+      const url = `${protocol}//${host}/api/file/${cid}`;
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error('Failed to fetch file');
