@@ -6,7 +6,7 @@ export const getHost = ()=>{
   if(hostname.includes('runonflux')){
     return hostname
   }
-  else if(hostname==="node.cyberfly.io"){
+  else if(hostname.includes(".cyberfly.io")){
   return hostname
   }
   else{
