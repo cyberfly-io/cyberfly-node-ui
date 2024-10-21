@@ -4,7 +4,7 @@ import { Alert, Card, Input, Tabs, Tag, Button, Progress,Upload, Typography, Spa
 import { UploadOutlined, DownloadOutlined, SearchOutlined } from '@ant-design/icons';
 import { getHost } from '../services/node-services';
 const { TabPane } = Tabs;
-const { Text, Title } = Typography;
+const { Text, Title, Paragraph } = Typography;
 
 export default function FileUpload() {
   const [file, setFile] = useState(null);
@@ -18,12 +18,10 @@ export default function FileUpload() {
   const [retrieveCid, setRetrieveCid] = useState('');
   const [retrieving, setRetrieving] = useState(false);
   const [fileList, setFileList] = useState([]);
+  const[tab, setTab] = useState("1")
 
-  const videoPlayerRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [buffering, setBuffering] = useState(false);
+  const [cid, setCid] = useState(null);
+
   const CHUNK_SIZE =   800 * 1024; // 1MB chunks
 
   const formatBytes = (bytes, decimals = 2) => {
@@ -50,7 +48,26 @@ export default function FileUpload() {
   };
 
 
+  useEffect(() => {
+    // Get CID on component mount
+    getCIDParam();
+    if(cid){
+        setRetrieveCid(cid)
+        setTab("2")
+        setRetrieving(true)
 
+        fetchAndRenderFile(cid).then(()=>{
+            setRetrieving(false)
+
+        })
+    }
+  }, [cid]);
+
+  const getCIDParam = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const cidValue = urlParams.get('cid');
+    setCid(cidValue);
+  };
 
 
   const props = {
@@ -483,7 +500,7 @@ export default function FileUpload() {
 
   return (
     <div style={{ maxWidth: '800px', margin: '24px auto', padding: '24px' }}>
-      <Tabs defaultActiveKey="1">
+      <Tabs defaultActiveKey="1" activeKey={tab} onChange={(key=>{setTab(key)})}>
         <TabPane tab="Upload File" key="1">
           <UploadTab />
           {uploadProgress > 0 && (    
@@ -503,7 +520,13 @@ export default function FileUpload() {
       {uploadResult && (
         <Alert
           message="Success"
-          description={`File uploaded successfully! CID: ${uploadResult.metadataCid}`}
+          description={  <Paragraph
+            copyable={{
+              text: `${window.location.protocol}//${window.location.host}/files?cid=${uploadResult.metadataCid}`,
+            }}
+          >
+            {`File uploaded successfully! CID: ${uploadResult.metadataCid}`}
+          </Paragraph>}  
           type="success"
           showIcon
           style={{ marginTop: '24px' }}
