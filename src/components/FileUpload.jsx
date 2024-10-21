@@ -525,7 +525,9 @@ export default function FileUpload() {
               text: `${window.location.protocol}//${window.location.host}/files?cid=${uploadResult.metadataCid}`,
             }}
           >
-            {`File uploaded successfully! CID: ${uploadResult.metadataCid}`}
+            <Text strong>
+            File uploaded successfully! File link: {`${window.location.protocol}//${window.location.host}/files?cid=${uploadResult.metadataCid}`}
+             </Text>
           </Paragraph>}  
           type="success"
           showIcon
