@@ -291,7 +291,7 @@ export default function FileUpload() {
   
     return (
       <Card>
-        <div className="video-container" style={{ position: 'relative' }}>
+        <div className="video-container" style={{ position: 'absolute' }}>
           <video
             ref={videoRef}
             controls
