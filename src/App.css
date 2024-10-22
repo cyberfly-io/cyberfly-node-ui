@@ -62,13 +62,18 @@
   .video-container {
     position: relative;
     width: 100%;
+    max-width: 100%; /* Ensures it doesn't exceed the screen width */
     background: #000;
     border-radius: 4px;
     overflow: hidden;
-  }
-  
-  .video-container video {
-    display: block;
+    padding-top: 56.25%; /* 16:9 Aspect Ratio */
+}
+
+.video-container video {
+    position: absolute; /* Positioning for responsive behavior */
+    top: 0;
+    left: 0;
     width: 100%;
-    height: auto;
-  }
+    height: 100%; /* Ensures it fills the container */
+    object-fit: cover; /* Ensures the video covers the container */
+}
