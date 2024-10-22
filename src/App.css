@@ -60,7 +60,7 @@
   }}
 
   .video-container {
-    position: relative;
+    position: absolute;
     width: 100%;
     max-width: 100%; /* Ensures it doesn't exceed the screen width */
     background: #000;
