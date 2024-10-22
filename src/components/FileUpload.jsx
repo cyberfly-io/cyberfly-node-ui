@@ -270,7 +270,7 @@ export default function FileUpload() {
   
       const handleWaiting = () => setIsBuffering(true);
       const handlePlaying = () => setIsBuffering(false);
-      const handleError = (e) => setError('Error loading video');
+      const handleError = () => setError('Error loading video');
       const handleCanPlay = () => setLoaded(true);
   
       video.addEventListener('waiting', handleWaiting);
@@ -278,7 +278,6 @@ export default function FileUpload() {
       video.addEventListener('error', handleError);
       video.addEventListener('canplay', handleCanPlay);
   
-      // Optional: preload metadata
       video.preload = 'metadata';
   
       return () => {
@@ -291,12 +290,19 @@ export default function FileUpload() {
   
     return (
       <Card>
-        <div className="video-container" style={{ position: 'absolute' }}>
+        <div style={{ position: 'relative', width: '100%', paddingBottom: '56.25%' }}>
           <video
             ref={videoRef}
             controls
-            style={{ width: '100%', height: 'auto', backgroundColor: '#000' }}
-            playsInline // Better mobile support
+            style={{ 
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              backgroundColor: '#000'
+            }}
+            playsInline
           >
             <source src={src} type={type} />
             Your browser does not support the video tag.
@@ -310,9 +316,9 @@ export default function FileUpload() {
               transform: 'translate(-50%, -50%)',
               background: 'rgba(0,0,0,0.7)',
               color: 'white',
-              padding: '10px 20px',
+              padding: '8px 16px',
               borderRadius: '4px',
-              zIndex: 2
+              zIndex: 10
             }}>
               Buffering...
             </div>
@@ -326,9 +332,9 @@ export default function FileUpload() {
               transform: 'translate(-50%, -50%)',
               background: 'rgba(255,0,0,0.7)',
               color: 'white',
-              padding: '10px 20px',
+              padding: '8px 16px',
               borderRadius: '4px',
-              zIndex: 2
+              zIndex: 10
             }}>
               {error}
             </div>
@@ -345,7 +351,9 @@ export default function FileUpload() {
       return (
         <Card>
           <Space direction="vertical" size="large" style={{ width: '100%' }}>
-            <Music style={{ width: 48, height: 48, color: '#8c8c8c' }} />
+            <div style={{ textAlign: 'center' }}>
+              <Music style={{ width: 48, height: 48, color: '#bfbfbf' }} />
+            </div>
             <audio 
               controls 
               style={{ width: '100%' }}
@@ -357,6 +365,7 @@ export default function FileUpload() {
             <Button 
               type="primary"
               icon={<DownloadOutlined />}
+              block
               onClick={() => downloadBlob(new Blob([content], { type }), file?.name || 'audio')}
             >
               Download Audio
@@ -367,8 +376,8 @@ export default function FileUpload() {
     }
 
     if (type?.startsWith('video/')) {
-        return <VideoPlayer src={content} type={type} />;
-      }
+      return <VideoPlayer src={content} type={type} />;
+    }
 
     if (type === 'application/octet-stream' || 
         (!type?.startsWith('image/') && 
@@ -378,9 +387,9 @@ export default function FileUpload() {
          type !== 'application/pdf' && 
          type !== 'application/json')) {
       return (
-        <Card style={{ textAlign: 'center' }}>
-          <Space direction="vertical" size="large" style={{ width: '100%' }}>
-            <File className="w-16 h-16" style={{ color: '#8c8c8c' }} />
+        <Card>
+          <Space direction="vertical" size="large" style={{ width: '100%', textAlign: 'center' }}>
+            <File style={{ width: 64, height: 64, color: '#bfbfbf', margin: '0 auto' }} />
             <div>
               <Title level={4} style={{ marginBottom: 8 }}>Binary File</Title>
               <Text type="secondary" style={{ display: 'block', marginBottom: 8 }}>
@@ -389,15 +398,14 @@ export default function FileUpload() {
               <Tag color="blue" style={{ marginBottom: 16 }}>
                 {type || 'application/octet-stream'}
               </Tag>
-              <div>
-                <Button 
-                  type="primary"
-                  icon={<DownloadOutlined />}
-                  onClick={() => downloadBlob(content, file?.name || 'download')}
-                >
-                  Download File
-                </Button>
-              </div>
+              <Button 
+                type="primary"
+                icon={<DownloadOutlined />}
+                onClick={() => downloadBlob(content, file?.name || 'download')}
+                block
+              >
+                Download File
+              </Button>
             </div>
           </Space>
         </Card>
@@ -410,7 +418,7 @@ export default function FileUpload() {
           <img 
             src={content} 
             alt="Uploaded content" 
-            style={{ maxWidth: '100%', height: 'auto' }} 
+            style={{ width: '100%', height: 'auto' }} 
           />
         </Card>
       );
@@ -422,7 +430,14 @@ export default function FileUpload() {
           <iframe
             src={content}
             title="PDF Viewer"
-            style={{ width: '100%', height: '600px', border: 'none' }}
+            style={{ 
+              width: '100%', 
+              height: '600px',
+              border: 'none',
+              '@media (max-width: 768px)': {
+                height: '400px'
+              }
+            }}
           />
         </Card>
       );
@@ -438,7 +453,8 @@ export default function FileUpload() {
             background: '#f5f5f5',
             padding: '16px',
             borderRadius: '4px',
-            overflow: 'auto'
+            overflow: 'auto',
+            maxHeight: '600px'
           }}>
             {content}
           </pre>
@@ -448,30 +464,27 @@ export default function FileUpload() {
 
     return (
       <Card style={{ textAlign: 'center' }}>
-        <File style={{ width: 64, height: 64, color: '#8c8c8c', marginBottom: 8 }} />
+        <File style={{ width: 64, height: 64, color: '#bfbfbf', marginBottom: 8 }} />
         <Text type="secondary">This file type cannot be previewed</Text>
       </Card>
     );
   };
 
   const UploadTab = () => (
-   <>
-     <Upload {...props} maxCount={1}>
-        <Button icon={<UploadOutlined />}>Select File</Button>
+    <Space direction="vertical" style={{ width: '100%' }} size="large">
+      <Upload {...props} maxCount={1}>
+        <Button icon={<UploadOutlined />} block>Select File</Button>
       </Upload>
       <Button
         type="primary"
         onClick={handleUpload}
         disabled={fileList.length === 0}
         loading={uploading}
-        style={{
-          marginTop: 16,
-        }}
+        block
       >
         {uploading ? 'Uploading' : 'Start Upload'}
       </Button>
-      </>
-    
+    </Space>
   );
 
   const RetrieveTab = () => (
@@ -499,55 +512,57 @@ export default function FileUpload() {
 
 
   return (
-    <div style={{ maxWidth: '800px', margin: '24px auto', padding: '24px' }}>
-      <Tabs defaultActiveKey="1" activeKey={tab} onChange={(key=>{setTab(key)})}>
+    <div style={{ maxWidth: 800, margin: '24px auto', padding: '16px' }}>
+      <Tabs defaultActiveKey="1" activeKey={tab} onChange={key => setTab(key)}>
         <TabPane tab="Upload File" key="1">
           <UploadTab />
-          {uploadProgress > 0 && (    
-            <Progress percent={uploadProgress.toFixed()} percentPosition={{ align: 'center', type: 'inner' }} size={[400, 20]} />
-
-)}
+          {uploadProgress > 0 && (
+            <div style={{ marginTop: 16 }}>
+              <Progress 
+                percent={Number(uploadProgress.toFixed())}
+                status="active"
+              />
+            </div>
+          )}
           {error && (
-        <Alert
-          message="Error"
-          description={error}
-          type="error"
-          showIcon
-          style={{ marginTop: '24px' }}
-        />
-      )}
-
-      {uploadResult && (
-        <Alert
-          message="Success"
-          description={  <Paragraph
-            copyable={{
-              text: `${window.location.protocol}//${window.location.host}/files?cid=${uploadResult.metadataCid}`,
-            }}
-          >
-            <Text strong>
-            File uploaded successfully! File link: {`${window.location.protocol}//${window.location.host}/files?cid=${uploadResult.metadataCid}`}
-             </Text>
-          </Paragraph>}  
-          type="success"
-          showIcon
-          style={{ marginTop: '24px' }}
-        />
-      )}
+            <Alert
+              message="Error"
+              description={error}
+              type="error"
+              showIcon
+              style={{ marginTop: 24 }}
+            />
+          )}
+          {uploadResult && (
+            <Alert
+              message="Success"
+              description={
+                <Paragraph
+                  copyable={{
+                    text: `${window.location.protocol}//${window.location.host}/files?cid=${uploadResult.metadataCid}`,
+                  }}
+                  style={{ wordBreak: 'break-all' }}
+                >
+                  <Text strong>
+                    File uploaded successfully! File link: {`${window.location.protocol}//${window.location.host}/files?cid=${uploadResult.metadataCid}`}
+                  </Text>
+                </Paragraph>
+              }
+              type="success"
+              showIcon
+              style={{ marginTop: 24 }}
+            />
+          )}
         </TabPane>
         <TabPane tab="Retrieve File" key="2">
           <RetrieveTab />
           {fileContent && (
-        <div style={{ marginTop: '24px' }}>
-          <FileViewer content={fileContent} type={fileType} />
-        </div>
-      )}
+            <div style={{ marginTop: 24 }}>
+              <FileViewer content={fileContent} type={fileType} />
+            </div>
+          )}
         </TabPane>
       </Tabs>
-
-    
-
-  
     </div>
   );
 }
