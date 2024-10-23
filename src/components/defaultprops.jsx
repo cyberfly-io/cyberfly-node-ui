@@ -76,12 +76,18 @@ const config = {
   },
   appList: [
     {
-      icon: 'https://dev.cyberfly.io/cfly-logo-twitter.png',
-      title: 'Cyberfly Testnet app',
+      icon: 'https://cyberfly.io/assets/images/newlogo.png',
+      title: 'Cyberfly IoT Testnet app',
       desc: 'Decentralised IoT platform',
       url: 'https://dev.cyberfly.io/',
     },
-    
+
+    {
+      icon: 'https://cyberfly.io/assets/images/newlogo.png',
+      title: 'Cyberfly Node GraphQL',
+      desc: 'Decentralised database query',
+      url: 'https://node.cyberfly.io/graphql',
+    },
   ],
 };
 
