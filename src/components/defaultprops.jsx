@@ -83,7 +83,7 @@ const config = {
     },
 
     {
-      icon: 'https://cyberfly.io/assets/images/newlogo.png',
+      icon: 'https://upload.wikimedia.org/wikipedia/commons/1/17/GraphQL_Logo.svg',
       title: 'Cyberfly Node GraphQL',
       desc: 'Decentralised database query',
       url: 'https://node.cyberfly.io/graphql',
