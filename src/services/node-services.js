@@ -39,7 +39,7 @@ export const getNodeInfo = async()=>{
    return data
 }
 
-export const getDBInfo = async(dbaddress)=>{
+export const getDBInfo = async(dbaddr)=>{
   const host = getHost(); // Get the host without protocol
   const protocol = window.location.protocol; // Get the current protocol
 
@@ -48,12 +48,12 @@ export const getDBInfo = async(dbaddress)=>{
   const res =await fetch(url, {method:'POST',  headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json'
-  },body:JSON.stringify({dbaddress:dbaddress})})
+  },body:JSON.stringify({dbaddr:dbaddr})})
   const data = await res.json()
 return data
 }
 
-export const getReadDB = async(dbaddress)=>{
+export const getReadDB = async(dbaddr)=>{
   const host = getHost(); // Get the host without protocol
   const protocol = window.location.protocol; // Get the current protocol
 
@@ -62,7 +62,7 @@ export const getReadDB = async(dbaddress)=>{
   const res =await fetch(url, {method:'POST',  headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json'
-  },body:JSON.stringify({dbaddress:dbaddress})})
+  },body:JSON.stringify({dbaddr:dbaddr})})
   const data = await res.json()
 return data
 }

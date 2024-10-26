@@ -9,11 +9,10 @@ const Tools = () => {
   const { isDarkMode } = useDarkMode();
 const [loading, setLoading] = useState(false)
    const [dbinfo, setDbInfo] = useState(null)
-   const [dbaddress, setDbAddress] = useState()
+   const [dbaddr, setDbaddr] = useState()
   const onFinish = (values) => {
-    console.log('Received values:', values);
     setLoading(true)
-    getDBInfo(values.dbaddress).then((data)=>{
+    getDBInfo(values.dbaddr).then((data)=>{
       setDbInfo(data)
       setLoading(false)
     })
@@ -24,9 +23,9 @@ const [loading, setLoading] = useState(false)
   };
 
   const readDb = ()=>{
-    if(dbaddress!==''){
+    if(dbaddr!==''){
       setLoading(true)
-      getReadDB(dbaddress).then((data)=>{
+      getReadDB(dbaddr).then((data)=>{
         setDbInfo(data)
         setLoading(false)
       })
@@ -49,7 +48,7 @@ const [loading, setLoading] = useState(false)
     >
       <Form.Item
         label="DB address"
-        name="dbaddress"
+        name="dbaddr"
         rules={[
           {
             required: true,
@@ -58,7 +57,7 @@ const [loading, setLoading] = useState(false)
         ]}
       >
         <Input size='large' onChange={(e)=>{
-         setDbAddress(e.target.value)   
+         setDbaddr(e.target.value)   
         }}/>
       </Form.Item>
   
