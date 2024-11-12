@@ -10,7 +10,12 @@ import { bootstrap } from '@libp2p/bootstrap';
 import { bootStrapNode } from '../constants/contextConstants';
 import { webRTC } from '@libp2p/webrtc'
 import { all } from '@libp2p/websockets/filters'
-import { circuitRelayTransport } from '@libp2p/circuit-relay-v2'
+import { preSharedKey } from '@libp2p/pnet'
+import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
+
+const swarmKey = `/key/swarm/psk/1.0.0/
+/base16/
+8463a7707bad09f63538d273aa769cbdd732e43b07f207d88faa323566168ad3`;
 
  const getLibp2pOptions = ()=> {
   return {
@@ -28,6 +33,9 @@ import { circuitRelayTransport } from '@libp2p/circuit-relay-v2'
       listenOnly: false,
     }),
     ],
+    connectionProtector: preSharedKey({
+      psk: uint8ArrayFromString(swarmKey) 
+    }),
     addresses: {
       listen: ['/webrtc']
     },
@@ -36,9 +44,6 @@ import { circuitRelayTransport } from '@libp2p/circuit-relay-v2'
             filter: all
           }),
           webRTC(),
-          circuitRelayTransport({
-            discoverRelays: 1
-          })
     ],
     connectionEncryption: [noise()],
     streamMuxers: [yamux(), mplex()],
