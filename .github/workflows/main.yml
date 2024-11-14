@@ -16,10 +16,10 @@ jobs:
           node-version: '16'
 
       - name: Install dependencies
-        run: yarn install --ignore-engines
+        run: pnpm install --frozen-lockfile
 
       - name: Build React app
-        run: yarn build-no-lint
+        run: pnpm build --prod
       
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
