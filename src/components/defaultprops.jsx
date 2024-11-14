@@ -9,6 +9,7 @@ import {
     FileAddOutlined
     } from '@ant-design/icons';
     import { FiMapPin } from "react-icons/fi";
+import { getHost } from '../services/node-services';
 
 const config = {
   route: {
@@ -86,7 +87,7 @@ const config = {
       icon: 'https://upload.wikimedia.org/wikipedia/commons/1/17/GraphQL_Logo.svg',
       title: 'Cyberfly Node GraphQL',
       desc: 'Decentralised database query',
-      url: 'https://node.cyberfly.io/graphql',
+      url: `${window.location.protocol}//${getHost()}/graphql`,
     },
   ],
 };
