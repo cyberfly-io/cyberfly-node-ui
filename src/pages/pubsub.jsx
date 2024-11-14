@@ -14,7 +14,10 @@ const host = getHost(); // Get the host without protocol
 const protocol = window.location.protocol; // Get the current protocol
 let url = `${protocol}//${host}`
 console.log(url)
-if(host.includes(':3100')){
+if(protocol==="https:"&&host.includes('3100')){
+  url = host.replace("31000", "31003")
+}
+else if(protocol==="http:"){
   url = "https://node.cyberfly.io"
 }
 console.log(url)
