@@ -14,6 +14,7 @@ const MyNode = () => {
   const [loading, setLoading] = useState(true)
   const {initializeEckoWallet, account  } = useEckoWalletContext()
   const [node, setNode] = useState({})
+  const [earnStatus, setEarnStatus] = useState("Not Earning")
   const [stake, setStake] = useState(null)
   const [claimable, setClaimable] = useState(0)
   const [deadline, setDeadline] = useState(Date.now());
@@ -85,13 +86,18 @@ else{
   const loadData = (peer_id)=>{
     setCanStake(true)
     setStake(null)
+    setEarnStatus("Not Earning")
     setLoadingModal(true)
-    const node_info = getNode(peer_id)
+    var node_info = getNode(peer_id)
     getNodeStake(peer_id).then((data)=>{
       if(data){
         if(data.active)
         setCanStake(false)
         setStake(data)
+       
+        if(node_info.status==="active" && data.active){
+          setEarnStatus("Earning")
+         }
         const originalDate = new Date(data.last_claim.timep);
         const nextDay = new Date(originalDate);
               nextDay.setDate(originalDate.getDate() + 1);
@@ -102,6 +108,7 @@ else{
           setClaimable(reward.reward)
 
       })
+
       setLoadingModal(false)
     })
     if(node_info)
@@ -185,7 +192,7 @@ else{
     <Col span={6}>
     <Card bordered={false} >
 
-      <Statistic title="Earning Status" value={node.status==="active"? "Earning":"Not Earning"} />
+      <Statistic title="Earning Status" value={earnStatus} />
       </Card>
     </Col>
  {!claimable>0 && stake.active && node.status === "active" && (   <Col span={6}>
