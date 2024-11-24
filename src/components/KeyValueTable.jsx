@@ -1,5 +1,6 @@
 import React from 'react';
 import { Table } from 'antd';
+import { render } from '@testing-library/react';
 
 const KeyValueTable = ({ data }) => {
   // Convert data into a format accepted by Ant Design Table
@@ -21,7 +22,11 @@ const KeyValueTable = ({ data }) => {
     {
       title: 'Value',
       dataIndex: 'value',
-      key: 'value'
+      key: 'value',
+      render: (_, record)=>{
+        const val = typeof _ =="object"? _.timep : _
+        return (val)
+      }
     }
   ];
 
