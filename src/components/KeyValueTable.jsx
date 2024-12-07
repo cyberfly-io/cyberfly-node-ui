@@ -1,6 +1,5 @@
 import React from 'react';
 import { Table } from 'antd';
-import { render } from '@testing-library/react';
 
 const KeyValueTable = ({ data }) => {
   // Convert data into a format accepted by Ant Design Table

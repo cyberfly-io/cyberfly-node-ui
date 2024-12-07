@@ -22,6 +22,7 @@ import Faucet from './pages/faucet';
 import Files from './pages/files';
 
 
+
 const { defaultAlgorithm, darkAlgorithm } = theme;
 
 const { Paragraph } = Typography;
@@ -31,8 +32,6 @@ const { Paragraph } = Typography;
 const App = () => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const [pathname, setPathname] = useState('/');
-
- 
   const [open, setOpen] = useState(false);
   const showModal = () => {
     setOpen(true);

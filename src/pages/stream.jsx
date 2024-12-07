@@ -1,198 +1,241 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { startLibp2pNode } from '../services/libp2p-services';
-import { multiaddr } from '@multiformats/multiaddr'
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { createLibp2p } from 'libp2p'
+import { webRTC } from '@libp2p/webrtc'
+import { noise } from '@chainsafe/libp2p-noise'
+import { yamux } from '@chainsafe/libp2p-yamux'
+import { bootstrap } from '@libp2p/bootstrap'
+import { identify } from '@libp2p/identify'
+import { circuitRelayTransport } from '@libp2p/circuit-relay-v2'
 
-const VideoStreaming = () => {
-  const localVideoRef = useRef(null);
-  const remoteVideoRef = useRef(null);
-  const mediaRecorderRef = useRef(null);
-  const [peerId, setPeerId] = useState(null);
-  const [libp2p, setLibp2p] = useState(null);
-  const [remotePeerIdInput, setRemotePeerIdInput] = useState('');
-  const [isStreaming, setIsStreaming] = useState(false);
+const VideoStreamer = () => {
+  const [node, setNode] = useState(null)
+  const [peerId, setPeerId] = useState(null)
+  const [connectionStatus, setConnectionStatus] = useState('Disconnected')
+  const [connectedPeers, setConnectedPeers] = useState([])
+  const [isStreamingLocal, setIsStreamingLocal] = useState(false)
+  
+  const localVideoRef = useRef(null)
+  const remoteVideoRef = useRef(null)
+  const mediaStreamRef = useRef(null)
+  const peerConnectionsRef = useRef(new Map())
 
-  useEffect(() => {
-    const initLibp2p = async () => {
-      try {
-        const node = await startLibp2pNode()
-        setLibp2p(node);
-        setPeerId(node.peerId.toString());
-
-        // Handle incoming video streams
-        await node.handle('/video/1.0.0', async ({ stream }) => {
-          console.log('Received incoming stream');
-          if (!stream || typeof stream.source !== 'object') {
-            console.error('Invalid stream object:', stream);
-            return;
-          }
-
-          const reader = stream.source;
-          const mediaSource = new MediaSource();
-          if (remoteVideoRef.current) {
-            remoteVideoRef.current.src = URL.createObjectURL(mediaSource);
-          }
-
-          mediaSource.addEventListener('sourceopen', async () => {
-            const sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vp8,opus"');
-            let queue = [];
-            let isAppending = false;
-
-            const appendNextBuffer = async () => {
-              if (queue.length === 0 || isAppending) return;
-              isAppending = true;
-              try {
-                sourceBuffer.appendBuffer(queue.shift());
-              } catch (err) {
-                console.error('Error appending buffer:', err);
-              }
-            };
-
-            sourceBuffer.addEventListener('updateend', () => {
-              isAppending = false;
-              appendNextBuffer();
-            });
-
-            try {
-              for await (const chunk of reader) {
-                if (chunk instanceof Uint8Array) {
-                  queue.push(chunk);
-                  if (!isAppending) {
-                    appendNextBuffer();
-                  }
-                }
-              }
-            } catch (err) {
-              console.error('Error processing stream:', err);
-            }
-          });
-        });
-      } catch (err) {
-        console.error('Error initializing libp2p:', err);
-      }
-    };
-
-    initLibp2p();
-
-    return () => {
-      if (libp2p) {
-        libp2p.stop().catch(err => console.error('Error stopping libp2p:', err));
-      }
-      stopStreaming();
-    };
-  }, []);
-
-  const stopStreaming = useCallback(() => {
-    if (mediaRecorderRef.current) {
-      mediaRecorderRef.current.stop();
-    }
-    if (localVideoRef.current && localVideoRef.current.srcObject) {
-      localVideoRef.current.srcObject.getTracks().forEach(track => track.stop());
-      localVideoRef.current.srcObject = null;
-    }
-    setIsStreaming(false);
-  }, []);
-
-  const startStreaming = useCallback(async () => {
-    if (!libp2p || !remotePeerIdInput) {
-      console.error('libp2p not initialized or no remote peer ID');
-      return;
-    }
-
+  const initializeNode = useCallback(async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: true,
-        audio: true 
-      });
-      
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = stream;
-      }
-
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'video/webm;codecs=vp8,opus',
-        videoBitsPerSecond: 600000,
-      });
-
-      mediaRecorderRef.current = mediaRecorder;
-      
-      let chunks = [];
-      mediaRecorder.ondataavailable = async (event) => {
-        if (event.data.size > 0) {
-          chunks.push(event.data);
-          if (chunks.length >= 1 && libp2p && remotePeerIdInput) {
-            try {
-              const blob = new Blob(chunks, { type: 'video/webm' });
-              chunks = [];
-              
-              // Fixed dialing logic
-              const peerIdString = remotePeerIdInput.includes('/p2p/') 
-                ? remotePeerIdInput.split('/p2p/')[1] 
-                : remotePeerIdInput;
-                
-              const { stream } = await libp2p.dialProtocol(peerIdString, '/video/1.0.0');
-              
-              if (!stream || typeof stream.sink !== 'function') {
-                console.error('Invalid stream object:', stream);
-                return;
-              }
-              const writer = stream.sink;
-              await writer(new Uint8Array(await blob.arrayBuffer()));
-            } catch (err) {
-              console.error('Failed to send video data:', err);
-            }
-          }
+      const libp2pNode = await createLibp2p({
+        transports: [webRTC(),
+          circuitRelayTransport({
+            discoverRelays: 1
+          })
+        ],
+        connectionEncryption: [noise()],
+        streamMuxer: [yamux()],
+        peerDiscovery: [
+          bootstrap({
+            list: [
+              '/ip4/139.99.91.128/tcp/31001/p2p/12D3KooWSfGgUaeogSZuRPa4mhsAU41qJH5EpmwKg9wGVzUwFGth'
+            ]
+          })
+        ],
+        services: {
+          identify: identify()
         }
-      };
+      })
 
-      mediaRecorder.start(100);
-      setIsStreaming(true);
-    } catch (err) {
-      console.error('Error starting streaming:', err);
-      setIsStreaming(false);
+      // Add peer discovery listener
+      libp2pNode.addEventListener('peer:discovery', (event) => {
+        const peerId = event.detail.id.toString()
+        console.log('Discovered peer:', peerId)
+        setConnectedPeers(prev => [...new Set([...prev, peerId])])
+      })
+
+      // Add connection listener
+      libp2pNode.addEventListener('peer:connect', (event) => {
+        const peerId = event.detail.remotePeer.toString()
+        setConnectionStatus(`Connected to ${peerId}`)
+      })
+
+      await libp2pNode.start()
+      setNode(libp2pNode)
+      setPeerId(libp2pNode.peerId.toString())
+      
+      return libp2pNode
+    } catch (error) {
+      console.error('Failed to initialize libp2p node:', error)
+      setConnectionStatus('Initialization Failed')
     }
-  }, [libp2p, remotePeerIdInput]);
+  }, [])
 
-  const dialPeer = async () => {
-    if (!libp2p || !remotePeerIdInput) {
-      console.error('libp2p not initialized or remote peer ID not provided');
-      return;
+  const startVideoCapture = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true
+      })
+      
+      mediaStreamRef.current = stream
+      localVideoRef.current.srcObject = stream
+      localVideoRef.current.play()
+      setIsStreamingLocal(true)
+      
+      // Prepare for potential peer streaming
+      await receiveVideoStream()
+    } catch (error) {
+      console.error('Error accessing media devices:', error)
+    }
+  }, [node])
+
+  const connectToPeer = useCallback(async (peerMultiaddr) => {
+    if (!node) return null
+
+    try {
+      const peer = await node.dial(peerMultiaddr)
+      const remotePeerId = peer.remotePeer.toString()
+      
+      // Store peer connection
+      peerConnectionsRef.current.set(remotePeerId, peer)
+      
+      setConnectedPeers(prev => [...new Set([...prev, remotePeerId])])
+      setConnectionStatus(`Connected to ${remotePeerId}`)
+      
+      return peer
+    } catch (error) {
+      console.error('Failed to connect to peer:', error)
+      setConnectionStatus('Connection Failed')
+      return null
+    }
+  }, [node])
+
+  const streamVideoToPeer = useCallback(async (peer) => {
+    const videoStream = mediaStreamRef.current
+
+    if (!videoStream) {
+      console.error('No media stream available')
+      return
     }
 
     try {
-      const ma = multiaddr(`/p2p/${remotePeerIdInput}`);
-      const connection = await libp2p.dial(ma);
-      console.log('Connected to peer:', connection.remotePeer.toString());
-    } catch (err) {
-      console.error('Failed to connect to peer:', err);
+      const stream = await peer.newStream(['/video-stream/1.0.0'])
+      const tracks = videoStream.getTracks()
+      
+      for (const track of tracks) {
+        stream.write(track)
+      }
+      
+      console.log('Video stream started to peer')
+    } catch (error) {
+      console.error('Failed to stream video:', error)
     }
-  };
+  }, [])
+
+  const receiveVideoStream = useCallback(async () => {
+    if (!node) return
+
+    await node.handle('/video-stream/1.0.0', async ({ stream }) => {
+      try {
+        const receivedTracks = []
+        
+        for await (const track of stream) {
+          receivedTracks.push(track)
+        }
+
+        const remoteStream = new MediaStream(receivedTracks)
+        remoteVideoRef.current.srcObject = remoteStream
+        remoteVideoRef.current.play()
+      } catch (error) {
+        console.error('Error receiving video stream:', error)
+      }
+    })
+  }, [node])
+
+  const stopVideoStream = useCallback(() => {
+    // Stop local media stream
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach(track => track.stop())
+      mediaStreamRef.current = null
+    }
+    
+    // Disconnect all peers
+    peerConnectionsRef.current.forEach((peer, peerId) => {
+      try {
+        peer.close()
+      } catch (error) {
+        console.error(`Error closing connection to ${peerId}:`, error)
+      }
+    })
+    
+    // Reset states
+    peerConnectionsRef.current.clear()
+    setConnectedPeers([])
+    setConnectionStatus('Disconnected')
+    setIsStreamingLocal(false)
+  }, [])
+
+  // Initialize node on component mount
+  useEffect(() => {
+    initializeNode()
+    
+    return () => {
+      if (node) {
+        node.stop()
+      }
+    }
+  }, [initializeNode])
+
+  const [peerAddress, setPeerAddress] = useState('')
+
+  const handleConnectToPeer = useCallback(async () => {
+    const peer = await connectToPeer(peerAddress)
+    if (peer && isStreamingLocal) {
+      await streamVideoToPeer(peer)
+    }
+  }, [connectToPeer, streamVideoToPeer, peerAddress, isStreamingLocal])
 
   return (
-    <div>
-      <h1>libp2p Video Streaming</h1>
-      <p>Your Peer ID: {peerId}</p>
-      <div>
-        <h2>Local Video</h2>
-        <video ref={localVideoRef} autoPlay playsInline muted />
-        {!isStreaming ? (
-          <button onClick={startStreaming}>Start Streaming</button>
-        ) : (
-          <button onClick={stopStreaming}>Stop Streaming</button>
-        )}
-      </div>
-      <div>
-        <h2>Remote Video</h2>
-        <video ref={remoteVideoRef} autoPlay playsInline />
+    <div className="video-streaming-container">
+      <div className="controls">
         <input 
           type="text" 
-          value={remotePeerIdInput} 
-          onChange={(e) => setRemotePeerIdInput(e.target.value)} 
-          placeholder="Enter remote peer ID"
+          value={peerAddress}
+          onChange={(e) => setPeerAddress(e.target.value)}
+          placeholder="Enter peer multiaddress" 
         />
-        <button onClick={dialPeer}>Connect to Peer</button>
+        <button onClick={startVideoCapture} disabled={isStreamingLocal}>
+          Start Streaming
+        </button>
+        <button 
+          onClick={handleConnectToPeer}
+          disabled={!isStreamingLocal || !peerAddress}
+        >
+          Connect to Peer
+        </button>
+        <button onClick={stopVideoStream} disabled={!isStreamingLocal}>
+          Stop Streaming
+        </button>
+      </div>
+
+      <div className="connection-info">
+        <p>Peer ID: {peerId || 'Not initialized'}</p>
+        <p>Status: {connectionStatus}</p>
+        <p>Connected Peers: {connectedPeers.length}</p>
+      </div>
+      
+      <div className="video-container">
+        <video 
+          ref={localVideoRef} 
+          autoPlay 
+          playsInline 
+          muted 
+          className="local-video"
+        />
+        <video 
+          ref={remoteVideoRef} 
+          autoPlay 
+          playsInline 
+          className="remote-video"
+        />
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default VideoStreaming;
+export default VideoStreamer

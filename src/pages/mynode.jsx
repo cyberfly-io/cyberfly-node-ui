@@ -1,6 +1,6 @@
 import { PageContainer } from '@ant-design/pro-components'
 import React, { useEffect, useState } from 'react'
-import { getMyNodes, getNodeStake, getNodeClaimable, nodeStake, nodeUnStake, claimReward } from '../services/pact-services'
+import { getMyNodes, getNodeStake, getNodeClaimable, nodeStake, nodeUnStake, claimReward, getAPY } from '../services/pact-services'
 import { Table, Spin, Result, Button, Tooltip, Modal, Col, Row, Statistic, Card, message as msg } from 'antd';
 import { useEckoWalletContext } from '../contexts/eckoWalletContext';
 import {WalletOutlined, EyeOutlined} from "@ant-design/icons"
@@ -19,6 +19,8 @@ const MyNode = () => {
   const [claimable, setClaimable] = useState(0)
   const [deadline, setDeadline] = useState(Date.now());
   const [canStake, setCanStake] = useState(true)
+  const [apy, setApy] = useState(0)
+
 
 
   const [open, setOpen] = useState(false)
@@ -107,6 +109,10 @@ else{
         if(reward)
           setClaimable(reward.reward)
 
+      })
+
+      getAPY().then((data)=>{
+        setApy(data)
       })
 
       setLoadingModal(false)
@@ -201,6 +207,11 @@ else{
     <Countdown title="Next Claim" value={deadline}  />
     </Card>
     </Col>) }
+    <Col>
+    <Card bordered={false}>
+    <Statistic title="APY" value={apy} suffix="%"/>
+    </Card>
+    </Col>
   </Row>)}
   <Row gutter={16}>
   <Col span={12}>
