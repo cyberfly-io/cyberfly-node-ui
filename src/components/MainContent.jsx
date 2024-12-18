@@ -17,6 +17,7 @@ const [peerItems, setPeerItems] = useState([])
 const [cCount, setCCount] = useState(0)
 const [dCount, setDCount] = useState(0)
 const [loading, setLoading] = useState(true);
+const [version, setVersion] = useState()
 const [nodeInfo, setNodeInfo] = useState(null)
 const [tableData, setTableData] = useState({})
 const [open, setOpen] = useState(false);
@@ -30,6 +31,7 @@ const [submitted, setSubmitted] = useState(false)
      setNodeInfo(data)
      setCCount(data.connected)
      setDCount(data.discovered)
+     setVersion(data.version)
      setTableData({peerId:data.peerId, multiAddr:data.multiAddr, publicKey:data.publicKey})
      setPeers(data.connections)
      setLoading(false)
@@ -80,7 +82,7 @@ const handleCancel = () => {
   setSubmitted(true)
 };
   return (
-    <PageContainer title="Dashboard">
+    <PageContainer ghost loading={{spinning: loading,}} header={{title:"Dashboard"}} tabBarExtraContent={`Node version ${version}`} >
       
       <Spin spinning={loading} tip="Loading" fullscreen size='large'/>
     <GridContent>
