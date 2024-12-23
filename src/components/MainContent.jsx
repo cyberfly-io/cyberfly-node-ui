@@ -40,7 +40,7 @@ const [nodeInfo, setNodeInfo] = useState(null)
     const items = peers.map((item) => ({
       key: item.remotePeer,
       label:   <Paragraph  copyable={{tooltips:['Copy', 'Copied']}}>{item.remotePeer}</Paragraph>,
-      children: <><Paragraph  copyable={{tooltips:['Copy', 'Copied']}}>{item.remoteAddr}</Paragraph> <a target="_blank" href={getIP(item.remoteAddr)}>visit</a> </>,
+      children: <><Paragraph  copyable={{tooltips:['Copy', 'Copied']}}>{item.remoteAddr}</Paragraph></>,
     }));
     setPeerItems(items)
   }
