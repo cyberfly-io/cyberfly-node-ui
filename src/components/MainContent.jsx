@@ -4,9 +4,6 @@ import React, {useEffect, useState} from 'react'
 import { getNodeInfo } from '../services/node-services'
 import { StatisticCard, PageContainer } from '@ant-design/pro-components';
 import {ApartmentOutlined, InfoCircleOutlined, DeploymentUnitOutlined} from '@ant-design/icons'
-import { getNode, registerNode } from '../services/pact-services';
-import { useEckoWalletContext } from '../contexts/eckoWalletContext';
-import KeyValueTable from './KeyValueTable';
 
 const { Paragraph } = Typography;
 
@@ -19,11 +16,7 @@ const [dCount, setDCount] = useState(0)
 const [loading, setLoading] = useState(true);
 const [version, setVersion] = useState()
 const [nodeInfo, setNodeInfo] = useState(null)
-const [tableData, setTableData] = useState({})
-const [open, setOpen] = useState(false);
-const [confirmLoading, setConfirmLoading] = useState(false);
-const {initializeEckoWallet, account  } = useEckoWalletContext()
-const [submitted, setSubmitted] = useState(false)
+
 
   useEffect(()=>{
  function getInfo (){
@@ -32,7 +25,6 @@ const [submitted, setSubmitted] = useState(false)
      setCCount(data.connected)
      setDCount(data.discovered)
      setVersion(data.version)
-     setTableData({peerId:data.peerId, multiAddr:data.multiAddr, publicKey:data.publicKey})
      setPeers(data.connections)
      setLoading(false)
   })
@@ -42,23 +34,13 @@ const [submitted, setSubmitted] = useState(false)
  return ()=>clearInterval(intervalId)
  },[])
 
- useEffect(()=>{
-     if(nodeInfo){
-      getNode(nodeInfo.peerId).then((data)=>{
-        if(data.result.status==="failure" && data.result.error.message.includes("row not found") && !submitted){
-          
-        }
-      })
-     }
- // eslint-disable-next-line
- },[nodeInfo])
 
  useEffect(()=>{
   if(peers){
     const items = peers.map((item) => ({
       key: item.remotePeer,
       label:   <Paragraph  copyable={{tooltips:['Copy', 'Copied']}}>{item.remotePeer}</Paragraph>,
-      children: <Paragraph  copyable={{tooltips:['Copy', 'Copied']}}>{item.remoteAddr}</Paragraph>,
+      children: <><Paragraph  copyable={{tooltips:['Copy', 'Copied']}}>{item.remoteAddr}</Paragraph> <a target="_blank" href={getIP(item.remoteAddr)}>visit</a> </>,
     }));
     setPeerItems(items)
   }
@@ -67,22 +49,15 @@ const [submitted, setSubmitted] = useState(false)
  // eslint-disable-next-line
  [peers])
 
- const handleOk = () => {
-  setConfirmLoading(true);
-  setSubmitted(true)
-  registerNode(nodeInfo.peerId, nodeInfo.multiAddr,account ,nodeInfo.publicKey).then((data)=>{
-    console.log(data)
-    setConfirmLoading(false);
-    setOpen(false);
-  })
 
-};
-const handleCancel = () => { 
-  setOpen(false);
-  setSubmitted(true)
-};
+ const getIP = (addr)=>{
+  const regex = /\/ip4\/([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})/;
+  const match = addr.match(regex);
+  return 'http://'+match[1]+":31000"
+ }
+
   return (
-    <PageContainer ghost loading={{spinning: loading,}} header={{title:"Dashboard"}} tabBarExtraContent={`Node version ${version}`} >
+    <PageContainer ghost loading={{spinning: loading,}} header={{title:"Dashboard", }} tabBarExtraContent={ version? `Node version ${version}`:''} >
       
       <Spin spinning={loading} tip="Loading" fullscreen size='large'/>
     <GridContent>
@@ -168,20 +143,6 @@ const handleCancel = () => {
 
 <Divider orientation="left">Connected Peers</Divider>
 <Collapse items={peerItems} collapsible="icon"/>
-<Modal
-        title="Register Node to get reward"
-        open={open && !submitted}
-        onOk={handleOk}
-        confirmLoading={confirmLoading}
-        onCancel={handleCancel}
-        okText="Register"
-        cancelText="Cancel"
-        width={800}
-        okButtonProps={{ style: { display: account? '':'none' } }}
-      >
-        {!account && (<Button style={{float:"right"}} type='primary' onClick={initializeEckoWallet}>Connect Wallet</Button>)}
-        <KeyValueTable data={tableData} />
-      </Modal>
       </GridContent>
 </PageContainer>
   )
