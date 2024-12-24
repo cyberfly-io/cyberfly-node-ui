@@ -77,7 +77,7 @@ const MainContent = () => {
                 title: 'Node Peer Id',
                 loading: loading,
                 value: nodeInfo?.peerId.substring(0, 10) + '...',
-                description: <Paragraph copyable={{text:nodeInfo.peerId ,tooltips: ['Copy', 'Copied'] }}></Paragraph>,
+                description: <Paragraph copyable={{text:nodeInfo?.peerId ,tooltips: ['Copy', 'Copied'] }}></Paragraph>,
                 valueStyle: { fontSize: 12 },
                 icon: (<DeploymentUnitOutlined />)
               }}
@@ -91,7 +91,7 @@ const MainContent = () => {
                 loading: loading,
                 title: 'Node Owner',
                 value: nodeInfo?.account.substring(0, 10) + '...',
-                description:<Paragraph copyable={{text:nodeInfo.account ,tooltips: ['Copy', 'Copied'] }}></Paragraph>,
+                description:<Paragraph copyable={{text:nodeInfo?.account ,tooltips: ['Copy', 'Copied'] }}></Paragraph>,
                 valueStyle: { fontSize: 11 },
                 icon: (<InfoCircleOutlined />)
               }}
