@@ -3,7 +3,8 @@ import { GridContent } from '@ant-design/pro-components';
 import React, {useEffect, useState} from 'react'
 import { getNodeInfo } from '../services/node-services'
 import { StatisticCard, PageContainer } from '@ant-design/pro-components';
-import {ApartmentOutlined, InfoCircleOutlined, DeploymentUnitOutlined} from '@ant-design/icons'
+import {ApartmentOutlined, InfoCircleOutlined, DeploymentUnitOutlined, RadarChartOutlined} from '@ant-design/icons'
+import { getActiveNodes, getStakeStats } from '../services/pact-services';
 
 const { Paragraph } = Typography;
 
@@ -16,6 +17,9 @@ const [dCount, setDCount] = useState(0)
 const [loading, setLoading] = useState(true);
 const [version, setVersion] = useState()
 const [nodeInfo, setNodeInfo] = useState(null)
+const [activeNodes, setActiveNodes] = useState(0)
+const [locked, setLocked] = useState(0)
+const [stakes, setStakes] = useState(0)
 
 
   useEffect(()=>{
@@ -26,7 +30,15 @@ const [nodeInfo, setNodeInfo] = useState(null)
      setDCount(data.discovered)
      setVersion(data.version)
      setPeers(data.connections)
-     setLoading(false)
+  })
+  getActiveNodes().then((data)=>{
+    setActiveNodes(data.length)
+  })
+  getStakeStats().then((data)=>{
+    console.log(data)
+    setStakes(data['total-stakes']['int'])
+    setLocked(data['total-staked-amount'])
+    setLoading(false)
   })
  }
  getInfo()
@@ -103,7 +115,7 @@ const [nodeInfo, setNodeInfo] = useState(null)
         />
         </Col>
        
-        <Col xl={12} lg={24} md={24} sm={24} xs={24}>
+        <Col >
 <StatisticCard
       bordered={true}
       boxShadow
@@ -120,7 +132,7 @@ const [nodeInfo, setNodeInfo] = useState(null)
 
       />
       </Col>
-   <Col xl={12} lg={24} md={24} sm={24} xs={24}>
+   <Col >
   <StatisticCard
       bordered={true}
       boxShadow
@@ -137,7 +149,59 @@ const [nodeInfo, setNodeInfo] = useState(null)
 
       />
 </Col>
+<Col >
+  <StatisticCard
+      bordered={true}
+      boxShadow
+      statistic={{
+     
+        loading:loading,
+        title: 'Active',
+        status:'processing',
+        value: activeNodes,
+        description:"nodes",
+        icon: (
+<RadarChartOutlined />        ),
+      }}
+
+      />
+</Col>
+<Col >
+  <StatisticCard
+      bordered={true}
+      boxShadow
+      statistic={{
+     
+        loading:loading,
+        title: 'Stakes',
+        status:'processing',
+        value: stakes,
+        description:"nodes",
+        icon: (
+<RadarChartOutlined />        ),
+      }}
+
+      />
+</Col>
+<Col >
+  <StatisticCard
+      bordered={true}
+      boxShadow
+      statistic={{
+     
+        loading:loading,
+        title: 'Locked Supply',
+        status:'processing',
+        value: locked,
+        description:"CFLY",
+        icon: (
+<RadarChartOutlined />        ),
+      }}
+
+      />
+</Col>
 </Row>
+
 
 
 

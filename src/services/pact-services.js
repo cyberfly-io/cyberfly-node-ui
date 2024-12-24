@@ -46,6 +46,34 @@ export const getNode = async (peerId) =>{
   return res.result.data
   }
 
+  export const getActiveNodes = async () =>{
+    const unsignedTransaction = Pact.builder
+    .execution(`(free.cyberfly_node.get-all-active-nodes)`)
+    .setMeta({
+      chainId: '1',
+      senderAccount: 'cyberfly-account-gas',
+      gasLimit: 150000
+    })
+    .setNetworkId('testnet04')
+    .createTransaction();
+  const res = await client.local(unsignedTransaction, { signatureVerification:false, preflight:false});
+  return res.result.data
+  }
+
+  export const getStakeStats = async () =>{
+    const unsignedTransaction = Pact.builder
+    .execution(`(free.cyberfly_node.get-stakes-stats)`)
+    .setMeta({
+      chainId: '1',
+      senderAccount: 'cyberfly-account-gas',
+      gasLimit: 150000
+    })
+    .setNetworkId('testnet04')
+    .createTransaction();
+  const res = await client.local(unsignedTransaction, { signatureVerification:false, preflight:false});
+  return res.result.data
+  }
+
   export const getNodeStake = async (peerId) =>{
     const unsignedTransaction = Pact.builder
     .execution(`(free.cyberfly_node.get-node-stake "${peerId}")`)
