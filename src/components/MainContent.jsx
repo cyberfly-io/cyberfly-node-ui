@@ -3,7 +3,7 @@ import { GridContent } from '@ant-design/pro-components';
 import React, { useEffect, useState } from 'react';
 import { getNodeInfo } from '../services/node-services';
 import { StatisticCard, PageContainer } from '@ant-design/pro-components';
-import { ApartmentOutlined, InfoCircleOutlined, DeploymentUnitOutlined, RadarChartOutlined } from '@ant-design/icons';
+import { ApartmentOutlined, InfoCircleOutlined, DeploymentUnitOutlined, RadarChartOutlined, DollarOutlined, ApiOutlined } from '@ant-design/icons';
 import { getActiveNodes, getStakeStats } from '../services/pact-services';
 
 const { Paragraph } = Typography;
@@ -149,7 +149,7 @@ const MainContent = () => {
                 status: 'processing',
                 value: stakes,
                 description: "nodes",
-                icon: (<RadarChartOutlined />),
+                icon: (<ApiOutlined />),
               }}
             />
           </Col>
@@ -163,7 +163,7 @@ const MainContent = () => {
                 status: 'processing',
                 value: locked,
                 description: "CFLY",
-                icon: (<RadarChartOutlined />),
+                icon: (<DollarOutlined />),
               }}
             />
           </Col>
