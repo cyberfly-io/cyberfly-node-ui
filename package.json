@@ -9,6 +9,7 @@
     "@chainsafe/libp2p-gossipsub": "^14.1.0",
     "@chainsafe/libp2p-noise": "^16.0.0",
     "@chainsafe/libp2p-yamux": "^7.0.1",
+    "@helia/unixfs": "^4.0.1",
     "@kadena/client": "^1.15.0",
     "@kadena/react-ui": "^0.12.2",
     "@kadena/spirekey-sdk": "^1.0.0",

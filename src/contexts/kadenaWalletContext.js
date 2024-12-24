@@ -1,37 +1,39 @@
 import React, { useState, createContext, useEffect, useCallback, useContext } from 'react';
 import useLocalStorage from '../hooks/useLocalStorage';
+import { connect } from '@kadena/spirekey-sdk';
+
 import { NETWORKID} from '../constants/contextConstants'
 import { message } from 'antd';
 
-export const EckoWalletContext = createContext();
-export const useEckoWalletContext = () => useContext(EckoWalletContext);
+export const KadenaWalletContext = createContext();
+export const useKadenaWalletContext = () => useContext(KadenaWalletContext);
 
 
 const NETWORK = "testnet04"
 
-const initialEckoWalletState = {
+const initialKadenaWalletState = {
     isConnected: false,
     isInstalled: false,
     NETWORK,
     account: null,
   };
   
-  export const EckoWalletProvider = (props) => {
+  export const KadenaWalletProvider = (props) => {
     const [messageApi, contextHolder] = message.useMessage();
 
     const [kadenaExt, setKadenaExt] = useState(null);
     const [account, setAccount, removeAccount] = useLocalStorage('acct', { account: null, guard: null, balance: 0 });
-    const [eckoWalletState, setEckoWalletState] = useLocalStorage('kaddexWalletState', initialEckoWalletState);
+    const [kadenaWalletState, setKadenaWalletState] = useLocalStorage('KadenaWalletState', initialKadenaWalletState);
     
     const initialize = useCallback(() => {
       const { kadena } = window;
       setKadenaExt(kadena);
-      setEckoWalletState({
-        ...eckoWalletState,
+      setKadenaWalletState({
+        ...kadenaWalletState,
         isInstalled: Boolean(kadena?.isKadena),
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [eckoWalletState]);
+    }, [kadenaWalletState]);
   
     useEffect(() => {
       window.addEventListener('load', initialize);
@@ -52,43 +54,71 @@ const initialEckoWalletState = {
         }
       };
       registerEvents();
-      if (kadenaExt && eckoWalletState.isConnected) {
+      if (kadenaExt && kadenaWalletState.isConnected) {
         setAccountData();
       }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [kadenaExt]);
   
     useEffect(() => {
-      if (eckoWalletState.isConnected && (!account?.account)) {
+      if (kadenaWalletState.isConnected && (!account?.account)) {
         disconnectWallet();
       }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [eckoWalletState, account]);
+    }, [kadenaWalletState, account]);
   
     /**
      * Used by ConnectModal
      */
-    const initializeEckoWallet = async () => {
-      console.log('!!!initializeKaddexWallet');
-      const networkInfo = await getNetworkInfo();
-      if (networkInfo==null){
-        messageApi.warning("Please install eckowallet Extension")
+
+
+
+    const connectAccount = async () => {
+      try {
+        const account = await connect('testnet04', '1');
+        // Wait for the account to be ready before proceeding
+        await account.isReady();
+        return account;
+      } catch (error) {
+        console.warn('User canceled sign-in', error);
       }
-      else{
-        console.log('networkInfo', networkInfo);
-        if (networkInfo.networkId !== NETWORKID) {
-          showNetworkError();
-        } else {
-          const connectResponse = await connectWallet();
-          console.log('connectResponse', connectResponse);
-          if (connectResponse?.status === 'success') {
-            await setAccountData();
-            messageApi.open({
-              type: 'success',
-              content: 'Wallet Connected',
-            });
+    };
+
+    const initializeKadenaWallet = async (wallet_name) => {
+   
+      if(wallet_name==="eckoWallet"){
+        const networkInfo = await getNetworkInfo();
+        if (networkInfo==null){
+          messageApi.warning("Please install eckowallet Extension")
+        }
+        else{
+          if (networkInfo.networkId !== NETWORKID) {
+            showNetworkError();
+          } else {
+            const connectResponse = await connectWallet();
+            console.log('connectResponse', connectResponse);
+            if (connectResponse?.status === 'success') {
+              await setAccountData();
+              messageApi.open({
+                type: 'success',
+                content: 'Wallet Connected',
+              });
+            }
           }
         }
+      }
+      else if(wallet_name="spireKey"){
+          const account  = await connectAccount()
+          const ready = await account.isReady()
+          console.log(account)
+          if(ready){
+            await setAccount({ account: account.accountName, guard: null, balance: 0 });
+            setKadenaWalletState({
+              account: account.accountName,
+              isInstalled: true,
+              isConnected: true,
+            });
+          }
       }
     
     };
@@ -104,8 +134,8 @@ const initialEckoWalletState = {
     const disconnectWallet = async () => {
       if (kadenaExt) {
         console.log('X-Wallet: SEND disconnect request');
-        setEckoWalletState({
-          ...eckoWalletState,
+        setKadenaWalletState({
+          ...kadenaWalletState,
           account: null,
           isConnected: false,
         });
@@ -128,7 +158,7 @@ const initialEckoWalletState = {
       };
   
     const getNetworkInfo = async () => {
-        if(eckoWalletState.isInstalled){
+        if(kadenaWalletState.isInstalled){
             console.log('getNetworkInfo');
             const network = await kadenaExt.request({
               method: 'kda_getNetwork',
@@ -182,13 +212,13 @@ const initialEckoWalletState = {
       if (acc.wallet) {
         console.log('X-Wallet: SETTING ACCOUNT DATA - WALLET FOUNDED', acc);
         await setAccount({ account: acc.wallet.account, guard: null, balance: 0 });
-        setEckoWalletState({
+        setKadenaWalletState({
           account: acc.wallet.account,
           isInstalled: true,
           isConnected: true,
         });
     
-      } else if (eckoWalletState.isConnected) {
+      } else if (kadenaWalletState.isConnected) {
         console.log('X-Wallet: SETTING ACCOUNT DATA - WALLET NOT FOUND CONNECTING');
         const connectRes = await connectWallet();
         if (connectRes.status === 'success') {
@@ -222,10 +252,10 @@ const initialEckoWalletState = {
 
   
     return (
-      <EckoWalletContext.Provider
+      <KadenaWalletContext.Provider
         value={{
-          ...eckoWalletState,
-          initializeEckoWallet,
+          ...kadenaWalletState,
+          initializeKadenaWallet,
           disconnectWallet,
           requestSign,
           logout,
@@ -234,8 +264,8 @@ const initialEckoWalletState = {
       >
         {contextHolder}
         {props.children}
-      </EckoWalletContext.Provider>
+      </KadenaWalletContext.Provider>
     );
   };
   
-  export const EckoWalletCunsomer = EckoWalletContext.Consumer;
+  export const KadenaWalletCunsomer = KadenaWalletContext.Consumer;

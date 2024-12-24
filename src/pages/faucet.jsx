@@ -3,10 +3,10 @@ import React, { useState } from 'react'
 import { claimCreateFaucet, claimFaucet } from '../services/pact-services'
 import { Button, Result, Segmented, Row, Col, Space } from 'antd'
 import {WalletOutlined, PlusCircleOutlined, MoneyCollectOutlined} from "@ant-design/icons"
-import { useEckoWalletContext } from '../contexts/eckoWalletContext';
+import { useKadenaWalletContext } from '../contexts/kadenaWalletContext';
 
 const Faucet = () => {
-  const {initializeEckoWallet, account  } = useEckoWalletContext()
+  const {initializeKadenaWallet, account  } = useKadenaWalletContext()
   const [old, setOld] = useState(false)
 
 
@@ -39,7 +39,7 @@ const Faucet = () => {
   { !account? (  <Result
     icon={<WalletOutlined />}
     title="Please connect your kadena wallet to claim testnet CFLY tokens"
-    extra={<Button type="primary" onClick={initializeEckoWallet}>Connect</Button>}
+    extra={<Button type="primary" onClick={initializeKadenaWallet}>Connect</Button>}
   />):(<Button onClick={()=>{
   if(old){
     claimFaucet(account).then(data=>{

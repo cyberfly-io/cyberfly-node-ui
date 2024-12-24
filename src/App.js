@@ -11,7 +11,7 @@ import PubSubPage from './pages/pubsub';
 import ProLayout from '@ant-design/pro-layout';
 import defaultProps from './components/defaultprops';
 import {SunOutlined, MoonOutlined, UserOutlined, WalletOutlined} from '@ant-design/icons'
-import { useEckoWalletContext } from "./contexts/eckoWalletContext";
+import { useKadenaWalletContext } from "./contexts/kadenaWalletContext";
 import { TrackerCard } from '@kadena/react-ui';
 import Dialer from './pages/dialer';
 import NodeMap from './pages/node-map';
@@ -39,11 +39,11 @@ const App = () => {
   const onClose = () => {
     setOpen(false);
   };
-  const {initializeEckoWallet, account, disconnectWallet  } = useEckoWalletContext()
+  const {initializeKadenaWallet, account, disconnectWallet  } = useKadenaWalletContext()
   
   const items = [
     {
-      label: account? <Button type="primary" onClick={showModal} icon={<Avatar size={24} icon={<UserOutlined />}/>}>Account</Button>:<Button onClick={initializeEckoWallet}  icon={<Avatar size={24} src={<img src={"https://wallet.ecko.finance/icon_eckoWALLET.svg?v=2"} alt="avatar" />} />}>EckoWallet</Button>,
+      label: account? <Button type="primary" onClick={showModal} icon={<Avatar size={24} icon={<UserOutlined />}/>}>Account</Button>:<><Button onClick={()=>initializeKadenaWallet("eckoWallet")}  icon={<Avatar size={24} src={<img src={"https://wallet.ecko.finance/icon_eckoWALLET.svg?v=2"} alt="avatar" />} />}>EckoWallet</Button></>,
       key: '0',
     },
   ];

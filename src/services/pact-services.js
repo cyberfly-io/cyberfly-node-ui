@@ -226,6 +226,30 @@ export const getNode = async (peerId) =>{
     }
   }
 
+
+  export const signFileCID = async (cid)=>{
+    const utxn = Pact.builder.execution(`(sign-file-cid)`)
+    .addData("fileCid",{cid:cid})
+    .setMeta({chainId:"1",senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000,})
+    .setNetworkId("testnet04")
+    .createTransaction();
+    const  signTransaction = createEckoWalletSign()
+    const signedTx = await signTransaction(utxn)
+    return signedTx
+  }
+
+  export const signMsg = async ()=>{
+     const { kadena } = window
+     const signed = kadena.request({
+      method: 'kda_requestSign',
+      data: {
+        networkId:"testnet04",
+        signingCmd: "hello world"
+      },
+    });
+    return signed
+  }
+
   export const claimFaucet = async (account)=>{
   
     const utxn = Pact.builder.execution(`(free.cyberfly_faucet.request-coin "${account}" 50000.0)`)

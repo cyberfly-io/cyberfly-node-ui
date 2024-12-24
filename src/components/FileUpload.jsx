@@ -2,9 +2,15 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { File, Music } from 'lucide-react';
 import { Alert, Card, Input, Tabs, Tag, Button, Progress,Upload, Typography, Space } from 'antd';
 import { UploadOutlined, DownloadOutlined, SearchOutlined } from '@ant-design/icons';
+import { createHelia } from 'helia'
+import { unixfs } from '@helia/unixfs'
 import { getHost } from '../services/node-services';
+import { signFileCID } from '../services/pact-services';
 const { TabPane } = Tabs;
 const { Text, Title, Paragraph } = Typography;
+
+
+
 
 export default function FileUpload() {
   const [file, setFile] = useState(null);
@@ -86,6 +92,32 @@ export default function FileUpload() {
     },
     fileList,
   };
+  
+  async function getFileHashOnly(info) {
+    const file = info?.fileList[0]?.originFileObj
+    
+    if (!file) {
+      throw new Error('No file provided')
+    }
+  
+    const helia = await createHelia()
+    const fs = unixfs(helia)
+    
+    try {
+      // Convert File to bytes
+      const fileBuffer = new Uint8Array(await file.arrayBuffer())
+      
+      // Get CID using addBytes (matches server-side logic)
+      const cid = await fs.addBytes(fileBuffer)
+      
+      return cid
+    } catch (error) {
+      console.error('Detailed error:', error)
+      throw new Error(`Failed to calculate hash: ${error.message}`)
+    } finally {
+      await helia.stop()
+    }
+  }
 
   const uploadChunk = async (chunk, chunkIndex, totalChunks, fileName) => {
     const formData = new FormData();
@@ -472,7 +504,13 @@ export default function FileUpload() {
 
   const UploadTab = () => (
     <Space direction="vertical" style={{ width: '100%' }} size="large">
-      <Upload {...props} maxCount={1}>
+      <Upload {...props} maxCount={1} onChange={(fil)=>{
+        getFileHashOnly(fil).then(cid=>{console.log(cid.toString())
+          //signFileCID(cid.toString()).then((signed)=>{
+          //  console.log(signed)
+          //})
+        })
+      }}>
         <Button icon={<UploadOutlined />} block>Select File</Button>
       </Upload>
       <Button

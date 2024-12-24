@@ -4,7 +4,7 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { DarkModeProvider } from './contexts/DarkModeContext';
-import { EckoWalletProvider } from './contexts/eckoWalletContext';
+import { KadenaWalletProvider } from './contexts/kadenaWalletContext';
 import { Libp2pProvider } from './contexts/Libp2pContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -12,11 +12,11 @@ root.render(
   <React.StrictMode>
 <DarkModeProvider>
 
-  <EckoWalletProvider>
+  <KadenaWalletProvider>
     <Libp2pProvider>
     <App />
     </Libp2pProvider>
-    </EckoWalletProvider>
+    </KadenaWalletProvider>
 
 
     </DarkModeProvider>

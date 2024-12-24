@@ -28,12 +28,6 @@ const config = {
         component: '../pages/mynode',
       },
       {
-        path: '/map',
-        name: 'Node Map',
-        icon: <FiMapPin />,
-        component: '../pages/tools',
-      },
-      {
         path: '/tools',
         name: 'DB tools',
         icon: <DatabaseOutlined />,
@@ -46,13 +40,20 @@ const config = {
         icon: <MessageOutlined />,
         component: '../pages/tools',
       },
+      /*
+      {
+        path: '/map',
+        name: 'Node Map',
+        icon: <FiMapPin />,
+        component: '../pages/tools',
+      },
       {
         path: '/files',
         name: 'Files',
         icon: < FileAddOutlined/>,
         component: '../pages/files',
       },
-      /*{
+      {
         path: '/stream',
         name: 'Stream',
         icon: <VideoCameraOutlined />,

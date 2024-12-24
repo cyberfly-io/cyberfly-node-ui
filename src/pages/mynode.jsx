@@ -2,7 +2,7 @@ import { PageContainer } from '@ant-design/pro-components'
 import React, { useEffect, useState } from 'react'
 import { getMyNodes, getNodeStake, getNodeClaimable, nodeStake, nodeUnStake, claimReward, getAPY } from '../services/pact-services'
 import { Table, Spin, Result, Button, Tooltip, Modal, Col, Row, Statistic, Card, message as msg } from 'antd';
-import { useEckoWalletContext } from '../contexts/eckoWalletContext';
+import { useKadenaWalletContext } from '../contexts/kadenaWalletContext';
 import {WalletOutlined, EyeOutlined} from "@ant-design/icons"
 import KeyValueTable from '../components/KeyValueTable';
 const { Countdown } = Statistic;
@@ -12,7 +12,7 @@ const MyNode = () => {
   const [messageApi, contextHolder] = msg.useMessage();
 
   const [loading, setLoading] = useState(true)
-  const {initializeEckoWallet, account  } = useEckoWalletContext()
+  const {initializeKadenaWallet, account  } = useKadenaWalletContext()
   const [node, setNode] = useState({})
   const [earnStatus, setEarnStatus] = useState("Not Earning")
   const [stake, setStake] = useState(null)
@@ -148,7 +148,7 @@ else{
   { !account && (  <Result
     icon={<WalletOutlined />}
     title="Please connect your kadena wallet to see your node details"
-    extra={<Button type="primary" onClick={initializeEckoWallet}>Connect</Button>}
+    extra={<Button type="primary" onClick={initializeKadenaWallet}>Connect</Button>}
   />) }
   <Modal
         title={<p>Node Info and Stake</p>}
