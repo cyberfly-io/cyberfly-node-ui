@@ -39,7 +39,7 @@ const Faucet = () => {
   { !account? (  <Result
     icon={<WalletOutlined />}
     title="Please connect your kadena wallet to claim testnet CFLY tokens"
-    extra={<Button type="primary" onClick={initializeKadenaWallet}>Connect</Button>}
+    extra={<Button type="primary" onClick={()=>initializeKadenaWallet("eckoWallet")}>Connect</Button>}
   />):(<Button onClick={()=>{
   if(old){
     claimFaucet(account).then(data=>{

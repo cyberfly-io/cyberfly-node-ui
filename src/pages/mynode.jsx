@@ -148,7 +148,7 @@ else{
   { !account && (  <Result
     icon={<WalletOutlined />}
     title="Please connect your kadena wallet to see your node details"
-    extra={<Button type="primary" onClick={initializeKadenaWallet}>Connect</Button>}
+    extra={<Button type="primary" onClick={()=>initializeKadenaWallet("eckoWallet")}>Connect</Button>}
   />) }
   <Modal
         title={<p>Node Info and Stake</p>}
