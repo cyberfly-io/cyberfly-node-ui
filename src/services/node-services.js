@@ -80,3 +80,16 @@ export const dialNode = async(multiAddr)=>{
   const data = await res.json()
 return data
 }
+
+export const findPeer = async(peerId)=>{
+  const host = getHost(); // Get the host without protocol
+  const protocol = window.location.protocol; // Get the current protocol
+  const url = `${protocol}//${host}/api/findpeer`;
+
+  const res =await fetch(url, {method:'POST',  headers: {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+  },body:JSON.stringify({peerId:peerId})})
+  const data = await res.json()
+return data
+}
