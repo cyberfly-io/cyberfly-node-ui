@@ -33,6 +33,7 @@ const App = () => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const [pathname, setPathname] = useState('/');
   const [open, setOpen] = useState(false);
+  const bg = isDarkMode ? "linear-gradient(135deg, #000066 0%, #003366 50%, #004d4d 100%)" : "linear-gradient(135deg, #0061ff 0%, #60efff 50%, #00ff87  100%);";
   const showModal = () => {
     setOpen(true);
   };
@@ -57,7 +58,7 @@ const App = () => {
  location={{
   pathname,
 }}
-token={{bgLayout: isDarkMode? "linear-gradient(62deg, rgba(64,85,143,0.8155637254901961) 0%, rgba(48,20,66,0.9416141456582633) 100%)":"linear-gradient(62deg, #E0C3FC 0%, #8EC5FC 100%)"}}
+token={{bgLayout: bg}}
  onMenuHeaderClick={(e) => console.log(e)}
  menuItemRender={(item, dom) => (
   <Link to={item.path} onClick={() => {
