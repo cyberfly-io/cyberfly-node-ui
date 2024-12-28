@@ -38,7 +38,6 @@ const MyNode = () => {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      defaultFilteredValue: ['active'],
       filters: [
         {
           text: 'Active',
