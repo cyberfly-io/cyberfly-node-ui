@@ -1,13 +1,15 @@
 import { PageContainer } from '@ant-design/pro-components'
 import React, { useState } from 'react'
-import { claimCreateFaucet, claimFaucet } from '../services/pact-services'
+import { claimCreateFaucet, claimFaucet, returnFaucet } from '../services/pact-services'
 import { Button, Result, Segmented, Row, Col, Space } from 'antd'
-import {WalletOutlined, PlusCircleOutlined, MoneyCollectOutlined} from "@ant-design/icons"
+import {WalletOutlined, PlusCircleOutlined, MoneyCollectOutlined, UndoOutlined} from "@ant-design/icons"
 import { useKadenaWalletContext } from '../contexts/kadenaWalletContext';
 
 const Faucet = () => {
   const {initializeKadenaWallet, account  } = useKadenaWalletContext()
   const [old, setOld] = useState(false)
+  const [rtrn, setRtrn] = useState(false)
+
 
 
   return (
@@ -22,13 +24,18 @@ const Faucet = () => {
         if(v==="old"){
           setOld(true)
         }
+        else if (v==="new"){
+          setOld(false)
+        }
         else{
+          setRtrn(true)
           setOld(false)
         }
       }}
     options={[
       { label: 'New Account', value: 'new', icon: <PlusCircleOutlined /> },
       { label: 'Existing Account', value: 'old', icon: <MoneyCollectOutlined />},
+      { label: 'Return Faucet', value: 'return', icon: <UndoOutlined />},
     ]}
   />
       </Col>
@@ -46,12 +53,17 @@ const Faucet = () => {
       console.log(data)
     })
   }
-  else{
+  else if(!old && !rtrn){
     claimCreateFaucet(account).then(data=>{
       console.log(data)
     })
   }
-   }} type='primary'>Claim 50000CFLY</Button>) }
+  else{
+    returnFaucet(account).then(data=>{
+      console.log(data)
+    })
+  }
+   }} type='primary'>{rtrn? "Return":"Claim"} 50000CFLY</Button>) }
   </Col>
 </Row>
 
