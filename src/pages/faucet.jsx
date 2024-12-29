@@ -23,9 +23,11 @@ const Faucet = () => {
       onChange={(v)=>{
         if(v==="old"){
           setOld(true)
+          setRtrn(false)
         }
         else if (v==="new"){
           setOld(false)
+          setRtrn(false)
         }
         else{
           setRtrn(true)
