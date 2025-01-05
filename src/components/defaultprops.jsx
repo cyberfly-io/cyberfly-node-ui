@@ -40,18 +40,18 @@ const config = {
         icon: <MessageOutlined />,
         component: '../pages/tools',
       },
+      {
+        path: '/files',
+        name: 'Files',
+        icon: < FileAddOutlined/>,
+        component: '../pages/files',
+      },
       /*
       {
         path: '/map',
         name: 'Node Map',
         icon: <FiMapPin />,
         component: '../pages/tools',
-      },
-      {
-        path: '/files',
-        name: 'Files',
-        icon: < FileAddOutlined/>,
-        component: '../pages/files',
       },
       {
         path: '/stream',
