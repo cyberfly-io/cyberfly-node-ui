@@ -505,11 +505,11 @@ export default function FileUpload() {
   const UploadTab = () => (
     <Space direction="vertical" style={{ width: '100%' }} size="large">
       <Upload {...props} maxCount={1} onChange={(fil)=>{
-        getFileHashOnly(fil).then(cid=>{console.log(cid.toString())
-          //signFileCID(cid.toString()).then((signed)=>{
-          //  console.log(signed)
-          //})
-        })
+        /*getFileHashOnly(fil).then(cid=>{console.log(cid.toString())
+          signFileCID(cid.toString()).then((signed)=>{
+            console.log(signed)
+          })
+        })*/
       }}>
         <Button icon={<UploadOutlined />} block>Select File</Button>
       </Upload>
