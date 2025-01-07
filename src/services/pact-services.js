@@ -1,5 +1,6 @@
-import { createClient, Pact, createEckoWalletSign } from '@kadena/client';
+import { createClient, Pact, createSignWithEckoWallet } from '@kadena/client';
 import { notification } from 'antd';
+import { checkStatus, connect, isConnected, isInstalled } from '../utils/eckoCommon'
 
 const POLL_INTERVAL_S = 5;
 const networkUrl = 'https://api.testnet.chainweb.com/chainweb/0.0/testnet04/chain/1/pact'
@@ -123,7 +124,7 @@ export const getNode = async (peerId) =>{
     .setMeta({chainId:"1",senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000,})
     .setNetworkId("testnet04")
     .createTransaction();
-    const  signTransaction = createEckoWalletSign()
+    const  signTransaction = createSignWithEckoWallet()
     const signedTx = await signTransaction(utxn)
     const res = await client.local(signedTx)
     if(res.result.status==="success"){
@@ -152,7 +153,7 @@ export const getNode = async (peerId) =>{
     .setMeta({chainId:"1",senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000,})
     .setNetworkId("testnet04")
     .createTransaction();
-    const  signTransaction = createEckoWalletSign()
+    const  signTransaction = createSignWithEckoWallet()
     const signedTx = await signTransaction(utxn)
     const res = await client.local(signedTx)
     if(res.result.status==="success"){
@@ -180,7 +181,7 @@ export const getNode = async (peerId) =>{
     .setMeta({chainId:"1",senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000,})
     .setNetworkId("testnet04")
     .createTransaction();
-    const  signTransaction = createEckoWalletSign()
+    const  signTransaction = createSignWithEckoWallet()
     const signedTx = await signTransaction(utxn)
     const res = await client.local(signedTx)
     if(res.result.status==="success"){
@@ -211,7 +212,7 @@ export const getNode = async (peerId) =>{
     .setNetworkId("testnet04")
     .createTransaction();
     
-    const  signTransaction = createEckoWalletSign()
+    const  signTransaction = createSignWithEckoWallet()
     const signedTx = await signTransaction(utxn)
     const res = await client.local(signedTx)
     if(res.result.status==="success"){
@@ -236,7 +237,7 @@ export const getNode = async (peerId) =>{
     .setMeta({chainId:"1",senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000,})
     .setNetworkId("testnet04")
     .createTransaction();
-    const  signTransaction = createEckoWalletSign()
+    const  signTransaction = createSignWithEckoWallet()
     const signedTx = await signTransaction(utxn)
     const res = await client.local(signedTx)
     if(res.result.status==="success"){
@@ -255,15 +256,13 @@ export const getNode = async (peerId) =>{
   }
 
 
+
   export const signFileCID = async (cid)=>{
-    const utxn = Pact.builder.execution(`(sign-file-cid)`)
-    .addData("fileCid",{cid:cid})
-    .setMeta({chainId:"1",senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000,})
-    .setNetworkId("testnet04")
-    .createTransaction();
-    const  signTransaction = createEckoWalletSign()
-    const signedTx = await signTransaction(utxn)
-    return signedTx
+    await signMsg()
+      await checkStatus("testnet04")
+      const signedTx = await window.kadena?.request({
+        method: 'kda_requestPersonalSign',data:{networkId:"testnet04",personalSigningCmd:{cid}}})
+       return signedTx
   }
 
   export const signMsg = async ()=>{
@@ -291,7 +290,7 @@ export const getNode = async (peerId) =>{
     .setMeta({chainId:"1",senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000,})
     .setNetworkId("testnet04")
     .createTransaction();
-    const  signTransaction = createEckoWalletSign()
+    const  signTransaction = createSignWithEckoWallet()
     const signedTx = await signTransaction(utxn)
     const res = await client.local(signedTx)
     if(res.result.status==="success"){
@@ -323,7 +322,7 @@ export const getNode = async (peerId) =>{
     .setMeta({chainId:"1",senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000,})
     .setNetworkId("testnet04")
     .createTransaction();
-    const  signTransaction = createEckoWalletSign()
+    const  signTransaction = createSignWithEckoWallet()
     const signedTx = await signTransaction(utxn)
     const res = await client.local(signedTx)
     if(res.result.status==="success"){

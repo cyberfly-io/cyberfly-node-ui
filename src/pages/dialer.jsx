@@ -4,16 +4,19 @@ import { Form, Input, Button, Flex, notification } from 'antd';
 import { dialNode, findPeer } from '../services/node-services';
 import ReactJson from 'react-json-view';
 import { useDarkMode } from '../contexts/DarkModeContext';
+import { getNode } from '../services/pact-services';
 
 const Dialer = () => {
   const [api, contextHolder] = notification.useNotification();
   const [peerInfo, setPeerInfo] = useState(null)
+  const [nodeInfo, setNodeInfo] = useState(null)
   const { isDarkMode } = useDarkMode();
 
 
 
   const onFinish = (values) => {
     console.log('Received values:', values);
+
     dialNode(values.multiaddr).then((data)=>{
       console.log(data)
       api.success({message:data.info})
@@ -22,6 +25,10 @@ const Dialer = () => {
 
   const onFindPeer = (values) => {
     console.log('Received values:', values);
+    getNode(values.peerId).then((res)=>{
+      setNodeInfo(res)
+    
+    })
     findPeer(values.peerId).then((data)=>{
       setPeerInfo(data)
     })
@@ -97,7 +104,11 @@ const Dialer = () => {
     
       </Flex>
       {peerInfo &&     (<ReactJson src={peerInfo} theme={isDarkMode? 'apathy':'apathy:inverted'}/>)
+      
 }
+{nodeInfo &&     (<ReactJson src={nodeInfo} theme={isDarkMode? 'apathy':'apathy:inverted'}/>)
+      
+    }
    </PageContainer>
   )
 }
