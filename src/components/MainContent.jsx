@@ -1,4 +1,4 @@
-import { Col, Row, Divider, Typography, Collapse, Spin, Grid } from 'antd';
+import { Col, Row, Divider, Typography, Collapse, Spin } from 'antd';
 import { GridContent } from '@ant-design/pro-components';
 import React, { useEffect, useState } from 'react';
 import { getNodeInfo } from '../services/node-services';
@@ -7,7 +7,6 @@ import { ApartmentOutlined, InfoCircleOutlined, DeploymentUnitOutlined, RadarCha
 import { getActiveNodes, getStakeStats } from '../services/pact-services';
 
 const { Paragraph } = Typography;
-const { useBreakpoint } = Grid;
 
 const MainContent = () => {
   const [peers, setPeers] = useState([]);
@@ -20,8 +19,6 @@ const MainContent = () => {
   const [activeNodes, setActiveNodes] = useState(0);
   const [locked, setLocked] = useState(0);
   const [stakes, setStakes] = useState(0);
-
-  const screens = useBreakpoint();
 
   useEffect(() => {
     function getInfo() {
@@ -52,7 +49,7 @@ const MainContent = () => {
       const items = peers.map((item) => ({
         key: item.remotePeer,
         label: <Paragraph copyable={{ tooltips: ['Copy', 'Copied'] }}>{item.remotePeer}</Paragraph>,
-        children: <><Paragraph copyable={{ tooltips: ['Copy', 'Copied'] }}>{item.remoteAddr}</Paragraph></>,
+        children: <><Paragraph copyable={{ tooltips: ['Copy', 'Copied'] }}><a target="_blank" href={getIP(item.remoteAddr)}>{item.remoteAddr}</a></Paragraph></>,
       }));
       setPeerItems(items);
     }
@@ -94,20 +91,6 @@ const MainContent = () => {
                 description:<Paragraph copyable={{text:nodeInfo?.account ,tooltips: ['Copy', 'Copied'] }}></Paragraph>,
                 valueStyle: { fontSize: 11 },
                 icon: (<InfoCircleOutlined />)
-              }}
-            />
-          </Col>
-          <Col >
-            <StatisticCard
-              bordered={true}
-              boxShadow
-              statistic={{
-                loading: loading,
-                title: 'Discovered',
-                status: 'processing',
-                value: dCount,
-                description: "peers",
-                icon: (<ApartmentOutlined />),
               }}
             />
           </Col>
