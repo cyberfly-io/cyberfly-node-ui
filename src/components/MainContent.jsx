@@ -28,16 +28,17 @@ const MainContent = () => {
         setDCount(data.discovered);
         setVersion(data.version);
         setPeers(data.connections);
+        getActiveNodes().then((data) => {
+          setActiveNodes(data.length);
+          getStakeStats().then((data) => {
+            setStakes(data['total-stakes']['int']);
+            setLocked(data['total-staked-amount']);
+            setLoading(false);
+          });
+        });
       });
-      getActiveNodes().then((data) => {
-        setActiveNodes(data.length);
-      });
-      getStakeStats().then((data) => {
-        console.log(data);
-        setStakes(data['total-stakes']['int']);
-        setLocked(data['total-staked-amount']);
-        setLoading(false);
-      });
+     
+   
     }
     getInfo();
     const intervalId = setInterval(getInfo, 5000);
@@ -49,7 +50,7 @@ const MainContent = () => {
       const items = peers.map((item) => ({
         key: item.remotePeer,
         label: <Paragraph copyable={{ tooltips: ['Copy', 'Copied'] }}>{item.remotePeer}</Paragraph>,
-        children: <><Paragraph copyable={{ tooltips: ['Copy', 'Copied'] }}><a target="_blank" href={getIP(item.remoteAddr)}>{item.remoteAddr}</a></Paragraph></>,
+        children: <><Paragraph copyable={{ tooltips: ['Copy', 'Copied'] }}><a rel='noreferrer' target="_blank" href={getIP(item.remoteAddr)}>{item.remoteAddr}</a></Paragraph></>,
       }));
       setPeerItems(items);
     }
