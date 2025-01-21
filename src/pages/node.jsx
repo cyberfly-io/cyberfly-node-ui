@@ -40,7 +40,7 @@ const NodeDetail = () => {
       return new Date(dateString).toLocaleString();
     };
     return (  
-        <PageContainer title="Node">
+        <PageContainer title="Node" loading={!nodeInfo}>
            {nodeStakeInfo && (
       <Card 
       title="Staking Information" 
