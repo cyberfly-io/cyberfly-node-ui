@@ -9,7 +9,7 @@ import { useDarkMode } from './contexts/DarkModeContext';
 import PubSubPage from './pages/pubsub';
 import ProLayout from '@ant-design/pro-layout';
 import defaultProps from './components/defaultprops';
-import {SunOutlined, MoonOutlined, UserOutlined, WalletOutlined} from '@ant-design/icons'
+import {SunOutlined, MoonOutlined, UserOutlined, WalletOutlined, MenuUnfoldOutlined, MenuFoldOutlined} from '@ant-design/icons'
 import { useKadenaWalletContext } from "./contexts/kadenaWalletContext";
 import { TrackerCard } from '@kadena/kode-ui';
 import Dialer from './pages/dialer';
@@ -20,6 +20,8 @@ import enUS from 'antd/locale/en_US';
 import Faucet from './pages/faucet';
 import Files from './pages/files';
 import KadenaTools from './pages/kadena-tools';
+import NodeList from './pages/nodelist';
+import NodeDetail from './pages/node';
 
 const { defaultAlgorithm, darkAlgorithm } = theme;
 
@@ -30,6 +32,7 @@ const { Paragraph } = Typography;
 const App = () => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const [pathname, setPathname] = useState('/');
+  const [collapsed, setCollapsed] = useState(true)
   const [open, setOpen] = useState(false);
   const bg = isDarkMode ? "linear-gradient(135deg, #000066 0%, #003366 50%, #004d4d 100%)" : "linear-gradient(135deg, #0061ff 0%, #60efff 50%, #00ff87  100%);";
   const showModal = () => {
@@ -97,6 +100,10 @@ actionsRender={(props)=>{
 <Route path="/stream" element={<WebcamStreaming />} />
 <Route path="/faucet" element={<Faucet />} />
 <Route path="/kadena-tools" element={<KadenaTools />} />
+<Route path="/nodes" element={<NodeList />} />
+<Route path="/node" element={<NodeDetail />} />
+
+
 
 
 

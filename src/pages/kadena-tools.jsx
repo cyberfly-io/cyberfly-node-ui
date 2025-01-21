@@ -31,6 +31,7 @@ const [messageApi, contextHolder] = msg.useMessage();
   return (
    <PageContainer title="Kadena Tools">
 {contextHolder}
+<Card>
 <Result
     title="Generate a private key for a node"
     extra={
@@ -43,6 +44,7 @@ const [messageApi, contextHolder] = msg.useMessage();
       </Button>
     }
   />
+</Card>
 
 <Modal title="Save private Key in safe place" open={keypair} okText="Copy" onOk={() => {
   navigator.clipboard.writeText(keypair.secretKey)

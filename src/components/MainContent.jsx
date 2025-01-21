@@ -5,6 +5,7 @@ import { getNodeInfo } from '../services/node-services';
 import { StatisticCard, PageContainer } from '@ant-design/pro-components';
 import { ApartmentOutlined, InfoCircleOutlined, DeploymentUnitOutlined, RadarChartOutlined, DollarOutlined, ApiOutlined } from '@ant-design/icons';
 import { getActiveNodes, getStakeStats } from '../services/pact-services';
+import { getIPFromMultiAddr } from '../utils/utils';
 
 const { Paragraph } = Typography;
 
@@ -50,17 +51,13 @@ const MainContent = () => {
       const items = peers.map((item) => ({
         key: item.remotePeer,
         label: <Paragraph copyable={{ tooltips: ['Copy', 'Copied'] }}>{item.remotePeer}</Paragraph>,
-        children: <><Paragraph copyable={{ tooltips: ['Copy', 'Copied'] }}><a rel='noreferrer' target="_blank" href={getIP(item.remoteAddr)}>{item.remoteAddr}</a></Paragraph></>,
+        children: <><Paragraph copyable={{ tooltips: ['Copy', 'Copied'] }}><a rel='noreferrer' target="_blank" href={getIPFromMultiAddr(item.remoteAddr)}>{item.remoteAddr}</a></Paragraph></>,
       }));
       setPeerItems(items);
     }
   }, [peers]);
 
-  const getIP = (addr) => {
-    const regex = /\/ip4\/([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})/;
-    const match = addr.match(regex);
-    return 'http://' + match[1] + ":31000";
-  };
+
 
   return (
     <PageContainer ghost loading={{ spinning: loading }} header={{ title: "Dashboard" }} tabBarExtraContent={version ? `Node version ${version}` : ''}>

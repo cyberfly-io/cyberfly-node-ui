@@ -6,7 +6,8 @@ import {
     VideoCameraOutlined,
     CloudServerOutlined,
     TransactionOutlined,
-    FileAddOutlined
+    FileAddOutlined,
+    NodeIndexOutlined
     } from '@ant-design/icons';
     import { FiMapPin } from "react-icons/fi";
 import { KRoundedKdacolorBlack } from '@kadena/kode-icons/brand'
@@ -24,9 +25,15 @@ const config = {
       },
       {
         path: '/mynode',
-        name: 'My Node',
+        name: 'My Nodes',
         icon: <CloudServerOutlined />,
         component: '../pages/mynode',
+      },
+      {
+        path: '/nodes',
+        name: 'Nodes',
+        icon: < NodeIndexOutlined/>,
+        component: '../pages/nodelist',
       },
       {
         path: '/tools',
