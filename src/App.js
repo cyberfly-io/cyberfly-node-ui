@@ -7,12 +7,11 @@ import "./App.css"
 import MainContent from './components/MainContent'
 import { useDarkMode } from './contexts/DarkModeContext';
 import PubSubPage from './pages/pubsub';
-
 import ProLayout from '@ant-design/pro-layout';
 import defaultProps from './components/defaultprops';
 import {SunOutlined, MoonOutlined, UserOutlined, WalletOutlined} from '@ant-design/icons'
 import { useKadenaWalletContext } from "./contexts/kadenaWalletContext";
-import { TrackerCard } from '@kadena/react-ui';
+import { TrackerCard } from '@kadena/kode-ui';
 import Dialer from './pages/dialer';
 import NodeMap from './pages/node-map';
 import WebcamStreaming from './pages/stream';
@@ -20,8 +19,7 @@ import MyNode from './pages/mynode';
 import enUS from 'antd/locale/en_US';
 import Faucet from './pages/faucet';
 import Files from './pages/files';
-
-
+import KadenaTools from './pages/kadena-tools';
 
 const { defaultAlgorithm, darkAlgorithm } = theme;
 
@@ -98,6 +96,8 @@ actionsRender={(props)=>{
 <Route path="/map" element={<NodeMap />} />
 <Route path="/stream" element={<WebcamStreaming />} />
 <Route path="/faucet" element={<Faucet />} />
+<Route path="/kadena-tools" element={<KadenaTools />} />
+
 
 
 

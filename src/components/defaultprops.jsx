@@ -9,6 +9,7 @@ import {
     FileAddOutlined
     } from '@ant-design/icons';
     import { FiMapPin } from "react-icons/fi";
+import { KRoundedKdacolorBlack } from '@kadena/kode-icons/brand'
 import { getHost } from '../services/node-services';
 
 const config = {
@@ -70,6 +71,12 @@ const config = {
         name: 'Testnet Faucet',
         icon: <TransactionOutlined />,
         component: '../pages/faucet',
+      },
+      {
+        path: '/kadena-tools',
+        name: 'Kadena tools',
+        icon: <KRoundedKdacolorBlack/>,
+        component: '../pages/kadena-tools',
       },
     ],
   },

@@ -8,40 +8,13 @@ import { useKadenaWalletContext } from '../contexts/kadenaWalletContext';
 const Faucet = () => {
   const {initializeKadenaWallet, account  } = useKadenaWalletContext()
   const [old, setOld] = useState(false)
-  const [rtrn, setRtrn] = useState(false)
+  const [rtrn, setRtrn] = useState(true)
 
 
 
   return (
     <PageContainer title="Testnet Faucet">
         <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
-
-  {account && (    <Row>
-      <Col>
-      <Segmented
-      defaultValue="new"
-      onChange={(v)=>{
-        if(v==="old"){
-          setOld(true)
-          setRtrn(false)
-        }
-        else if (v==="new"){
-          setOld(false)
-          setRtrn(false)
-        }
-        else{
-          setRtrn(true)
-          setOld(false)
-        }
-      }}
-    options={[
-      { label: 'New Account', value: 'new', icon: <PlusCircleOutlined /> },
-      { label: 'Existing Account', value: 'old', icon: <MoneyCollectOutlined />},
-      { label: 'Return Faucet', value: 'return', icon: <UndoOutlined />},
-    ]}
-  />
-      </Col>
-      </Row>)}
 
 <Row>
   <Col>
