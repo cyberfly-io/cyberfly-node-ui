@@ -41,6 +41,13 @@ const NodeDetail = () => {
     };
     return (  
         <PageContainer title="Node" loading={!nodeInfo}>
+          {nodeInfo&& (
+            <Card title="Account">
+   <Text copyable style={{ wordBreak: 'break-all', fontFamily: 'monospace' }}>
+              {nodeInfo.account}
+            </Text>
+            </Card>
+          )}
            {nodeStakeInfo && (
       <Card 
       title="Staking Information" 
@@ -52,14 +59,6 @@ const NodeDetail = () => {
       }
     >
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
-        <div>
-          <Text type="secondary">Account</Text>
-          <div>
-            <Text copyable style={{ wordBreak: 'break-all', fontFamily: 'monospace' }}>
-              {nodeStakeInfo.account}
-            </Text>
-          </div>
-        </div>
 
         <Row gutter={[24, 24]}>
           <Col xs={24} sm={12}>
