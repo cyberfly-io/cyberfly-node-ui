@@ -1,6 +1,6 @@
 import { PageContainer } from "@ant-design/pro-components";
 import { useState, useEffect } from "react";
-import { getNodeStake, getNode } from "../services/pact-services";
+import { getNodeStake, getNode, getNodeClaimable } from "../services/pact-services";
 import { Card, Col, Row, Tag } from "antd";
 import { Space } from "antd";
 import { Typography } from "antd";
@@ -14,6 +14,7 @@ const NodeDetail = () => {
 
     const [peerId, setPeerId] = useState(null);
     const [nodeInfo, setNodeInfo] = useState(null);
+    const [claimable, setClaimable] = useState(null);
     const [nodeStakeInfo, setNodeStakeInfo] = useState(null);
   const { isDarkMode } = useDarkMode();
 
@@ -34,6 +35,12 @@ const NodeDetail = () => {
                     setNodeStakeInfo(data);
                 });
             });
+
+               getNodeClaimable(peerId).then((reward)=>{
+                    if(reward)
+                      setClaimable(reward.reward)
+            
+                  })
         }
     }, [peerId]);
     const formatDate = (dateString) => {
@@ -61,7 +68,7 @@ const NodeDetail = () => {
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
 
         <Row gutter={[24, 24]}>
-          <Col xs={24} sm={12}>
+          <Col xs={12} sm={8}>
             <Statistic
               title="Amount Staked"
               value={nodeStakeInfo.amount}
@@ -69,10 +76,18 @@ const NodeDetail = () => {
               suffix="CFLY"
             />
           </Col>
-          <Col xs={24} sm={12}>
+          <Col xs={12} sm={8}>
             <Statistic
               title="Claimed Rewards"
               value={nodeStakeInfo.claimed}
+              precision={2}
+              suffix="CFLY"
+            />
+          </Col>
+          <Col xs={12} sm={8}>
+            <Statistic
+              title="Claimable Rewards"
+              value={claimable}
               precision={2}
               suffix="CFLY"
             />
