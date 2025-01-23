@@ -3,15 +3,16 @@ import { notification } from 'antd';
 import { checkStatus, connect, isConnected, isInstalled } from '../utils/eckoCommon'
 
 const POLL_INTERVAL_S = 5;
-const networkUrl = 'https://api.testnet.chainweb.com/chainweb/0.0/testnet04/chain/1/pact'
 const network = 'testnet04'
+const chainId = '1'
+const networkUrl = `https://api.testnet.chainweb.com/chainweb/0.0/${network}/chain/${chainId}/pact`
 const client = createClient(networkUrl,)
 
 export const getNode = async (peerId) =>{
     const unsignedTransaction = Pact.builder
     .execution(`(free.cyberfly_node.get-node "${peerId}")`)
     .setMeta({
-      chainId: '1',
+      chainId,
       senderAccount: 'cyberfly-account-gas',
     })
     .setNetworkId(network)
@@ -24,7 +25,7 @@ export const getNode = async (peerId) =>{
     const unsignedTransaction = Pact.builder
     .execution(`(free.cyberfly_node.get-account-nodes "${account}")`)
     .setMeta({
-      chainId: '1',
+      chainId,
       senderAccount: 'cyberfly-account-gas',
       gasLimit: 150000
     })
@@ -38,7 +39,7 @@ export const getNode = async (peerId) =>{
     const unsignedTransaction = Pact.builder
     .execution(`(free.cyberfly_node.get-all-active-nodes)`)
     .setMeta({
-      chainId: '1',
+      chainId,
       senderAccount: 'cyberfly-account-gas',
       gasLimit: 150000
     })
@@ -52,7 +53,7 @@ export const getNode = async (peerId) =>{
     const unsignedTransaction = Pact.builder
     .execution(`(free.cyberfly_node.calculate-apy)`)
     .setMeta({
-      chainId: '1',
+      chainId,
       senderAccount: 'cyberfly-account-gas',
       gasLimit: 150000
     })
@@ -66,7 +67,7 @@ export const getNode = async (peerId) =>{
     const unsignedTransaction = Pact.builder
     .execution(`(free.cyberfly_node.get-all-active-nodes)`)
     .setMeta({
-      chainId: '1',
+      chainId,
       senderAccount: 'cyberfly-account-gas',
       gasLimit: 150000
     })
@@ -80,7 +81,7 @@ export const getNode = async (peerId) =>{
     const unsignedTransaction = Pact.builder
     .execution(`(free.cyberfly_node.get-stakes-stats)`)
     .setMeta({
-      chainId: '1',
+      chainId,
       senderAccount: 'cyberfly-account-gas',
       gasLimit: 150000
     })
@@ -94,7 +95,7 @@ export const getNode = async (peerId) =>{
     const unsignedTransaction = Pact.builder
     .execution(`(free.cyberfly_node.get-node-stake "${peerId}")`)
     .setMeta({
-      chainId: '1',
+      chainId,
       senderAccount: 'cyberfly-account-gas',
       gasLimit: 150000
     })
@@ -108,7 +109,7 @@ export const getNode = async (peerId) =>{
     const unsignedTransaction = Pact.builder
     .execution(`(free.cyberfly_node.calculate-days-and-reward "${peerId}")`)
     .setMeta({
-      chainId: '1',
+      chainId,
       senderAccount: 'cyberfly-account-gas',
       gasLimit: 150000
     })
@@ -116,11 +117,6 @@ export const getNode = async (peerId) =>{
     .createTransaction();
   const res = await client.local(unsignedTransaction, { signatureVerification:false, preflight:false});
   return res.result.data
-  }
-
-
-  const getGuard = (account, pubkey)=>{
-    return {pred:"keys-any", keys:[account.split(':')[1], pubkey]}
   }
 
   const getPubkey = (account)=>{
@@ -136,7 +132,7 @@ export const getNode = async (peerId) =>{
       withCapability('free.cyberfly_token.TRANSFER', account, 'cyberfly-staking-bank', 50000.0),
       withCapability('free.cyberfly_node.STAKE'),
     ])
-    .setMeta({chainId:"1",senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000,})
+    .setMeta({chainId,senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000,})
     .setNetworkId(network)
     .createTransaction();
     const  signTransaction = createSignWithEckoWallet()
@@ -165,7 +161,7 @@ export const getNode = async (peerId) =>{
       withCapability('free.cyberfly_node.BANK_DEBIT'),
       withCapability('free.cyberfly_token.TRANSFER', 'cyberfly-staking-bank', account, 50000.0),
     ])
-    .setMeta({chainId:"1",senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000,})
+    .setMeta({chainId,senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000,})
     .setNetworkId(network)
     .createTransaction();
     const  signTransaction = createSignWithEckoWallet()
@@ -193,7 +189,7 @@ export const getNode = async (peerId) =>{
       withCapability('free.cyberfly_node.ACCOUNT_AUTH', account),
       withCapability('free.cyberfly_node.BANK_DEBIT'),
     ])
-    .setMeta({chainId:"1",senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000,})
+    .setMeta({chainId,senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000,})
     .setNetworkId(network)
     .createTransaction();
     const  signTransaction = createSignWithEckoWallet()
@@ -225,7 +221,7 @@ export const getNode = async (peerId) =>{
     ])
     .addData("ks",{pred:"keys-all", keys:[account.split(':')[1]]})
 
-    .setMeta({chainId:"1",senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000,})
+    .setMeta({chainId,senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000,})
     .setNetworkId(network)
     .createTransaction();
     const  signTransaction = createSignWithEckoWallet()
@@ -250,9 +246,9 @@ export const getNode = async (peerId) =>{
 
   export const signFileCID = async (cid)=>{
     await signMsg()
-      await checkStatus("testnet04")
+      await checkStatus(network)
       const signedTx = await window.kadena?.request({
-        method: 'kda_requestPersonalSign',data:{networkId:"testnet04",personalSigningCmd:{cid}}})
+        method: 'kda_requestPersonalSign',data:{networkId:network,personalSigningCmd:{cid}}})
        return signedTx
   }
 
@@ -261,7 +257,7 @@ export const getNode = async (peerId) =>{
      const signed = kadena.request({
       method: 'kda_requestSign',
       data: {
-        networkId:"testnet04",
+        networkId:network,
         signingCmd: "hello world"
       },
     });
@@ -278,7 +274,7 @@ export const getNode = async (peerId) =>{
     ])
     .addData("ks",{pred:"keys-all", keys:[account.split(':')[1]]})
 
-    .setMeta({chainId:"1",senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000,})
+    .setMeta({chainId,senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000,})
     .setNetworkId(network)
     .createTransaction();
     const  signTransaction = createSignWithEckoWallet()
@@ -347,7 +343,7 @@ export const pollForTransaction = async (requestKey, message, callback) => {
     while (time_spent_polling_s < 240) {
       await wait(POLL_INTERVAL_S * 5000);
       try {
-        pollRes = await client.pollStatus({requestKey:requestKey, chainId:"1", networkId:network})
+        pollRes = await client.pollStatus({requestKey:requestKey, chainId, networkId:network})
         console.log(pollRes)
       } catch (e) {
         console.log(e);

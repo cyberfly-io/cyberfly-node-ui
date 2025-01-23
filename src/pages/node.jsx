@@ -35,12 +35,15 @@ const NodeDetail = () => {
                 console.log(nodeInfo)
                 getNodeStake(peerId).then((data) => {
                     setNodeStakeInfo(data);
+                    
+                  if(data){
                     if(data.active)
                       setCanStake(false)
                     const originalDate = new Date(data.last_claim.timep);
                     const nextDay = new Date(originalDate);
                           nextDay.setDate(originalDate.getDate() + 1);
                           setDeadline(nextDay)
+                  }
                 });
             });
 
@@ -182,9 +185,20 @@ const NodeDetail = () => {
     )}
 {nodeInfo && (<Card title="Node Information" style={{ maxWidth: 800 }}
    extra={
-    <Tag color={nodeInfo.status==='active' ? 'success' : 'error'} icon={nodeInfo.status==='active' ? <CheckCircleOutlined /> : <ClockCircleOutlined />}>
+    <Space>
+    {canStake && !nodeStakeInfo && ( <Button size="small" style={{ marginLeft:300 }}   type="primary" onClick={()=>{
+                nodeStake(account, peerId).then(data=>{
+                  if(data){
+                    messageApi.info({content:"Submitted, Please wait a while"})
+                  }
+                })
+              }}>
+                    Stake
+                  </Button>)}
+                  <Tag color={nodeInfo.status==='active' ? 'success' : 'error'} icon={nodeInfo.status==='active' ? <CheckCircleOutlined /> : <ClockCircleOutlined />}>
       {nodeInfo.status ==='active' ? 'Node Active' : 'Node Inactive'}
     </Tag>
+    </Space>
   }
 >
       <Space direction="vertical" size="middle" style={{ width: '100%' }}>
