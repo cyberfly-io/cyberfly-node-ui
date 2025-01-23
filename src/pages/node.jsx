@@ -7,14 +7,15 @@ import { Typography } from "antd";
 import ReactJson from "react-json-view";
 import { useDarkMode } from '../contexts/DarkModeContext';
 import { Statistic } from "antd";
-import { CheckCircleOutlined, ClockCircleOutlined, DollarOutlined } from "@ant-design/icons";
+import { CheckCircleOutlined, ClockCircleOutlined, DollarOutlined, WalletOutlined } from "@ant-design/icons";
 import {  useParams } from 'react-router-dom';
 import { useKadenaWalletContext } from "../contexts/kadenaWalletContext";
+import { Result } from "antd";
 const { Countdown } = Statistic;
 
 const { Text } = Typography;
 const NodeDetail = () => {
-  const { account  } = useKadenaWalletContext()
+  const { account, initializeKadenaWallet  } = useKadenaWalletContext()
   const [messageApi, contextHolder] = msg.useMessage();
 
     const [nodeInfo, setNodeInfo] = useState(null);
@@ -151,10 +152,10 @@ const NodeDetail = () => {
             )}
           
           </Row>
-        <Row gutter={[24, 24]}>
+     {account? (   <Row gutter={[24, 24]}>
           <Col xs={24} sm={24}>
              {canStake ? ( <Button style={{ marginLeft:300 }}   type="primary" onClick={()=>{
-                nodeStake(nodeInfo.account, nodeInfo.peer_id).then(data=>{
+                nodeStake(account, peerId).then(data=>{
                   if(data){
                     messageApi.info({content:"Submitted, Please wait a while"})
                   }
@@ -162,7 +163,7 @@ const NodeDetail = () => {
               }}>
                     Stake
                   </Button>):( <Button style={{ marginLeft:300 }} type="primary" onClick={()=>{
-                    nodeUnStake(nodeInfo.account, nodeInfo.peer_id).then(data=>{
+                    nodeUnStake(account, peerId).then(data=>{
                       if(data){
                         messageApi.info({content:"Submitted, Please wait a while"})
                       }
@@ -171,14 +172,18 @@ const NodeDetail = () => {
                     Unstake
                   </Button>)}
           </Col>
-        </Row>
+        </Row>):(<Result
+    icon={<WalletOutlined />}
+    title="Please connect your kadena wallet to claim rewards, stake, unstake"
+    extra={<Button type="primary" onClick={()=>initializeKadenaWallet("eckoWallet")}>Connect</Button>}
+  />)}
       </Space>
     </Card>
     )}
 {nodeInfo && (<Card title="Node Information" style={{ maxWidth: 800 }}
    extra={
-    <Tag color={nodeInfo.status=='active' ? 'success' : 'error'} icon={nodeInfo.status=='active' ? <CheckCircleOutlined /> : <ClockCircleOutlined />}>
-      {nodeInfo.status =='active' ? 'Node Active' : 'Node Inactive'}
+    <Tag color={nodeInfo.status==='active' ? 'success' : 'error'} icon={nodeInfo.status==='active' ? <CheckCircleOutlined /> : <ClockCircleOutlined />}>
+      {nodeInfo.status ==='active' ? 'Node Active' : 'Node Inactive'}
     </Tag>
   }
 >
