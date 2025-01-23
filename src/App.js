@@ -32,7 +32,6 @@ const { Paragraph } = Typography;
 const App = () => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const [pathname, setPathname] = useState('/');
-  const [collapsed, setCollapsed] = useState(true)
   const [open, setOpen] = useState(false);
   const bg = isDarkMode ? "linear-gradient(135deg, #000066 0%, #003366 50%, #004d4d 100%)" : "linear-gradient(135deg, #0061ff 0%, #60efff 50%, #00ff87  100%);";
   const showModal = () => {
@@ -101,7 +100,7 @@ actionsRender={(props)=>{
 <Route path="/faucet" element={<Faucet />} />
 <Route path="/kadena-tools" element={<KadenaTools />} />
 <Route path="/nodes" element={<NodeList />} />
-<Route path="/node" element={<NodeDetail />} />
+<Route path="/node/:peerId" element={<NodeDetail />} />
 
 
 

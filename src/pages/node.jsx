@@ -1,30 +1,24 @@
 import { PageContainer } from "@ant-design/pro-components";
 import { useState, useEffect } from "react";
-import { getNodeStake, getNode, getNodeClaimable } from "../services/pact-services";
+import { getNodeStake, getNode, getNodeClaimable, getAPY } from "../services/pact-services";
 import { Card, Col, Row, Tag } from "antd";
 import { Space } from "antd";
 import { Typography } from "antd";
 import ReactJson from "react-json-view";
 import { useDarkMode } from '../contexts/DarkModeContext';
 import { Statistic } from "antd";
-import { CheckCircleOutlined, ClockCircleOutlined } from "@ant-design/icons";
+import { CheckCircleOutlined, ClockCircleOutlined, DollarOutlined } from "@ant-design/icons";
+import {  useParams } from 'react-router-dom';
 
 const { Text } = Typography;
 const NodeDetail = () => {
 
-    const [peerId, setPeerId] = useState(null);
     const [nodeInfo, setNodeInfo] = useState(null);
     const [claimable, setClaimable] = useState(null);
+    const [apy, setApy] = useState(null);
     const [nodeStakeInfo, setNodeStakeInfo] = useState(null);
-  const { isDarkMode } = useDarkMode();
-
-
-
-    useEffect(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const peer_id = urlParams.get('peer_id');
-        setPeerId(peer_id);
-    }, [])
+    const { isDarkMode } = useDarkMode();
+    const {peerId} = useParams()
 
     useEffect(() => {
         if (peerId) {
@@ -41,6 +35,9 @@ const NodeDetail = () => {
                       setClaimable(reward.reward)
             
                   })
+                      getAPY().then((data)=>{
+                          setApy(data)
+                        })
         }
     }, [peerId]);
     const formatDate = (dateString) => {
@@ -60,9 +57,14 @@ const NodeDetail = () => {
       title="Staking Information" 
       style={{ maxWidth: 800 }}
       extra={
+        <>
+     <Tag color="processing" icon={<DollarOutlined />}>
+      APY {apy}%
+     </Tag>
         <Tag color={nodeStakeInfo.active ? 'success' : 'error'} icon={nodeStakeInfo.active ? <CheckCircleOutlined /> : <ClockCircleOutlined />}>
           {nodeStakeInfo.active ? 'Stake Active' : 'Stake Inactive'}
         </Tag>
+        </>
       }
     >
       <Space direction="vertical" size="large" style={{ width: '100%' }}>

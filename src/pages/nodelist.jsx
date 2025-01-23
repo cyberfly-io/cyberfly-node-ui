@@ -156,7 +156,7 @@ const NodeList = () => {
     key: 'action',
     render: (_, record) => (
     <Button type='primary' onClick={()=>{
-      navigate(`/node?peer_id=${record.peer_id}`)
+      navigate(`/node/${record.peer_id}`)
     }}>Details</Button>
     ),
   }
