@@ -48,13 +48,13 @@ const config = {
         icon: <MessageOutlined />,
         component: '../pages/tools',
       },
-      {
+       /*{
         path: '/files',
         name: 'Files',
         icon: < FileAddOutlined/>,
         component: '../pages/files',
       },
-      /*
+     
       {
         path: '/map',
         name: 'Node Map',
@@ -73,12 +73,12 @@ const config = {
         icon: <ArrowsAltOutlined />,
         component: '../pages/dialer',
       },
-      {
+      /*{
         path: '/faucet',
         name: 'Testnet Faucet',
         icon: <TransactionOutlined />,
         component: '../pages/faucet',
-      },
+      },*/
       {
         path: '/kadena-tools',
         name: 'Kadena tools',
