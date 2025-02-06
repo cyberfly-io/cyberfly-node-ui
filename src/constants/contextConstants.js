@@ -1,6 +1,6 @@
 export const CHAIN_ID = process.env.REACT_APP_KDA_CHAIN_ID || '1';
 export const PRECISION = Number(process.env.REACT_APP_KDA_PRECISION) || 12;
-export const NETWORKID = process.env.REACT_APP_KDA_NETWORK_ID || 'testnet04';
+export const NETWORKID = process.env.REACT_APP_KDA_NETWORK_ID || 'mainnet01';
 export const FEE = process.env.REACT_APP_KDA_FEE || 0.003;
 export const APR_FEE = process.env.REACT_APP_APR_FEE || 0.0025;
 export const GAS_PRICE = Number(process.env.REACT_APP_KDA_GAS_PRICE) || 0.0000001;

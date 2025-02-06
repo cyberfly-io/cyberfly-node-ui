@@ -3,9 +3,9 @@ import { notification } from 'antd';
 import { checkStatus, connect, isConnected, isInstalled } from '../utils/eckoCommon'
 
 const POLL_INTERVAL_S = 5;
-const network = 'testnet04'
+const network = 'mainnet01'
 const chainId = '1'
-const networkUrl = `https://api.testnet.chainweb.com/chainweb/0.0/${network}/chain/${chainId}/pact`
+const networkUrl = `https://api.chainweb.com/chainweb/0.0/${network}/chain/${chainId}/pact`
 const client = createClient(networkUrl,)
 
 export const getNode = async (peerId) =>{

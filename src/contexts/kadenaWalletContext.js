@@ -4,12 +4,13 @@ import { connect } from '@kadena/spirekey-sdk';
 
 import { NETWORKID} from '../constants/contextConstants'
 import { message } from 'antd';
+import { newRequest } from '../utils/utils';
 
 export const KadenaWalletContext = createContext();
 export const useKadenaWalletContext = () => useContext(KadenaWalletContext);
 
 
-const NETWORK = "testnet04"
+const NETWORK = "mainnet01";
 
 const initialKadenaWalletState = {
     isConnected: false,
@@ -19,6 +20,8 @@ const initialKadenaWalletState = {
   };
   
   export const KadenaWalletProvider = (props) => {
+    const linx = (...args) => window.flutter_inappwebview.callHandler('LinxWallet', ...args)
+
     const [messageApi, contextHolder] = message.useMessage();
 
     const [kadenaExt, setKadenaExt] = useState(null);
@@ -75,7 +78,7 @@ const initialKadenaWalletState = {
 
     const connectAccount = async () => {
       try {
-        const account = await connect('testnet04', '1');
+        const account = await connect('mainnet01', '1');
         // Wait for the account to be ready before proceeding
         await account.isReady();
         return account;
@@ -86,39 +89,50 @@ const initialKadenaWalletState = {
 
     const initializeKadenaWallet = async (wallet_name) => {
    
-      if(wallet_name==="eckoWallet"){
-        const networkInfo = await getNetworkInfo();
-        if (networkInfo==null){
-          messageApi.warning("Please install eckowallet Extension")
-        }
-        else{
-          if (networkInfo.networkId !== NETWORKID) {
-            showNetworkError();
-          } else {
-            const connectResponse = await connectWallet();
-            console.log('connectResponse', connectResponse);
-            if (connectResponse?.status === 'success') {
-              await setAccountData();
-              messageApi.open({
-                type: 'success',
-                content: 'Wallet Connected',
-              });
+      if(window.flutter_inappwebview){
+        const acc = await linx(newRequest('Account', 'get address', {}, false))
+        await setAccount({ account: acc, guard: null, balance: 0 });
+        setKadenaWalletState({
+          account: acc,
+          isInstalled: true,
+          isConnected: true,
+        });
+      }
+      else{
+        if(wallet_name==="eckoWallet"){
+          const networkInfo = await getNetworkInfo();
+          if (networkInfo==null){
+            messageApi.warning("Please install eckowallet Extension")
+          }
+          else{
+            if (networkInfo.networkId !== NETWORKID) {
+              showNetworkError();
+            } else {
+              const connectResponse = await connectWallet();
+              console.log('connectResponse', connectResponse);
+              if (connectResponse?.status === 'success') {
+                await setAccountData();
+                messageApi.open({
+                  type: 'success',
+                  content: 'Wallet Connected',
+                });
+              }
             }
           }
         }
-      }
-      else if(wallet_name="spireKey"){
-          const account  = await connectAccount()
-          const ready = await account.isReady()
-          console.log(account)
-          if(ready){
-            await setAccount({ account: account.accountName, guard: null, balance: 0 });
-            setKadenaWalletState({
-              account: account.accountName,
-              isInstalled: true,
-              isConnected: true,
-            });
-          }
+        else if(wallet_name="spireKey"){
+            const account  = await connectAccount()
+            const ready = await account.isReady()
+            console.log(account)
+            if(ready){
+              await setAccount({ account: account.accountName, guard: null, balance: 0 });
+              setKadenaWalletState({
+                account: account.accountName,
+                isInstalled: true,
+                isConnected: true,
+              });
+            }
+        }
       }
     
     };
