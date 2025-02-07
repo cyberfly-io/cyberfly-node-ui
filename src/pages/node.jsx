@@ -117,7 +117,7 @@ const NodeDetail = () => {
               suffix="CFLY"
             />
                {claimable>0 && account && nodeStakeInfo.active && (   <Button type='primary' style={{ marginTop: 16 }} onClick={()=>{
-      claimReward(account, nodeInfo.peer_id, claimable).then(data=>{
+      claimReward(account, peerId, claimable).then(data=>{
         
       })
     }} >
