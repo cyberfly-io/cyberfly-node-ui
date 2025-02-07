@@ -1,24 +1,28 @@
-import { PageContainer } from '@ant-design/pro-components'
-import React, { useEffect, useState } from 'react'
-import { getMyNodes } from '../services/pact-services'
-import { Table, Spin, Result, Button, Tooltip } from 'antd';
+import { PageContainer } from '@ant-design/pro-components';
+import React, { useEffect, useState } from 'react';
+import { getMyNodes } from '../services/pact-services';
+import { Table, Spin, Result, Button, Tooltip, Grid } from 'antd';
 import { useKadenaWalletContext } from '../contexts/kadenaWalletContext';
-import {WalletOutlined, EyeOutlined} from "@ant-design/icons"
+import { WalletOutlined, EyeOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 
+
+const { useBreakpoint } = Grid;
+
 const MyNode = () => {
-  const [mynodes, setMyNodes] = useState([])
-
-  const [loading, setLoading] = useState(true)
-  const {initializeKadenaWallet, account  } = useKadenaWalletContext()
-
-    const navigate = useNavigate();
+  const [mynodes, setMyNodes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { initializeKadenaWallet, account } = useKadenaWalletContext();
+  const navigate = useNavigate();
+  const screens = useBreakpoint();
 
   const columns = [
     {
       title: 'Peer',
-      dataIndex: 'peer_id',
       key: 'peer',
+      render: (_, record) => (
+        <b>{screens.xs ? `${record.peer_id.slice(0, 15)}...`: record.peer_id}</b>
+      )
     },
     {
       title: 'Status',
@@ -30,7 +34,7 @@ const MyNode = () => {
           value: 'active',
         },
         {
-          text: 'In Active',
+          text: 'Inactive',
           value: 'inactive',
         },
       ],
@@ -45,51 +49,56 @@ const MyNode = () => {
           <Button
             shape="round"
             onClick={() => {
-              navigate(`/node/${record.peer_id}`)
-
+              navigate(`/node/${record.peer_id}`);
             }}
             type="primary"
             icon={<EyeOutlined />}
+            size={screens.xs ? 'small' : 'middle'}
           />
-          </Tooltip>
+        </Tooltip>
       ),
     },
   ];
-   
-  useEffect(()=>{
-if(account){
-  setLoading(true)
-  getMyNodes(account).then((data)=>{
-    setMyNodes(data)
-    setLoading(false)
-   })
-}
-else{
-  setLoading(false)
-}
-  },[account])
 
-
-
+  useEffect(() => {
+    if (account) {
+      setLoading(true);
+      getMyNodes(account).then((data) => {
+        setMyNodes(data);
+        setLoading(false);
+      });
+    } else {
+      setLoading(false);
+    }
+  }, [account]);
 
   return (
     <PageContainer title="My Node">
-            <Spin spinning={loading} tip="Loading" fullscreen size='large'/>
-
-{mynodes.length >0 && account && ( <Table
-      columns={columns}
-      dataSource={mynodes}
-      rowKey="peer"
-      
-    />)}
-  
-  { !account && (  <Result
-    icon={<WalletOutlined />}
-    title="Please connect your kadena wallet to see your node details"
-    extra={<Button type="primary" onClick={()=>initializeKadenaWallet("eckoWallet")}>Connect</Button>}
-  />) }
+      <Spin spinning={loading} tip="Loading" fullscreen size="large" />
+      {mynodes.length > 0 && account && (
+        <Table
+          columns={columns}
+          dataSource={mynodes}
+          rowKey="peer"
+          size={screens.xs ? 'small' : 'middle'}
+        />
+      )}
+      {!account && (
+        <Result
+          icon={<WalletOutlined />}
+          title="Please connect your Kadena wallet to see your node details"
+          extra={
+            <Button
+              type="primary"
+              onClick={() => initializeKadenaWallet('eckoWallet')}
+            >
+              Connect
+            </Button>
+          }
+        />
+      )}
     </PageContainer>
-  )
-}
+  );
+};
 
-export default MyNode
+export default MyNode;

@@ -15,10 +15,10 @@ export const getIPFromMultiAddr = (addr) => {
     needsApproval
   ) {
     return {
-      request: request, // Example: "Buy"
-      description: description, // Example: "Wizard #1477"
+      request: request,
+      description: description,
       data: requestData,
-      needsApproval: needsApproval // Example true
+      needsApproval: needsApproval
     }
   }
   

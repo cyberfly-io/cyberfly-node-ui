@@ -1,12 +1,15 @@
 import { createClient, Pact, createSignWithEckoWallet } from '@kadena/client';
 import { notification } from 'antd';
 import { checkStatus, connect, isConnected, isInstalled } from '../utils/eckoCommon'
+import { claimRequest, getLocalResultForTransaction, sendTransaction, stakeRequest, unStakeRequest } from './pactUtils';
+import { newRequest, requestData } from '../utils/utils';
 
 const POLL_INTERVAL_S = 5;
 const network = 'mainnet01'
 const chainId = '1'
 const networkUrl = `https://api.chainweb.com/chainweb/0.0/${network}/chain/${chainId}/pact`
 const client = createClient(networkUrl,)
+const linx = (...args) => window.flutter_inappwebview.callHandler('LinxWallet', ...args)
 
 export const getNode = async (peerId) =>{
     const unsignedTransaction = Pact.builder
@@ -124,13 +127,13 @@ export const getNode = async (peerId) =>{
   }
 
   export const nodeStake = async (account, peerId)=>{
+   if(!window.flutter_inappwebview){
     const utxn = Pact.builder.execution(`(free.cyberfly_node.stake "${account}" "${peerId}")`)
     .addSigner(getPubkey(account), (withCapability)=>[
       withCapability('free.cyberfly-account-gas-station.GAS_PAYER', 'cyberfly-account-gas', { int: 1 }, 1.0),
       withCapability('free.cyberfly_node.ACCOUNT_AUTH', account),
       withCapability('free.cyberfly_node.NODE_GUARD', peerId),
       withCapability('free.cyberfly_token.TRANSFER', account, 'cyberfly-staking-bank', 50000.0),
-      withCapability('free.cyberfly_node.STAKE'),
     ])
     .setMeta({chainId,senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000,})
     .setNetworkId(network)
@@ -151,15 +154,55 @@ export const getNode = async (peerId) =>{
         placement: 'bottomRight',
       });
     }
-  }
+   }
+   else{
 
-  export const nodeUnStake = async (account, peerId)=>{
+    const utxn = stakeRequest(account, peerId)
+
+    const req = requestData(
+      utxn,
+      'Staking for cyberfly node',
+      undefined,
+      1,
+      'CFLY',
+      50000.0,
+      0.0,
+      undefined,
+      false
+    )
+    const res = await linx(
+      newRequest('Send', 'Approve request for Staking for cyberfly node.', req, true)
+    )
+
+    if (res.error) {
+      alert(`Problem with signing: ${res.error}`)
+    } else {
+       const result = await getLocalResultForTransaction(res)
+        if(result.status==="success"){
+          const txn = await sendTransaction(res)
+          console.log(txn)
+          pollForTransaction(txn.requestKey, "Stake for a node", ()=>{console.log("Staking success")})
+          return txn
+        }
+        else{
+          notification.error({
+            message: result.result.error.message,
+            duration: 50000,
+            placement: 'bottomRight',
+          });
+    }
+
+
+   }
+  }
+}
+
+export const nodeUnStake = async (account, peerId)=>{
+   if(!window.flutter_inappwebview){
     const utxn = Pact.builder.execution(`(free.cyberfly_node.unstake "${account}" "${peerId}")`)
     .addSigner(getPubkey(account), (withCapability)=>[
       withCapability('free.cyberfly-account-gas-station.GAS_PAYER', 'cyberfly-account-gas', { int: 1 }, 1.0),
       withCapability('free.cyberfly_node.ACCOUNT_AUTH', account),
-      withCapability('free.cyberfly_node.BANK_DEBIT'),
-      withCapability('free.cyberfly_token.TRANSFER', 'cyberfly-staking-bank', account, 50000.0),
     ])
     .setMeta({chainId,senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000,})
     .setNetworkId(network)
@@ -180,14 +223,55 @@ export const getNode = async (peerId) =>{
         placement: 'bottomRight',
       });
     }
+   }
+   else{
+
+    const utxn = unStakeRequest(account, peerId)
+
+    const req = requestData(
+      utxn,
+      'UnStaking from cyberfly node',
+      undefined,
+      1,
+      'CFLY',
+      0.0,
+      0.0,
+      undefined,
+      false
+    )
+    const res = await linx(
+      newRequest('Send', 'Approve request for UnStaking from cyberfly node.', req, true)
+    )
+
+    if (res.error) {
+      alert(`Problem with signing: ${res.error}`)
+    } else {
+       const result = await getLocalResultForTransaction(res)
+        if(result.status==="success"){
+          const txn = await sendTransaction(res)
+          console.log(txn)
+          pollForTransaction(txn.requestKey, "UnStake from a node", ()=>{console.log("Un Staking success")})
+          return txn
+        }
+        else{
+          notification.error({
+            message: result.result.error.message,
+            duration: 50000,
+            placement: 'bottomRight',
+          });
+    }
+
+
+   }
+  }
   }
 
   export const claimReward = async (account, peerId, amount)=>{
-    const utxn = Pact.builder.execution(`(free.cyberfly_node.claim-reward "${account}" "${peerId}")`)
+    if(!window.flutter_inappwebview){
+      const utxn = Pact.builder.execution(`(free.cyberfly_node.claim-reward "${account}" "${peerId}")`)
     .addSigner(getPubkey(account), (withCapability)=>[
       withCapability('free.cyberfly-account-gas-station.GAS_PAYER', 'cyberfly-account-gas', { int: 1 }, 1.0),
       withCapability('free.cyberfly_node.ACCOUNT_AUTH', account),
-      withCapability('free.cyberfly_node.BANK_DEBIT'),
     ])
     .setMeta({chainId,senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000,})
     .setNetworkId(network)
@@ -208,6 +292,48 @@ export const getNode = async (peerId) =>{
         placement: 'bottomRight',
       });
     }
+    }
+    else{
+
+      const utxn = claimRequest(account, peerId)
+  
+      const req = requestData(
+        utxn,
+        'Claim CFLY reward from cyberfly node',
+        undefined,
+        1,
+        'CFLY',
+        0.0,
+        0.0,
+        undefined,
+        false
+      )
+      const res = await linx(
+        newRequest('Send', 'Approve request for claim reward from cyberfly node.', req, true)
+      )
+  
+      if (res.error) {
+        alert(`Problem with signing: ${res.error}`)
+      } else {
+         const result = await getLocalResultForTransaction(res)
+          if(result.status==="success"){
+            const txn = await sendTransaction(res)
+            console.log(txn)
+            pollForTransaction(txn.requestKey, "claim reward from a node", ()=>{console.log("claim success")})
+            return txn
+          }
+          else{
+            notification.error({
+              message: result.result.error.message,
+              duration: 50000,
+              placement: 'bottomRight',
+            });
+      }
+  
+  
+     }
+    }
+
   }
 
 
