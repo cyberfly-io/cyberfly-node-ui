@@ -130,11 +130,10 @@ actionsRender={(props)=>{
       label: 'Account',
       value: account
     },
-   {
-    label: <Paragraph copyable={{ text: account }} style={{float:"right"}}/>
-   }
-  ]}
-  variant="vertical"
+
+  ]
+  }
+  variant="horizontal"
 />
 
       </Modal>

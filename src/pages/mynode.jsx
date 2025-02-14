@@ -1,17 +1,17 @@
 import { PageContainer } from '@ant-design/pro-components';
 import React, { useEffect, useState } from 'react';
-import { getMyNodes } from '../services/pact-services';
+import { getMyNodes, getNodeStake } from '../services/pact-services';
 import { Table, Spin, Result, Button, Tooltip, Grid } from 'antd';
 import { useKadenaWalletContext } from '../contexts/kadenaWalletContext';
 import { WalletOutlined, EyeOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-
 
 const { useBreakpoint } = Grid;
 
 const MyNode = () => {
   const [mynodes, setMyNodes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [nodeStakes, setNodeStakes] = useState({});
   const { initializeKadenaWallet, account } = useKadenaWalletContext();
   const navigate = useNavigate();
   const screens = useBreakpoint();
@@ -22,6 +22,15 @@ const MyNode = () => {
       key: 'peer',
       render: (_, record) => (
         <b>{screens.xs ? `${record.peer_id.slice(0, 15)}...`: record.peer_id}</b>
+      )
+    },
+    {
+      title: 'Stake',
+      key: 'stake',
+      render: (_, record) => (
+        <span style={{ color: nodeStakes[record.peer_id]?.active ? 'green' : 'red' }}>
+          {nodeStakes[record.peer_id]?.active ? 'true' : 'false'}
+        </span>
       )
     },
     {
@@ -60,12 +69,30 @@ const MyNode = () => {
     },
   ];
 
+  const fetchNodeStakes = async (nodes) => {
+    const stakes = {};
+    await Promise.all(
+      nodes.map(async (node) => {
+        try {
+          const stakeData = await getNodeStake(node.peer_id);
+          stakes[node.peer_id] = stakeData;
+        } catch (error) {
+          console.error(`Error fetching stake for node ${node.peer_id}:`, error);
+          stakes[node.peer_id] = { active: false };
+        }
+      })
+    );
+    setNodeStakes(stakes);
+  };
+
   useEffect(() => {
     if (account) {
       setLoading(true);
       getMyNodes(account).then((data) => {
         setMyNodes(data);
-        setLoading(false);
+        fetchNodeStakes(data).finally(() => {
+          setLoading(false);
+        });
       });
     } else {
       setLoading(false);

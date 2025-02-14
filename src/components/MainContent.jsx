@@ -19,7 +19,7 @@ const MainContent = () => {
   const [nodeInfo, setNodeInfo] = useState(null);
   const [activeNodes, setActiveNodes] = useState(0);
   const [locked, setLocked] = useState(0);
-  const [stakes, setStakes] = useState(0);
+  const [stakesCount, setStakesCount] = useState(0);
 
   useEffect(() => {
     function getInfo() {
@@ -32,7 +32,7 @@ const MainContent = () => {
         getActiveNodes().then((data) => {
           setActiveNodes(data.length);
           getStakeStats().then((data) => {
-            setStakes(data['total-stakes']['int']);
+            setStakesCount(data['total-stakes']['int']);
             setLocked(data['total-staked-amount']);
             setLoading(false);
           });
@@ -128,7 +128,7 @@ const MainContent = () => {
                 loading: loading,
                 title: 'Stakes',
                 status: 'processing',
-                value: stakes,
+                value: stakesCount,
                 description: "nodes",
                 icon: (<ApiOutlined />),
               }}

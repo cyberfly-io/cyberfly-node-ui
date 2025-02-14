@@ -1,13 +1,12 @@
 import { PageContainer } from '@ant-design/pro-components'
 import React, { useEffect, useState, useRef } from 'react'
 import { Button, Table } from 'antd'
-import { getAllActiveNodes } from '../services/pact-services';
+import { getActiveNodes } from '../services/pact-services';
 import { getIPFromMultiAddr } from '../utils/utils';
 import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
-import { Input } from 'antd';
-import { Space } from 'antd';
-import { Badge } from 'antd';
+import { Input, Badge, Space } from 'antd';
+
 import { useNavigate } from 'react-router-dom';
 
 const NodeList = () => {
@@ -19,7 +18,7 @@ const NodeList = () => {
 
 
   useEffect(() => { 
-    getAllActiveNodes().then(data => {
+    getActiveNodes().then(data => {
       setNodes(data)
     })
   }, [])

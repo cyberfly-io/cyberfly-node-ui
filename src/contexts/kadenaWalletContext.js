@@ -163,6 +163,18 @@ const initialKadenaWalletState = {
             content: 'Wallet Disconnected',
           });
       }
+      else if(window.flutter_inappwebview){
+        setKadenaWalletState({
+          ...kadenaWalletState,
+          account: null,
+          isConnected: false,
+        });
+        logout();
+        messageApi.open({
+            type: 'success',
+            content: 'Wallet Disconnected',
+          });
+      }
     };
 
     const logout = () => {

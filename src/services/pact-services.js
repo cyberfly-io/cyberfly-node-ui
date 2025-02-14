@@ -38,19 +38,7 @@ export const getNode = async (peerId) =>{
   return res.result.data
   }
 
-  export const getAllActiveNodes = async () =>{
-    const unsignedTransaction = Pact.builder
-    .execution(`(free.cyberfly_node.get-all-active-nodes)`)
-    .setMeta({
-      chainId,
-      senderAccount: 'cyberfly-account-gas',
-      gasLimit: 150000
-    })
-    .setNetworkId(network)
-    .createTransaction();
-  const res = await client.local(unsignedTransaction, { signatureVerification:false, preflight:false});
-  return res.result.data
-  }
+  
 
   export const getAPY = async () =>{
     const unsignedTransaction = Pact.builder
@@ -144,6 +132,7 @@ export const getNode = async (peerId) =>{
     if(res.result.status==="success"){
       const txn = await client.submit(signedTx)
       console.log(txn)
+      
       pollForTransaction(txn.requestKey, "Stake for a node", ()=>{console.log("Staking success")})
       return txn
     }
@@ -173,15 +162,13 @@ export const getNode = async (peerId) =>{
     const res = await linx(
       newRequest('Send', 'Approve request for Staking for cyberfly node.', req, true)
     )
-
     if (res.error) {
       alert(`Problem with signing: ${res.error}`)
     } else {
        const result = await getLocalResultForTransaction(res)
-        if(result.status==="success"){
+        if(result.result.status==="success"){
           const txn = await sendTransaction(res)
-          console.log(txn)
-          pollForTransaction(txn.requestKey, "Stake for a node", ()=>{console.log("Staking success")})
+          pollForTransaction(txn.requestKeys[0], "Stake for a node", ()=>{console.log("Staking success")})
           return txn
         }
         else{
@@ -247,10 +234,9 @@ export const nodeUnStake = async (account, peerId)=>{
       alert(`Problem with signing: ${res.error}`)
     } else {
        const result = await getLocalResultForTransaction(res)
-        if(result.status==="success"){
+        if(result.result.status==="success"){
           const txn = await sendTransaction(res)
-          console.log(txn)
-          pollForTransaction(txn.requestKey, "UnStake from a node", ()=>{console.log("Un Staking success")})
+          pollForTransaction(txn.requestKeys[0], "UnStake from a node", ()=>{console.log("Un Staking success")})
           return txn
         }
         else{
@@ -311,15 +297,14 @@ export const nodeUnStake = async (account, peerId)=>{
       const res = await linx(
         newRequest('Send', 'Approve request for claim reward from cyberfly node.', req, true)
       )
-  
       if (res.error) {
         alert(`Problem with signing: ${res.error}`)
       } else {
          const result = await getLocalResultForTransaction(res)
-          if(result.status==="success"){
+          if(result.result.status==="success"){
             const txn = await sendTransaction(res)
             console.log(txn)
-            pollForTransaction(txn.requestKey, "claim reward from a node", ()=>{console.log("claim success")})
+            pollForTransaction(txn.requestKeys[0], "claim reward from a node", ()=>{console.log("claim success")})
             return txn
           }
           else{

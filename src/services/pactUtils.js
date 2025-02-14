@@ -5,13 +5,13 @@ export const stakeRequest = (account, peerId)=> {
       code: `(free.cyberfly_node.stake "${account}" "${peerId}")`,
       caps: [
         {
-          role: 'pay gas',
-          description: 'pay for gas',
-          cap: {
-            args: ['cyberfly-account-gas', { int: 1 }, 1.0],
-            name: 'free.cyberfly-account-gas-station.GAS_PAYER'
-          }
-        },
+            role: 'pay gas',
+            description: 'pay for gas',
+            cap: {
+               name: 'free.cyberfly-account-gas-station.GAS_PAYER',
+              args: ['cyberfly-account-gas', { int: 1 }, 1.0]
+            }
+          },
         {
           role: `account auth`,
           description: `Account auth for node stake`,
@@ -46,9 +46,9 @@ export const stakeRequest = (account, peerId)=> {
       nonce: creationTime().toString(),
       chainId: '1',
       gasPrice: 0.0000001,
-      gasLimit: 11000,
+      gasLimit: 2000,
       ttl: 600,
-      sender: account,
+      sender: 'cyberfly-account-gas',
       extraSigners: []
     }
     return signingRequest
@@ -63,8 +63,8 @@ export const stakeRequest = (account, peerId)=> {
           role: 'pay gas',
           description: 'pay for gas',
           cap: {
-            args: ['cyberfly-account-gas', { int: 1 }, 1.0],
-            name: 'free.cyberfly-account-gas-station.GAS_PAYER'
+            name: 'coin.GAS',
+            args: []
           }
         },
         {
@@ -81,7 +81,7 @@ export const stakeRequest = (account, peerId)=> {
       nonce: creationTime().toString(),
       chainId: '1',
       gasPrice: 0.0000001,
-      gasLimit: 11000,
+      gasLimit: 2000,
       ttl: 600,
       sender: account,
       extraSigners: []
@@ -98,8 +98,8 @@ export const stakeRequest = (account, peerId)=> {
           role: 'pay gas',
           description: 'pay for gas',
           cap: {
-            args: ['cyberfly-account-gas', { int: 1 }, 1.0],
-            name: 'free.cyberfly-account-gas-station.GAS_PAYER'
+             name: 'free.cyberfly-account-gas-station.GAS_PAYER',
+            args: ['cyberfly-account-gas', { int: 1 }, 1.0]
           }
         },
         {
@@ -116,9 +116,9 @@ export const stakeRequest = (account, peerId)=> {
       nonce: creationTime().toString(),
       chainId: '1',
       gasPrice: 0.0000001,
-      gasLimit: 11000,
+      gasLimit: 2000,
       ttl: 600,
-      sender: account,
+      sender: 'cyberfly-account-gas',
       extraSigners: []
     }
     return signingRequest
@@ -139,7 +139,7 @@ export const stakeRequest = (account, peerId)=> {
         }
       )
       if (res.status === 200) {
-        return res
+        return await res.json()
       } else {
         const message = await res.text()
         alert(`Error sending transaction: ${message}`)
