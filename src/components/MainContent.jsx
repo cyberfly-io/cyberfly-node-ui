@@ -72,7 +72,7 @@ const MainContent = () => {
                 title: 'Node Peer Id',
                 loading: loading,
                 value: nodeInfo?.peerId.substring(0, 10) + '...',
-                description: <Paragraph copyable={{text:nodeInfo?.peerId ,tooltips: ['Copy', 'Copied'] }}></Paragraph>,
+                description: <Paragraph copyable={{text:nodeInfo?.peerId ,tooltips: ['Copy', 'Copied'] }}><a href={`/node/${nodeInfo?.peerId}`}>detail</a></Paragraph>,
                 valueStyle: { fontSize: 12 },
                 icon: (<DeploymentUnitOutlined />)
               }}
