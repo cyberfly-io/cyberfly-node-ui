@@ -111,19 +111,19 @@ export const getNode = async (peerId) =>{
   }
 
   const getPubkey = (account)=>{
-    return account.split(":")[1]
+    return account.slice(2)
   }
 
   export const nodeStake = async (account, peerId)=>{
    if(!window.flutter_inappwebview){
     const utxn = Pact.builder.execution(`(free.cyberfly_node.stake "${account}" "${peerId}")`)
-    .addSigner(getPubkey(account), (withCapability)=>[
+    .addSigner(account.slice(2), (withCapability)=>[
       withCapability('free.cyberfly-account-gas-station.GAS_PAYER', 'cyberfly-account-gas', { int: 1 }, 1.0),
       withCapability('free.cyberfly_node.ACCOUNT_AUTH', account),
       withCapability('free.cyberfly_node.NODE_GUARD', peerId),
       withCapability('free.cyberfly_token.TRANSFER', account, 'cyberfly-staking-bank', 50000.0),
     ])
-    .setMeta({chainId,senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000,})
+    .setMeta({chainId,senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000})
     .setNetworkId(network)
     .createTransaction();
     const  signTransaction = createSignWithEckoWallet()
@@ -259,7 +259,7 @@ export const nodeUnStake = async (account, peerId)=>{
       withCapability('free.cyberfly-account-gas-station.GAS_PAYER', 'cyberfly-account-gas', { int: 1 }, 1.0),
       withCapability('free.cyberfly_node.ACCOUNT_AUTH', account),
     ])
-    .setMeta({chainId,senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000,})
+    .setMeta({chainId,senderAccount:"cyberfly-account-gas", gasLimit:2000, gasPrice:0.0000001,ttl: 28000})
     .setNetworkId(network)
     .createTransaction();
     const  signTransaction = createSignWithEckoWallet()

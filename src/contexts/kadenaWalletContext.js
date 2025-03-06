@@ -43,22 +43,11 @@ const initialKadenaWalletState = {
     }, [initialize]);
   
     useEffect(() => {
-      const registerEvents = async () => {
-        if (kadenaExt) {
-          kadenaExt.on('res_accountChange', async (response) => {
-            console.log('X-Wallet: LISTEN res_accountChange', response);
-            await checkStatus();
-          });
-          kadenaExt.on('res_checkStatus', onCheckStatusResponse);
-          kadenaExt.on('res_sendKadena', (response) => {
-            console.log('X-Wallet: LISTEN res_SendKadena', response);
-          });
-          kadenaExt.on('res_disconnect', () => {});
-        }
-      };
-      registerEvents();
+  
       if (kadenaExt && kadenaWalletState.isConnected) {
+        checkStatus();
         setAccountData();
+
       }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [kadenaExt]);
@@ -186,7 +175,7 @@ const initialKadenaWalletState = {
     const getNetworkInfo = async () => {
         if(kadenaWalletState.isInstalled){
             console.log('getNetworkInfo');
-            const network = await kadenaExt.request({
+            const network = await kadenaExt?.request({
               method: 'kda_getNetwork',
             });
             console.log('X-Wallet: SEND kda_getNetwork request', network);
