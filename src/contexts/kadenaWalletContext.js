@@ -47,7 +47,6 @@ const initialKadenaWalletState = {
       if (kadenaExt && kadenaWalletState.isConnected) {
         checkStatus();
         setAccountData();
-
       }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [kadenaExt]);
@@ -59,10 +58,6 @@ const initialKadenaWalletState = {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [kadenaWalletState, account]);
   
-    /**
-     * Used by ConnectModal
-     */
-
 
 
     const connectAccount = async () => {
@@ -91,6 +86,8 @@ const initialKadenaWalletState = {
         if(wallet_name==="eckoWallet"){
           const networkInfo = await getNetworkInfo();
           if (networkInfo==null){
+            console.log("networkInfo", networkInfo)
+            console.log("from dapp")
             messageApi.warning("Please install eckowallet Extension")
           }
           else{
@@ -173,8 +170,7 @@ const initialKadenaWalletState = {
       };
   
     const getNetworkInfo = async () => {
-        if(kadenaWalletState.isInstalled){
-            console.log('getNetworkInfo');
+        if(window.kadena?.isKadena){
             const network = await kadenaExt?.request({
               method: 'kda_getNetwork',
             });
