@@ -45,7 +45,7 @@ const initialKadenaWalletState = {
     useEffect(() => {
   
       if (kadenaExt && kadenaWalletState.isConnected) {
-        checkStatus();
+        //checkStatus();
         setAccountData();
       }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -86,8 +86,6 @@ const initialKadenaWalletState = {
         if(wallet_name==="eckoWallet"){
           const networkInfo = await getNetworkInfo();
           if (networkInfo==null){
-            console.log("networkInfo", networkInfo)
-            console.log("from dapp")
             messageApi.warning("Please install eckowallet Extension")
           }
           else{
@@ -106,7 +104,7 @@ const initialKadenaWalletState = {
             }
           }
         }
-        else if(wallet_name="spireKey"){
+        else if(wallet_name==="spireKey"){
             const account  = await connectAccount()
             const ready = await account.isReady()
             console.log(account)
@@ -170,18 +168,11 @@ const initialKadenaWalletState = {
       };
   
     const getNetworkInfo = async () => {
-        if(window.kadena?.isKadena){
             const network = await kadenaExt?.request({
               method: 'kda_getNetwork',
             });
             console.log('X-Wallet: SEND kda_getNetwork request', network);
             return network;
-        }
-        else{
-            
-            return null
-        }
-    
     };
   
     const checkStatus = async () => {
