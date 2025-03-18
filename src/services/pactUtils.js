@@ -107,9 +107,9 @@ export const stakeRequest = (account, peerId)=> {
           description: `Account auth for reward claim`,
           cap: {
             args: [
-              account
+              peerId
             ],
-            name: `free.cyberfly_node.ACCOUNT_AUTH`
+            name: `free.cyberfly_node.NODE_GUARD`
           }
         }
       ],
