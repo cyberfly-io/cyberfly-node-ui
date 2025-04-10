@@ -29,12 +29,12 @@ const MainContent = () => {
         setDCount(data.discovered);
         setVersion(data.version);
         setPeers(data.connections);
+        setLoading(false);
         getActiveNodes().then((data) => {
           setActiveNodes(data.length);
           getStakeStats().then((data) => {
             setStakesCount(data['total-stakes']['int']);
             setLocked(data['total-staked-amount']);
-            setLoading(false);
           });
         });
       });
