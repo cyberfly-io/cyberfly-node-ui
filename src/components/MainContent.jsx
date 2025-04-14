@@ -95,7 +95,7 @@ const MainContent = () => {
               bordered={true}
               boxShadow
               statistic={{
-                loading: loading,
+                loading: cCount === 0,
                 title: 'Connected',
                 status: 'success',
                 value: cCount,
@@ -109,7 +109,7 @@ const MainContent = () => {
               bordered={true}
               boxShadow
               statistic={{
-                loading: loading,
+                loading: activeNodes === 0,
                 title: 'Active',
                 status: 'processing',
                 value: activeNodes,
@@ -123,7 +123,7 @@ const MainContent = () => {
               bordered={true}
               boxShadow
               statistic={{
-                loading: loading,
+                loading: stakesCount === 0,
                 title: 'Stakes',
                 status: 'processing',
                 value: stakesCount,
@@ -137,7 +137,7 @@ const MainContent = () => {
               bordered={true}
               boxShadow
               statistic={{
-                loading: loading,
+                loading: locked === 0,
                 title: 'Locked Supply',
                 status: 'processing',
                 value: locked,
