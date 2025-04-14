@@ -30,16 +30,14 @@ const MainContent = () => {
         setVersion(data.version);
         setPeers(data.connections);
         setLoading(false);
-        getActiveNodes().then((data) => {
-          setActiveNodes(data.length);
-          getStakeStats().then((data) => {
-            setStakesCount(data['total-stakes']['int']);
-            setLocked(data['total-staked-amount']);
-          });
-        });
       });
-     
-   
+      getActiveNodes().then((data) => {
+        setActiveNodes(data.length);
+      });
+      getStakeStats().then((data) => {
+        setStakesCount(data['total-stakes']['int']);
+        setLocked(data['total-staked-amount']);
+      });
     }
     getInfo();
     const intervalId = setInterval(getInfo, 5000);
