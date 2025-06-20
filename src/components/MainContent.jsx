@@ -3,9 +3,10 @@ import { GridContent } from '@ant-design/pro-components';
 import React, { useEffect, useState } from 'react';
 import { getNodeInfo } from '../services/node-services';
 import { StatisticCard, PageContainer } from '@ant-design/pro-components';
-import { ApartmentOutlined, InfoCircleOutlined, DeploymentUnitOutlined, RadarChartOutlined, DollarOutlined, ApiOutlined } from '@ant-design/icons';
+import { ApartmentOutlined, InfoCircleOutlined, DeploymentUnitOutlined, RadarChartOutlined, DollarOutlined, ApiOutlined, EyeOutlined } from '@ant-design/icons';
 import { getActiveNodes, getStakeStats } from '../services/pact-services';
 import { getIPFromMultiAddr } from '../utils/utils';
+import { useNavigate } from 'react-router-dom';
 
 const { Paragraph } = Typography;
 
@@ -20,6 +21,7 @@ const MainContent = () => {
   const [activeNodes, setActiveNodes] = useState(0);
   const [locked, setLocked] = useState(0);
   const [stakesCount, setStakesCount] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     function getInfo() {
@@ -70,7 +72,9 @@ const MainContent = () => {
                 title: 'Node Peer Id',
                 loading: loading,
                 value: nodeInfo?.peerId.substring(0, 10) + '...',
-                description: <Paragraph copyable={{text:nodeInfo?.peerId ,tooltips: ['Copy', 'Copied'] }}><a href={`/node/${nodeInfo?.peerId}`}>detail</a></Paragraph>,
+                description: <Paragraph copyable={{text:nodeInfo?.peerId ,tooltips: ['Copy', 'Copied'] }}><EyeOutlined onClick={()=>{
+                  navigate(`/node/${nodeInfo?.peerId}`);
+                }}/></Paragraph>,
                 valueStyle: { fontSize: 12 },
                 icon: (<DeploymentUnitOutlined />)
               }}
