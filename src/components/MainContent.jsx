@@ -3,8 +3,8 @@ import { GridContent } from '@ant-design/pro-components';
 import React, { useEffect, useState } from 'react';
 import { getNodeInfo } from '../services/node-services';
 import { StatisticCard, PageContainer } from '@ant-design/pro-components';
-import { ApartmentOutlined, InfoCircleOutlined, DeploymentUnitOutlined, RadarChartOutlined, DollarOutlined, ApiOutlined, EyeOutlined } from '@ant-design/icons';
-import { getActiveNodes, getStakeStats } from '../services/pact-services';
+import { ApartmentOutlined, InfoCircleOutlined, DeploymentUnitOutlined, RadarChartOutlined, DollarOutlined, ApiOutlined, EyeOutlined, PercentageOutlined } from '@ant-design/icons';
+import { getActiveNodes, getAPY, getStakeStats } from '../services/pact-services';
 import { getIPFromMultiAddr } from '../utils/utils';
 import { useNavigate } from 'react-router-dom';
 
@@ -22,6 +22,7 @@ const MainContent = () => {
   const [locked, setLocked] = useState(0);
   const [stakesCount, setStakesCount] = useState(0);
   const navigate = useNavigate();
+  const [apy, setApy] = useState(0);
 
   useEffect(() => {
     function getInfo() {
@@ -39,6 +40,9 @@ const MainContent = () => {
       getStakeStats().then((data) => {
         setStakesCount(data['total-stakes']['int']);
         setLocked(data['total-staked-amount']);
+      });
+      getAPY().then((data) => {
+        setApy(data);
       });
     }
     getInfo();
@@ -147,6 +151,20 @@ const MainContent = () => {
                 value: locked,
                 description: "CFLY",
                 icon: (<DollarOutlined />),
+              }}
+            />
+          </Col>
+               <Col >
+            <StatisticCard
+              bordered={true}
+              boxShadow
+              statistic={{
+                loading: apy === 0,
+                title: 'APY',
+                status: 'processing',
+                value: apy,
+                suffix: <PercentageOutlined />,
+                icon: (<PercentageOutlined />),
               }}
             />
           </Col>
