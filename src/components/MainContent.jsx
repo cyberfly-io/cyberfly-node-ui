@@ -1,14 +1,14 @@
-import { Col, Row, Divider, Typography, Collapse, Spin } from 'antd';
-import { GridContent } from '@ant-design/pro-components';
+import { Col, Row, Divider, Typography, Collapse, Spin, Grid, Tag, Tooltip } from 'antd';
+import { GridContent, StatisticCard, PageContainer } from '@ant-design/pro-components';
 import React, { useEffect, useState } from 'react';
 import { getNodeInfo } from '../services/node-services';
-import { StatisticCard, PageContainer } from '@ant-design/pro-components';
 import { ApartmentOutlined, InfoCircleOutlined, DeploymentUnitOutlined, RadarChartOutlined, DollarOutlined, ApiOutlined, EyeOutlined, PercentageOutlined } from '@ant-design/icons';
 import { getActiveNodes, getAPY, getStakeStats } from '../services/pact-services';
 import { getIPFromMultiAddr } from '../utils/utils';
 import { useNavigate } from 'react-router-dom';
 
-const { Paragraph } = Typography;
+const { Paragraph, Text } = Typography;
+const { useBreakpoint } = Grid;
 
 const MainContent = () => {
   const [peers, setPeers] = useState([]);
@@ -23,6 +23,9 @@ const MainContent = () => {
   const [stakesCount, setStakesCount] = useState(0);
   const navigate = useNavigate();
   const [apy, setApy] = useState(0);
+  const screens = useBreakpoint();
+
+  const short = (str, len = 12) => (!str ? '-' : (screens.xs ? `${str.slice(0, len)}...` : str));
 
   useEffect(() => {
     function getInfo() {
@@ -54,123 +57,168 @@ const MainContent = () => {
     if (peers) {
       const items = peers.map((item) => ({
         key: item.remotePeer,
-        label: <Paragraph copyable={{ tooltips: ['Copy', 'Copied'] }}>{item.remotePeer}</Paragraph>,
-        children: <><Paragraph copyable={{ tooltips: ['Copy', 'Copied'] }}><a rel='noreferrer' target="_blank" href={getIPFromMultiAddr(item.remoteAddr)}>{item.remoteAddr}</a></Paragraph></>,
+        label: (
+          <Paragraph copyable={{ tooltips: ['Copy', 'Copied'] }} style={{ margin: 0 }}>
+            {short(item.remotePeer, 18)}
+          </Paragraph>
+        ),
+        children: (
+          <Paragraph copyable={{ tooltips: ['Copy', 'Copied'] }}>
+            <a rel="noreferrer" target="_blank" href={getIPFromMultiAddr(item.remoteAddr)}>
+              {item.remoteAddr}
+            </a>
+          </Paragraph>
+        ),
       }));
       setPeerItems(items);
     }
   }, [peers]);
 
-
+  const cardCol = { xs: 24, sm: 12, md: 8, lg: 6, xl: 6 };
 
   return (
-    <PageContainer ghost loading={{ spinning: loading }} header={{ title: "Dashboard" }} tabBarExtraContent={version ? `Node version ${version}` : ''}>
-      <Spin spinning={loading} tip="Loading" fullscreen size='large' />
+    <PageContainer
+      ghost
+      loading={{ spinning: loading }}
+      header={{
+        title: 'Dashboard',
+        extra: version ? [<Tag key="ver" color="blue">v{version}</Tag>] : [],
+      }}
+    >
+      <Spin spinning={loading} tip="Loading" fullscreen size="large" />
       <GridContent>
-        <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
-          <Col >
+        <Row gutter={[16, 16]} style={{ marginTop: 24 }} align="stretch">
+          <Col {...cardCol}>
             <StatisticCard
-              bordered={true}
+              bordered
               boxShadow
               statistic={{
                 title: 'Node Peer Id',
-                loading: loading,
-                value: nodeInfo?.peerId.substring(0, 10) + '...',
-                description: <Paragraph copyable={{text:nodeInfo?.peerId ,tooltips: ['Copy', 'Copied'] }}><EyeOutlined onClick={()=>{
-                  navigate(`/node/${nodeInfo?.peerId}`);
-                }}/></Paragraph>,
+                loading,
+                value: short(nodeInfo?.peerId, 14),
+                description: (
+                  <Space size="small">
+                    <Text type="secondary">Full:</Text>
+                    <Paragraph
+                      copyable={{ text: nodeInfo?.peerId, tooltips: ['Copy', 'Copied'] }}
+                      style={{ display: 'inline-block', margin: 0 }}
+                    >
+                      {short(nodeInfo?.peerId, 20)}
+                    </Paragraph>
+                    <Tooltip title="View node">
+                      <EyeOutlined
+                        onClick={() => navigate(`/node/${nodeInfo?.peerId}`)}
+                        style={{ cursor: 'pointer' }}
+                      />
+                    </Tooltip>
+                  </Space>
+                ),
                 valueStyle: { fontSize: 12 },
-                icon: (<DeploymentUnitOutlined />)
+                icon: <DeploymentUnitOutlined />,
               }}
             />
           </Col>
-          <Col >
+
+          <Col {...cardCol}>
             <StatisticCard
-              bordered={true}
+              bordered
               boxShadow
               statistic={{
-                loading: loading,
+                loading,
                 title: 'Node Owner',
-                value: nodeInfo?.account.substring(0, 10) + '...',
-                description:<Paragraph copyable={{text:nodeInfo?.account ,tooltips: ['Copy', 'Copied'] }}></Paragraph>,
+                value: short(nodeInfo?.account, 14),
+                description: (
+                  <Paragraph
+                    copyable={{ text: nodeInfo?.account, tooltips: ['Copy', 'Copied'] }}
+                    style={{ margin: 0 }}
+                  >
+                    {short(nodeInfo?.account, 20)}
+                  </Paragraph>
+                ),
                 valueStyle: { fontSize: 11 },
-                icon: (<InfoCircleOutlined />)
+                icon: <InfoCircleOutlined />,
               }}
             />
           </Col>
-          <Col >
+
+          <Col {...cardCol}>
             <StatisticCard
-              bordered={true}
+              bordered
               boxShadow
               statistic={{
-                loading: cCount === 0,
+                loading: cCount === 0 && loading,
                 title: 'Connected',
                 status: 'success',
                 value: cCount,
-                description: "peers",
-                icon: (<ApartmentOutlined />),
+                description: 'peers',
+                icon: <ApartmentOutlined />,
               }}
             />
           </Col>
-          <Col >
+
+          <Col {...cardCol}>
             <StatisticCard
-              bordered={true}
+              bordered
               boxShadow
               statistic={{
-                loading: activeNodes === 0,
+                loading: activeNodes === 0 && loading,
                 title: 'Active',
                 status: 'processing',
                 value: activeNodes,
-                description: "nodes",
-                icon: (<RadarChartOutlined />),
+                description: 'nodes',
+                icon: <RadarChartOutlined />,
               }}
             />
           </Col>
-          <Col >
+
+          <Col {...cardCol}>
             <StatisticCard
-              bordered={true}
+              bordered
               boxShadow
               statistic={{
-                loading: stakesCount === 0,
+                loading: stakesCount === 0 && loading,
                 title: 'Stakes',
                 status: 'processing',
                 value: stakesCount,
-                description: "nodes",
-                icon: (<ApiOutlined />),
+                description: 'nodes',
+                icon: <ApiOutlined />,
               }}
             />
           </Col>
-          <Col >
+
+          <Col {...cardCol}>
             <StatisticCard
-              bordered={true}
+              bordered
               boxShadow
               statistic={{
-                loading: locked === 0,
+                loading: locked === 0 && loading,
                 title: 'Locked Supply',
                 status: 'processing',
                 value: locked,
-                description: "CFLY",
-                icon: (<DollarOutlined />),
+                description: 'CFLY',
+                icon: <DollarOutlined />,
               }}
             />
           </Col>
-               <Col >
+
+          <Col {...cardCol}>
             <StatisticCard
-              bordered={true}
+              bordered
               boxShadow
               statistic={{
-                loading: apy === 0,
+                loading: apy === 0 && loading,
                 title: 'APY',
                 status: 'processing',
                 value: apy,
                 suffix: <PercentageOutlined />,
-                icon: (<PercentageOutlined />),
+                icon: <PercentageOutlined />,
               }}
             />
           </Col>
         </Row>
+
         <Divider orientation="left">Connected Peers</Divider>
-        <Collapse items={peerItems} collapsible="icon" />
+        <Collapse items={peerItems} collapsible="icon" size={screens.xs ? 'small' : 'middle'} />
       </GridContent>
     </PageContainer>
   );
