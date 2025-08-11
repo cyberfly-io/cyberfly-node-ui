@@ -28,6 +28,14 @@ export default function FileUpload() {
 
   const [cid, setCid] = useState(null);
 
+  // NEW: byte-accurate progress states
+  const [uploadBytes, setUploadBytes] = useState(0);
+  const [downloadProgress, setDownloadProgress] = useState(0);
+  const [downloadBytes, setDownloadBytes] = useState(0);
+  const [downloadTotal, setDownloadTotal] = useState(0);
+  const [downloadName, setDownloadName] = useState('');
+  const [downloadBlobData, setDownloadBlobData] = useState(null);
+
   const CHUNK_SIZE =   800 * 1024; // 1MB chunks
 
   const formatBytes = (bytes, decimals = 2) => {
@@ -82,12 +90,18 @@ export default function FileUpload() {
       const newFileList = fileList.slice();
       newFileList.splice(index, 1);
       setFileList(newFileList);
+      setFile(null);
+      setUploadProgress(0);
+      setUploadBytes(0);
     },
     beforeUpload: (file) => {
       setFileList([...fileList, file]);
       setFile(file);
       setError('');
       setFileType(file.type);
+      // reset upload progress
+      setUploadProgress(0);
+      setUploadBytes(0);
       return false;
     },
     fileList,
@@ -151,10 +165,11 @@ export default function FileUpload() {
     try {
       setUploading(true);
       setUploadProgress(0);
+      setUploadBytes(0);
       setError('');
 
       const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
-      let uploadedChunks = 0;
+      let uploadedBytes = 0;
 
       // Upload chunks
       for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
@@ -163,9 +178,10 @@ export default function FileUpload() {
         const chunk = file.slice(start, end);
 
         await uploadChunk(chunk, chunkIndex, totalChunks, file.name);
-        
-        uploadedChunks++;
-        const progress = (uploadedChunks / totalChunks) * 100;
+
+        uploadedBytes += (end - start);
+        setUploadBytes(uploadedBytes);
+        const progress = (uploadedBytes / file.size) * 100;
         setUploadProgress(progress);
       }
 
@@ -193,6 +209,7 @@ export default function FileUpload() {
       const result = await completeResponse.json();
       setUploadResult(result);
       setUploadProgress(100);
+      setUploadBytes(file.size);
     } catch (err) {
       setError(err.message || 'Failed to upload file');
     } finally {
@@ -232,42 +249,102 @@ export default function FileUpload() {
       
       const metadata = await metadataResponse.json();
       setFileType(metadata.contentType);
+      setDownloadName(metadata?.fileName || metadata?.filename || metadata?.name || cid);
+      setDownloadBytes(0);
+      setDownloadProgress(0);
+      setDownloadTotal(Number(metadata?.size) || 0);
 
-      // For video files, we'll just set the URL for streaming
+      // For video files, use streaming URL (progress not tracked for streaming)
       if (metadata.contentType.startsWith('video/')) {
         const streamUrl = `${protocol}//${host}/api/file/${cid}`;
         setFileContent(streamUrl);
         return;
       }
 
-      // For other file types, keep existing logic
+      // For other file types, fetch with progress
       const url = `${protocol}//${host}/api/file/${cid}`;
       const response = await fetch(url);
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch file');
       }
-      
-      const blob = await response.blob();
-      
-      if (blob.type === 'application/octet-stream') {
-        setFileContent(blob);
-      } else if (blob.type.startsWith('image/') || 
-                 blob.type.startsWith('audio/') || 
-                 blob.type === 'application/pdf') {
-        const mediaUrl = URL.createObjectURL(blob);
-        setFileContent(mediaUrl);
-      } else if (blob.type.startsWith('text/') || blob.type === 'application/json') {
-        const text = await blob.text();
-        setFileContent(text);
-      } else {
-        setFileContent(blob);
+
+     // Try to extract filename from Content-Disposition header (if present)
+     const cd = response.headers.get('Content-Disposition');
+     if (cd) {
+       const match = /filename\*=UTF-8''([^;]+)|filename="?([^"]+)"?/i.exec(cd);
+       const headerName = match ? decodeURIComponent(match[1] || match[2]) : null;
+       if (headerName) setDownloadName(headerName);
+     }
+
+      const totalFromHeader = Number(response.headers.get('Content-Length')) || 0;
+      const total = totalFromHeader || Number(metadata?.size) || 0;
+      if (total) setDownloadTotal(total);
+
+      // If stream is not readable, fallback to normal blob (no progress)
+      if (!response.body || !response.body.getReader) {
+        const blob = await response.blob();
+        setDownloadBytes(blob.size || total);
+        setDownloadProgress(100);
+        setDownloadBlobData(blob);
+        await handleBlobToViewer(blob, metadata.contentType);
+        return;
       }
+
+      const reader = response.body.getReader();
+      const chunks = [];
+      let received = 0;
+
+      // ReadableStream loop
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(value);
+        received += value.length;
+        setDownloadBytes(received);
+        if (total) {
+          setDownloadProgress((received / total) * 100);
+        }
+      }
+
+      const blob = new Blob(chunks, { type: metadata.contentType || response.headers.get('Content-Type') || 'application/octet-stream' });
+      if (!total) {
+        setDownloadTotal(blob.size);
+        setDownloadProgress(100);
+      }
+      setDownloadBlobData(blob);
+      await handleBlobToViewer(blob, metadata.contentType);
     } catch (err) {
       setError('Failed to fetch file');
       setFileContent(null);
       setFileType(null);
+      setDownloadProgress(0);
+      setDownloadBytes(0);
+      setDownloadTotal(0);
+      setDownloadBlobData(null);
     }
+  };
+
+  // Helper to convert blob to appropriate viewer content
+  const handleBlobToViewer = async (blob, mime) => {
+    // Keep a copy of the blob for accurate downloads with filename
+    try { setDownloadBlobData(blob); } catch {}
+    if (mime === 'application/octet-stream') {
+      setFileContent(blob);
+      return;
+    }
+    if (mime?.startsWith('image/') || mime?.startsWith('audio/') || mime === 'application/pdf') {
+      const mediaUrl = URL.createObjectURL(blob);
+      setFileContent(mediaUrl);
+      return;
+    }
+    if (mime?.startsWith('text/') || mime === 'application/json') {
+      const text = await blob.text();
+      setFileContent(text);
+      return;
+    }
+    setFileContent(blob);
   };
 
  
@@ -398,7 +475,10 @@ export default function FileUpload() {
               type="primary"
               icon={<DownloadOutlined />}
               block
-              onClick={() => downloadBlob(new Blob([content], { type }), file?.name || 'audio')}
+              onClick={() => downloadBlob(
+                downloadBlobData || new Blob([], { type }),
+                downloadName || 'audio'
+              )}
             >
               Download Audio
             </Button>
@@ -425,7 +505,7 @@ export default function FileUpload() {
             <div>
               <Title level={4} style={{ marginBottom: 8 }}>Binary File</Title>
               <Text type="secondary" style={{ display: 'block', marginBottom: 8 }}>
-                {formatBytes(content.size)}
+                {downloadBlobData ? formatBytes(downloadBlobData.size) : '-'}
               </Text>
               <Tag color="blue" style={{ marginBottom: 16 }}>
                 {type || 'application/octet-stream'}
@@ -433,7 +513,7 @@ export default function FileUpload() {
               <Button 
                 type="primary"
                 icon={<DownloadOutlined />}
-                onClick={() => downloadBlob(content, file?.name || 'download')}
+                onClick={() => downloadBlob(downloadBlobData || content, downloadName || 'download')}
                 block
               >
                 Download File
@@ -452,6 +532,14 @@ export default function FileUpload() {
             alt="Uploaded content" 
             style={{ width: '100%', height: 'auto' }} 
           />
+         <Button
+           style={{ marginTop: 12 }}
+           icon={<DownloadOutlined />}
+           onClick={() => downloadBlob(downloadBlobData, downloadName || 'image')}
+           block
+         >
+           Download Image
+         </Button>
         </Card>
       );
     }
@@ -471,6 +559,14 @@ export default function FileUpload() {
               }
             }}
           />
+         <Button
+           style={{ marginTop: 12 }}
+           icon={<DownloadOutlined />}
+           onClick={() => downloadBlob(downloadBlobData, downloadName || 'document.pdf')}
+           block
+         >
+           Download PDF
+         </Button>
         </Card>
       );
     }
@@ -490,6 +586,14 @@ export default function FileUpload() {
           }}>
             {content}
           </pre>
+         <Button
+           style={{ marginTop: 12 }}
+           icon={<DownloadOutlined />}
+           onClick={() => downloadBlob(downloadBlobData, downloadName || 'text.txt')}
+           block
+         >
+           Download File
+         </Button>
         </Card>
       );
     }
@@ -513,6 +617,17 @@ export default function FileUpload() {
       }}>
         <Button icon={<UploadOutlined />} block>Select File</Button>
       </Upload>
+
+      {file && (
+        <Card size="small">
+          <Space size="small" wrap>
+            <Text strong>{file.name}</Text>
+            <Tag>{fileType || file.type || 'unknown'}</Tag>
+            <Text type="secondary">{formatBytes(file.size)}</Text>
+          </Space>
+        </Card>
+      )}
+
       <Button
         type="primary"
         onClick={handleUpload}
@@ -545,6 +660,21 @@ export default function FileUpload() {
           {retrieving ? 'Retrieving...' : 'Retrieve'}
         </Button>
       </Space.Compact>
+
+      {(retrieving || downloadProgress > 0) && (
+        <div style={{ marginTop: 16 }}>
+          <Text type="secondary">
+            Downloading {downloadName || retrieveCid}
+          </Text>
+          <Progress
+            percent={Number(downloadProgress.toFixed())}
+            status={retrieving ? 'active' : 'normal'}
+            format={() =>
+              `${formatBytes(downloadBytes)}${downloadTotal ? ' / ' + formatBytes(downloadTotal) : ''}`
+            }
+          />
+        </div>
+      )}
     </Card>
   );
 
@@ -559,6 +689,9 @@ export default function FileUpload() {
               <Progress 
                 percent={Number(uploadProgress.toFixed())}
                 status="active"
+                format={() =>
+                  `${formatBytes(uploadBytes)}${file ? ' / ' + formatBytes(file.size) : ''}`
+                }
               />
             </div>
           )}
