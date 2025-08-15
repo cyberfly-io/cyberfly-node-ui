@@ -22,6 +22,7 @@ import Files from './pages/files';
 import KadenaTools from './pages/kadena-tools';
 import NodeList from './pages/nodelist';
 import NodeDetail from './pages/node';
+import BLEPage from './pages/ble';
 
 const { defaultAlgorithm, darkAlgorithm } = theme;
 
@@ -95,6 +96,8 @@ actionsRender={(props)=>{
 <Route path='/pubsub' element={<PubSubPage/>} />
 <Route path="/settings" element={<Settings />} />
 <Route path="/dialer" element={<Dialer />} />
+<Route path='/ble' element={<BLEPage />} />
+
 <Route path="/map" element={<NodeMap />} />
 <Route path="/stream" element={<WebcamStreaming />} />
 <Route path="/faucet" element={<Faucet />} />
