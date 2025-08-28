@@ -1,7 +1,7 @@
 import { PageContainer } from '@ant-design/pro-components'
 import React from 'react'
 import FileUpload from '../components/FileUpload';
-import { Card, Typography, Space, Divider } from 'antd';
+import { Card, Typography, Space, Divider, Row, Col } from 'antd';
 import { FileAddOutlined, CloudUploadOutlined, InfoCircleOutlined, FileTextOutlined } from '@ant-design/icons';
 import { useDarkMode } from '../contexts/DarkModeContext';
 
@@ -35,20 +35,22 @@ const Files = () => {
           bordered={false}
           style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
         >
-          <Space align="center" style={{ width: '100%', justifyContent: 'space-between' }}>
-            <div>
-              <Title level={2} style={{ margin: 0, color: '#1890ff' }}>
-                <FileAddOutlined style={{ marginRight: 12 }} />
-                File Upload Center
-              </Title>
-              <Paragraph style={{ margin: '8px 0 0 0', color: '#666' }}>
-                Upload files to the decentralized Cyberfly network for secure storage and sharing
-              </Paragraph>
-            </div>
-            <div style={{ textAlign: 'right' }}>
+          <Row gutter={[16, 16]} align="middle">
+            <Col xs={24} md={16}>
+              <div>
+                <Title level={2} style={{ margin: 0, color: '#1890ff' }}>
+                  <FileAddOutlined style={{ marginRight: 12 }} />
+                  File Upload Center
+                </Title>
+                <Paragraph style={{ margin: '8px 0 0 0', color: '#666' }}>
+                  Upload files to the decentralized Cyberfly network for secure storage and sharing
+                </Paragraph>
+              </div>
+            </Col>
+            <Col xs={24} md={8} style={{ textAlign: 'center' }}>
               <CloudUploadOutlined style={{ fontSize: 48, color: '#52c41a', opacity: 0.7 }} />
-            </div>
-          </Space>
+            </Col>
+          </Row>
         </Card>
 
         {/* File Upload Component */}

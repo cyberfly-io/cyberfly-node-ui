@@ -88,7 +88,7 @@ const Tools = () => {
            <Form
              name="database-query"
              layout="vertical"
-             style={{ maxWidth: 600 }}
+             style={{ width: '100%' }}
              onFinish={onFinish}
              onFinishFailed={onFinishFailed}
              autoComplete="off"
@@ -107,15 +107,15 @@ const Tools = () => {
                    message: 'Please input database address!',
                  },
                  {
-                   pattern: /^k:/,
-                   message: 'Database address should start with "k:"',
+                   pattern: /^\/orbitdb/,
+                   message: 'Database address should start with "/orbitdb"',
                  }
                ]}
-               tooltip="Enter the Kadena database address (starts with 'k:')"
+               tooltip="Enter the OrbitDB database address (starts with '/orbitdb')"
              >
                <Input
                  size='large'
-                 placeholder="k:account-hash"
+                 placeholder="/orbitdb/database-hash"
                  prefix={<DatabaseOutlined />}
                  onChange={(e)=>{
                   setDbaddr(e.target.value)
@@ -203,15 +203,15 @@ const Tools = () => {
            <Space direction="vertical" size="small">
              <Text strong>How to use:</Text>
              <ul style={{ paddingLeft: 20, margin: 0 }}>
-               <li>Enter a valid Kadena database address (starts with "k:")</li>
+               <li>Enter a valid OrbitDB database address (starts with "/orbitdb")</li>
                <li>Click "Get DB Info" to retrieve database metadata</li>
                <li>Click "Read Database" to fetch the actual data</li>
                <li>Results will be displayed in JSON format below</li>
              </ul>
              <Divider style={{ margin: '12px 0' }} />
              <Text type="secondary">
-               <strong>Note:</strong> Database addresses are typically found in smart contract deployments
-               and can be used to query blockchain state.
+               <strong>Note:</strong> Database addresses are typically found in OrbitDB deployments
+               and can be used to query decentralized database state.
              </Text>
            </Space>
          </Card>

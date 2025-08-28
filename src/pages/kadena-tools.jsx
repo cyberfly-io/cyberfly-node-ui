@@ -2,7 +2,7 @@ import { PageContainer } from '@ant-design/pro-components'
 import {
   Button, message as msg, Card, Space, Typography, Row, Col,
   Statistic, Tag, Tabs, Alert, Input, Tooltip, Empty, Descriptions,
-  Badge, Modal as AntModal, Form, Select, Table
+  Badge, Modal as AntModal, Form, Select, Table, Grid
 } from 'antd';
 import {
   KeyOutlined, CopyOutlined, DownloadOutlined, HistoryOutlined,
@@ -18,9 +18,11 @@ const { Title, Text } = Typography;
 const { TabPane } = Tabs;
 const { TextArea } = Input;
 const { Option } = Select;
+const { useBreakpoint } = Grid;
 
 const KadenaTools = () => {
   const { isDarkMode } = useDarkMode();
+  const screens = useBreakpoint();
   const [messageApi, contextHolder] = msg.useMessage();
   const [keypair, setKeypair] = useState(null);
   const [keypairs, setKeypairs] = useState([]);

@@ -12,6 +12,7 @@ const NodeMap = ()=>{
     const [ipAddresses, setIpAddresses] = useState([]);
     const protocol = window.location.protocol; // Get the current protocol
     const [loading, setLoading] = useState(true);
+    const { isDarkMode } = useDarkMode();
 
     const host = getHost()
     useEffect(()=>{
