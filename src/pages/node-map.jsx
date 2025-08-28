@@ -5,6 +5,7 @@ import { PageContainer } from '@ant-design/pro-components';
 import { getHost, getNodeInfo } from '../services/node-services';
 import { Spin, Space } from 'antd';
 import { GlobalOutlined } from '@ant-design/icons';
+import { useDarkMode } from '../contexts/DarkModeContext';
 
 const NodeMap = ()=>{
     const [ipData, setIpData] = useState([]);
