@@ -3,11 +3,12 @@ import React, { useState, useEffect } from 'react';
 import { Map, Marker, Overlay } from "pigeon-maps"
 import { PageContainer } from '@ant-design/pro-components';
 import { getHost, getNodeInfo } from '../services/node-services';
-import { Spin, Space, Card, Typography, Badge, Tooltip, Row, Col, Statistic, Tag, Button } from 'antd';
+import { Spin, Space, Card, Typography, Badge, Tooltip, Row, Col, Statistic, Tag, Button, Grid } from 'antd';
 import { GlobalOutlined, EnvironmentOutlined, WifiOutlined, NodeIndexOutlined } from '@ant-design/icons';
 import { useDarkMode } from '../contexts/DarkModeContext';
 
 const { Title, Text } = Typography;
+const { useBreakpoint } = Grid;
 
 const NodeMap = ()=>{
     const [ipData, setIpData] = useState([]);
@@ -17,6 +18,7 @@ const NodeMap = ()=>{
     const [selectedNode, setSelectedNode] = useState(null);
     const [loading, setLoading] = useState(true);
     const { isDarkMode } = useDarkMode();
+    const screens = useBreakpoint();
     // Get node connections
     useEffect(()=>{
         const getInfo = ()=>{
@@ -293,7 +295,13 @@ const NodeMap = ()=>{
            position: 'relative'
          }}
        >
-         <div style={{ position: 'relative', height: '600px', width: '100%' }}>
+         <div style={{
+           position: 'relative',
+           height: screens.xs ? '400px' : screens.sm ? '500px' : '600px',
+           width: '100%',
+           borderRadius: '8px',
+           overflow: 'hidden'
+         }}>
            <Spin spinning={loading} tip={`Loading node locations... ${visibleMarkers.length}/${ipAddresses.length} loaded`} size="large">
              <Map
                height={600}

@@ -34,6 +34,7 @@ const App = () => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const [pathname, setPathname] = useState('/');
   const [open, setOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const bg = isDarkMode ? "linear-gradient(135deg, #000066 0%, #003366 50%, #004d4d 100%)" : "linear-gradient(135deg, #0061ff 0%, #60efff 50%, #00ff87  100%);";
   const showModal = () => {
     setOpen(true);
@@ -61,9 +62,17 @@ const App = () => {
 }}
 token={{bgLayout: bg}}
  onMenuHeaderClick={(e) => console.log(e)}
+ collapsed={collapsed}
+ onCollapse={setCollapsed}
+ breakpoint="lg"
+ collapsedWidth={0}
  menuItemRender={(item, dom) => (
   <Link to={item.path} onClick={() => {
     setPathname(item.path || '/');
+    // Auto-collapse on mobile after navigation
+    if (window.innerWidth <= 1024) {
+      setCollapsed(true);
+    }
   }}>{dom}</Link>
  )}
 actionsRender={(props)=>{

@@ -105,6 +105,29 @@ const config = {
       url: `${window.location.protocol}//${getHost()}/graphql`,
     },
   ],
+  // Mobile responsive settings
+  siderWidth: 280,
+  collapsedWidth: 0,
+  breakpoint: 'lg',
+  collapsedButtonRender: false,
+  menu: {
+    type: 'group',
+    autoClose: false,
+  },
+  header: {
+    height: 64,
+  },
+  content: {
+    style: {
+      padding: '24px',
+      '@media (max-width: 768px)': {
+        padding: '16px',
+      },
+      '@media (max-width: 480px)': {
+        padding: '12px',
+      },
+    },
+  },
 };
 
 

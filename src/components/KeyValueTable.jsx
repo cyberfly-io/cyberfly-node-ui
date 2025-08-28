@@ -1,7 +1,11 @@
 import React from 'react';
-import { Table } from 'antd';
+import { Table, Grid } from 'antd';
+
+const { useBreakpoint } = Grid;
 
 const KeyValueTable = ({ data }) => {
+  const screens = useBreakpoint();
+
   // Convert data into a format accepted by Ant Design Table
   const dataSource = Object.keys(data).map(key => ({
     key,
@@ -14,8 +18,9 @@ const KeyValueTable = ({ data }) => {
       title: 'Key',
       dataIndex: 'key',
       key: 'key',
+      width: screens.xs ? 120 : 200,
       render: (_, record)=>{
-        return (<b>{_}</b>)
+        return (<b style={{ fontSize: screens.xs ? '12px' : '14px' }}>{_}</b>)
       }
     },
     {
@@ -24,14 +29,34 @@ const KeyValueTable = ({ data }) => {
       key: 'value',
       render: (_, record)=>{
         const val = typeof _ =="object"? _.timep : _
-        return (val)
+        return (
+          <span style={{
+            fontSize: screens.xs ? '12px' : '14px',
+            wordBreak: 'break-all',
+            fontFamily: 'monospace'
+          }}>
+            {val}
+          </span>
+        )
       }
     }
   ];
 
-  return <Table dataSource={dataSource} columns={columns} scroll={{ x: 'max-content', y: 'calc(100vh - 300px)' }}
-  pagination={{ position: ['none'] }}
-/>;
+  return (
+    <Table
+      dataSource={dataSource}
+      columns={columns}
+      scroll={{
+        x: screens.xs ? 300 : 'max-content',
+        y: screens.xs ? 'calc(100vh - 400px)' : 'calc(100vh - 300px)'
+      }}
+      pagination={{ position: ['none'] }}
+      size={screens.xs ? 'small' : 'middle'}
+      style={{
+        fontSize: screens.xs ? '12px' : '14px'
+      }}
+    />
+  );
 };
 
 export default KeyValueTable;

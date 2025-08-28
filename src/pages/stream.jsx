@@ -235,12 +235,14 @@ const VideoStreamer = () => {
             onChange={(e) => setPeerAddress(e.target.value)}
             prefix={<GlobalOutlined />}
           />
-          <Space wrap>
+          <Space wrap style={{ width: '100%', justifyContent: 'center' }}>
             <Button
               type="primary"
               icon={<VideoCameraOutlined />}
               onClick={startVideoCapture}
               disabled={isStreamingLocal}
+              size="large"
+              style={{ minWidth: '140px' }}
             >
               Start Streaming
             </Button>
@@ -248,6 +250,8 @@ const VideoStreamer = () => {
               icon={<UserOutlined />}
               onClick={handleConnectToPeer}
               disabled={!isStreamingLocal || !peerAddress}
+              size="large"
+              style={{ minWidth: '140px' }}
             >
               Connect to Peer
             </Button>
@@ -256,6 +260,8 @@ const VideoStreamer = () => {
               icon={<ThunderboltOutlined />}
               onClick={stopVideoStream}
               disabled={!isStreamingLocal}
+              size="large"
+              style={{ minWidth: '140px' }}
             >
               Stop Streaming
             </Button>
@@ -266,38 +272,60 @@ const VideoStreamer = () => {
       <Card title="Video Streams">
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
           gap: '16px',
           minHeight: '300px'
         }}>
           <div style={{ textAlign: 'center' }}>
             <Typography.Title level={5}>Local Stream</Typography.Title>
-            <video
-              ref={localVideoRef}
-              autoPlay
-              playsInline
-              muted
-              style={{
-                width: '100%',
-                maxWidth: '400px',
-                border: '1px solid #d9d9d9',
-                borderRadius: '8px'
-              }}
-            />
+            <div style={{
+              position: 'relative',
+              width: '100%',
+              maxWidth: '400px',
+              margin: '0 auto',
+              aspectRatio: '16/9',
+              background: '#000',
+              borderRadius: '8px',
+              overflow: 'hidden'
+            }}>
+              <video
+                ref={localVideoRef}
+                autoPlay
+                playsInline
+                muted
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  borderRadius: '8px'
+                }}
+              />
+            </div>
           </div>
           <div style={{ textAlign: 'center' }}>
             <Typography.Title level={5}>Remote Stream</Typography.Title>
-            <video
-              ref={remoteVideoRef}
-              autoPlay
-              playsInline
-              style={{
-                width: '100%',
-                maxWidth: '400px',
-                border: '1px solid #d9d9d9',
-                borderRadius: '8px'
-              }}
-            />
+            <div style={{
+              position: 'relative',
+              width: '100%',
+              maxWidth: '400px',
+              margin: '0 auto',
+              aspectRatio: '16/9',
+              background: '#000',
+              borderRadius: '8px',
+              overflow: 'hidden'
+            }}>
+              <video
+                ref={remoteVideoRef}
+                autoPlay
+                playsInline
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  borderRadius: '8px'
+                }}
+              />
+            </div>
           </div>
         </div>
       </Card>

@@ -228,7 +228,7 @@ const MainContent = () => {
           style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
         >
           <Row gutter={[24, 16]}>
-            <Col xs={24} sm={12} lg={6}>
+            <Col xs={24} sm={12} lg={8}>
               <Statistic
                 title="Connected Peers"
                 value={cCount}
@@ -237,7 +237,7 @@ const MainContent = () => {
               />
             
             </Col>
-            <Col xs={24} sm={12} lg={6}>
+            <Col xs={24} sm={12} lg={8}>
               <Statistic
                 title="Discovered Peers"
                 value={dCount}
@@ -245,7 +245,7 @@ const MainContent = () => {
                 valueStyle={{ color: '#52c41a' }}
               />
             </Col>
-            <Col xs={24} sm={12} lg={6}>
+            <Col xs={24} sm={12} lg={8}>
               <Statistic
                 title="Active Nodes"
                 value={activeNodes}
@@ -253,15 +253,7 @@ const MainContent = () => {
                 valueStyle={{ color: '#fa8c16' }}
               />
             </Col>
-            <Col xs={24} sm={12} lg={6}>
-              <Statistic
-                title="Network APY"
-                value={apy}
-                suffix="%"
-                prefix={<TrophyOutlined />}
-                valueStyle={{ color: '#722ed1' }}
-              />
-            </Col>
+
           </Row>
         </Card>
 
