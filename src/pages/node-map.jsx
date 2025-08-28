@@ -43,18 +43,16 @@ const NodeMap = ()=>{
               const ip = ipAddresses[i];
               console.log(`Fetching location for IP: ${ip} (${i + 1}/${ipAddresses.length})`);
 
-              // Use GraphQL query to get IP location
-              const query = `
-                query GetIPLocation($ip: String!) {
-                  getIPLocation(ip: $ip) {
-                    lat
-                    lon
-                    city
-                    country
-                    ip
-                  }
+              // Use GraphQL query template to get IP location
+              const query = `query MyQuery {
+                getIPLocation(ip: "${ip}") {
+                  lat
+                  lon
+                  query
+                  country
+                  city
                 }
-              `;
+              }`;
 
               const response = await fetch('https://node.cyberfly.io/graphql', {
                 method: 'POST',
@@ -62,8 +60,8 @@ const NodeMap = ()=>{
                   'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                  query,
-                  variables: { ip }
+                  query: query,
+                  operationName: "MyQuery"
                 })
               });
 
@@ -85,7 +83,7 @@ const NodeMap = ()=>{
                 ...locationData,
                 lat: parseFloat(locationData.lat) || 0,
                 lon: parseFloat(locationData.lon) || 0,
-                ip: ip, // Use the original IP
+                ip: locationData.query || ip, // Use query field as IP, fallback to original IP
                 city: locationData.city || 'Unknown',
                 country: locationData.country || 'Unknown'
               };
@@ -117,7 +115,7 @@ const NodeMap = ()=>{
 
               // Add placeholder data for errors
               const errorData = {
-                ip: ipAddresses[i],
+                query: ipAddresses[i],
                 lat: 0,
                 lon: 0,
                 city: 'Unknown',
@@ -334,7 +332,7 @@ const NodeMap = ()=>{
                        <div>
                          <Text strong style={{ color: isDarkMode ? '#e0e0e0' : undefined }}>IP:</Text>
                          <Text code copyable style={{ marginLeft: 8 }}>
-                           {selectedNode.ip}
+                           {selectedNode.query || selectedNode.ip}
                          </Text>
                        </div>
                        <div>
@@ -409,7 +407,7 @@ const NodeMap = ()=>{
                        )}
                      </div>
                      <Text code style={{ fontSize: '11px', wordBreak: 'break-all' }}>
-                       {node.ip}
+                       {node.query || node.ip}
                      </Text>
                      <Text type="secondary" style={{ fontSize: '11px' }}>
                        {node.city && node.country ? `${node.city}, ${node.country}` : 'Location unavailable'}
