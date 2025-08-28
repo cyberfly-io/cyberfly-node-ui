@@ -77,3 +77,46 @@
     height: 100%; /* Ensures it fills the container */
     object-fit: cover; /* Ensures the video covers the container */
 }
+
+/* Ensure gradient cards remain readable across light/dark themes */
+.gradient-card {
+  /* keep the gradient visible */
+  background-clip: padding-box;
+  position: relative;
+}
+
+/* Force the card body to be transparent (override theme) */
+.gradient-card .ant-card-body {
+  background: transparent !important;
+  color: white !important;
+}
+
+/* Make all text and icons inside gradient cards white and visible */
+.gradient-card, .gradient-card * {
+  color: white !important;
+}
+
+/* Tweak specific Ant components used inside the card */
+.gradient-card .ant-statistic-title,
+.gradient-card .ant-statistic-content-value,
+.gradient-card .ant-typography,
+.gradient-card .ant-progress-inner,
+.gradient-card .ant-progress-text {
+  color: white !important;
+}
+
+/* Provide slight overlay contrast to ensure readability against gradients */
+.gradient-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.06);
+  pointer-events: none;
+  border-radius: 4px;
+}
+
+/* Prevent blend-mode from inverting or hiding text on some themes/browsers */
+.gradient-card, .gradient-card * {
+  mix-blend-mode: normal !important;
+  -webkit-text-fill-color: white !important; /* Safari */
+}

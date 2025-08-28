@@ -1,7 +1,7 @@
 import {  Flex, ConfigProvider, theme, Button, Avatar, Dropdown, Modal, Typography } from 'antd'
 import React, { useState } from 'react'
 import { Route, BrowserRouter, Routes, Link } from 'react-router-dom';
-import Tools from './pages/tools'
+import Tools from './pages/db-tools'
 import Settings from './pages/settings'
 import "./App.css"
 import MainContent from './components/MainContent'

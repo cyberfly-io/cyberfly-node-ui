@@ -39,14 +39,14 @@ const config = {
         path: '/tools',
         name: 'DB tools',
         icon: <DatabaseOutlined />,
-        component: '../pages/tools',
+        component: '../pages/db-tools',
       },
   
       {
         path: '/pubsub',
         name: 'Pub Sub',
         icon: <MessageOutlined />,
-        component: '../pages/tools',
+        component: '../pages/pubsub',
       },
        /*{
         path: '/files',

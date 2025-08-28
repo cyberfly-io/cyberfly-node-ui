@@ -6,6 +6,9 @@ import { yamux } from '@chainsafe/libp2p-yamux'
 import { bootstrap } from '@libp2p/bootstrap'
 import { identify } from '@libp2p/identify'
 import { circuitRelayTransport } from '@libp2p/circuit-relay-v2'
+import { PageContainer } from '@ant-design/pro-components';
+import { Card, Space, Typography, Button, Input, Divider, Tag } from 'antd';
+import { VideoCameraOutlined, GlobalOutlined, UserOutlined, ThunderboltOutlined } from '@ant-design/icons';
 
 const VideoStreamer = () => {
   const [node, setNode] = useState(null)
@@ -191,50 +194,114 @@ const VideoStreamer = () => {
   }, [connectToPeer, streamVideoToPeer, peerAddress, isStreamingLocal])
 
   return (
-    <div className="video-streaming-container">
-      <div className="controls">
-        <input 
-          type="text" 
-          value={peerAddress}
-          onChange={(e) => setPeerAddress(e.target.value)}
-          placeholder="Enter peer multiaddress" 
-        />
-        <button onClick={startVideoCapture} disabled={isStreamingLocal}>
-          Start Streaming
-        </button>
-        <button 
-          onClick={handleConnectToPeer}
-          disabled={!isStreamingLocal || !peerAddress}
-        >
-          Connect to Peer
-        </button>
-        <button onClick={stopVideoStream} disabled={!isStreamingLocal}>
-          Stop Streaming
-        </button>
-      </div>
+    <PageContainer
+      title={
+        <Space>
+          <VideoCameraOutlined />
+          <span>Video Streaming</span>
+        </Space>
+      }
+      subTitle="Real-time video streaming over libp2p network"
+      header={{
+        style: { padding: '16px 0' }
+      }}
+    >
+      <Card style={{ marginBottom: '16px' }}>
+        <Space direction="vertical" style={{ width: '100%' }}>
+          <div>
+            <Typography.Text strong>Peer ID:</Typography.Text>
+            <Tag color={peerId ? 'green' : 'red'}>
+              {peerId ? `${peerId.substring(0, 20)}...` : 'Not initialized'}
+            </Tag>
+          </div>
+          <div>
+            <Typography.Text strong>Connection Status:</Typography.Text>
+            <Tag color={connectionStatus === 'Connected' ? 'green' : 'orange'}>
+              {connectionStatus}
+            </Tag>
+          </div>
+          <div>
+            <Typography.Text strong>Connected Peers:</Typography.Text>
+            <Typography.Text>{connectedPeers.length}</Typography.Text>
+          </div>
+        </Space>
+      </Card>
 
-      <div className="connection-info">
-        <p>Peer ID: {peerId || 'Not initialized'}</p>
-        <p>Status: {connectionStatus}</p>
-        <p>Connected Peers: {connectedPeers.length}</p>
-      </div>
-      
-      <div className="video-container">
-        <video 
-          ref={localVideoRef} 
-          autoPlay 
-          playsInline 
-          muted 
-          className="local-video"
-        />
-        <video 
-          ref={remoteVideoRef} 
-          autoPlay 
-          playsInline 
-          className="remote-video"
-        />
-      </div>
-    </div>
+      <Card title="Stream Controls" style={{ marginBottom: '16px' }}>
+        <Space direction="vertical" style={{ width: '100%' }}>
+          <Input
+            placeholder="Enter peer multiaddress"
+            value={peerAddress}
+            onChange={(e) => setPeerAddress(e.target.value)}
+            prefix={<GlobalOutlined />}
+          />
+          <Space wrap>
+            <Button
+              type="primary"
+              icon={<VideoCameraOutlined />}
+              onClick={startVideoCapture}
+              disabled={isStreamingLocal}
+            >
+              Start Streaming
+            </Button>
+            <Button
+              icon={<UserOutlined />}
+              onClick={handleConnectToPeer}
+              disabled={!isStreamingLocal || !peerAddress}
+            >
+              Connect to Peer
+            </Button>
+            <Button
+              danger
+              icon={<ThunderboltOutlined />}
+              onClick={stopVideoStream}
+              disabled={!isStreamingLocal}
+            >
+              Stop Streaming
+            </Button>
+          </Space>
+        </Space>
+      </Card>
+
+      <Card title="Video Streams">
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '16px',
+          minHeight: '300px'
+        }}>
+          <div style={{ textAlign: 'center' }}>
+            <Typography.Title level={5}>Local Stream</Typography.Title>
+            <video
+              ref={localVideoRef}
+              autoPlay
+              playsInline
+              muted
+              style={{
+                width: '100%',
+                maxWidth: '400px',
+                border: '1px solid #d9d9d9',
+                borderRadius: '8px'
+              }}
+            />
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <Typography.Title level={5}>Remote Stream</Typography.Title>
+            <video
+              ref={remoteVideoRef}
+              autoPlay
+              playsInline
+              style={{
+                width: '100%',
+                maxWidth: '400px',
+                border: '1px solid #d9d9d9',
+                borderRadius: '8px'
+              }}
+            />
+          </div>
+        </div>
+      </Card>
+    </PageContainer>
   )
 }
 
