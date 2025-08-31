@@ -14,7 +14,6 @@ import { useKadenaWalletContext } from "./contexts/kadenaWalletContext";
 import { TrackerCard } from '@kadena/kode-ui';
 import Dialer from './pages/dialer';
 import NodeMap from './pages/node-map';
-import WebcamStreaming from './pages/stream';
 import MyNode from './pages/mynode';
 import enUS from 'antd/locale/en_US';
 import Faucet from './pages/faucet';
@@ -108,7 +107,6 @@ actionsRender={(props)=>{
 <Route path='/ble' element={<BLEPage />} />
 
 <Route path="/map" element={<NodeMap />} />
-<Route path="/stream" element={<WebcamStreaming />} />
 <Route path="/faucet" element={<Faucet />} />
 <Route path="/kadena-tools" element={<KadenaTools />} />
 <Route path="/nodes" element={<NodeList />} />
