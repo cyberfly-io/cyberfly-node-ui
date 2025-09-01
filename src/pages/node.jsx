@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { getNodeStake, getNode, getNodeClaimable, getAPY, claimReward, nodeStake, nodeUnStake } from "../services/pact-services";
 import {
   Button, Card, CardContent, Typography, Box, Grid, Chip, Avatar, Divider,
-  Stack, useTheme, useMediaQuery, Snackbar, Alert, CircularProgress
+  Stack, useTheme, useMediaQuery, Snackbar, Alert, CircularProgress, Container
 } from "@mui/material";
 import {
   CheckCircle as CheckCircleOutlined,
@@ -20,7 +20,8 @@ import {
   CardGiftcard as GiftOutlined,
   ArrowUpward as ArrowUpOutlined,
   ArrowDownward as ArrowDownOutlined,
-  Info as InfoCircleOutlined
+  Info as InfoCircleOutlined,
+  Link as LinkOutlined
 } from "@mui/icons-material";
 import { useParams } from 'react-router-dom';
 import { useKadenaWalletContext } from "../contexts/kadenaWalletContext";
@@ -83,79 +84,242 @@ const NodeDetail = () => {
     return new Date(dateString).toLocaleString();
   };
   return (
-    <Box sx={{ padding: '24px' }}>
-      {/* Header */}
-      <Box
-        sx={{
-          padding: '16px 0',
-          background: isDarkMode
-            ? 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
-            : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          borderRadius: '8px',
-          marginBottom: '24px',
-          color: 'white'
-        }}
-      >
-        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ px: 3 }}>
-          <Stack direction="row" alignItems="center" spacing={2}>
-            <NodeIndexOutlined />
-            <Typography variant="h5">Node Details</Typography>
-          </Stack>
-          <Stack direction="row" spacing={2}>
-            {nodeInfo && (
-              <Chip
-                icon={nodeInfo.status === 'active' ? <CheckCircleOutlined /> : <ClockCircleOutlined />}
-                label={nodeInfo.status === 'active' ? 'Active' : 'Inactive'}
-                color={nodeInfo.status === 'active' ? 'success' : 'error'}
-                sx={{ fontSize: '14px', padding: '4px 12px' }}
-              />
-            )}
-            {apy && (
-              <Chip
-                icon={<TrophyOutlined />}
-                label={`${apy}% APY`}
-                color="warning"
-                sx={{ fontSize: '14px', padding: '4px 12px' }}
-              />
-            )}
-          </Stack>
-        </Stack>
-        {peerId && (
-          <Typography variant="body2" sx={{ px: 3, mt: 1, opacity: 0.8 }}>
-            Peer ID: {isMobile ? peerId.slice(0, 12) + '...' : peerId.slice(0, 24) + '...'}
-          </Typography>
-        )}
-      </Box>
+    <Box sx={{
+      minHeight: '100vh',
+      background: isDarkMode
+        ? 'linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%)'
+        : 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+      py: { xs: 2, sm: 3 }
+    }}>
+      <Container maxWidth="xl" sx={{ px: { xs: 2, sm: 3 } }}>
+        {/* Enhanced Header */}
+        <Box
+          sx={{
+            mb: { xs: 3, sm: 4 },
+            p: { xs: 3, sm: 4 },
+            background: isDarkMode
+              ? 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
+              : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            borderRadius: 4,
+            color: 'white',
+            position: 'relative',
+            overflow: 'hidden',
+            boxShadow: isDarkMode
+              ? '0 8px 32px rgba(0,0,0,0.4)'
+              : '0 8px 32px rgba(0,0,0,0.1)',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(255, 255, 255, 0.05)',
+              borderRadius: 4,
+            }
+          }}
+        >
+          <Box sx={{ position: 'relative', zIndex: 1 }}>
+            <Stack
+              direction={{ xs: 'column', sm: 'row' }}
+              alignItems={{ xs: 'flex-start', sm: 'center' }}
+              spacing={{ xs: 2, sm: 3 }}
+              sx={{ mb: { xs: 2, sm: 3 } }}
+            >
+              <Avatar
+                sx={{
+                  width: { xs: 48, sm: 56 },
+                  height: { xs: 48, sm: 56 },
+                  bgcolor: 'rgba(255, 255, 255, 0.2)',
+                  backdropFilter: 'blur(10px)'
+                }}
+              >
+                <NodeIndexOutlined sx={{ fontSize: { xs: 24, sm: 28 } }} />
+              </Avatar>
+              <Box>
+                <Typography
+                  variant="h4"
+                  component="h1"
+                  sx={{
+                    fontSize: { xs: '1.75rem', sm: '2.25rem' },
+                    fontWeight: 700,
+                    mb: 1
+                  }}
+                >
+                  Node Details
+                </Typography>
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    fontSize: { xs: '0.9rem', sm: '1rem' },
+                    opacity: 0.9,
+                    fontWeight: 400
+                  }}
+                >
+                  Comprehensive node information and staking dashboard
+                </Typography>
+              </Box>
+            </Stack>
+
+            <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ width: '100%' }}>
+              <Box sx={{ flex: 1 }}>
+                {peerId && (
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontFamily: 'monospace',
+                      fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                      fontWeight: 500,
+                      opacity: 0.9
+                    }}
+                  >
+                    {isMobile ? `${peerId.slice(0, 12)}...${peerId.slice(-6)}` : `${peerId.slice(0, 24)}...${peerId.slice(-8)}`}
+                  </Typography>
+                )}
+              </Box>
+              <Stack direction="row" spacing={2}>
+                {nodeInfo && (
+                  <Chip
+                    icon={nodeInfo.status === 'active' ? <ThunderboltOutlined /> : <ClockCircleOutlined />}
+                    label={nodeInfo.status === 'active' ? 'Active' : 'Inactive'}
+                    color={nodeInfo.status === 'active' ? 'success' : 'error'}
+                    sx={{
+                      fontSize: '0.875rem',
+                      fontWeight: 600,
+                      px: 2,
+                      py: 1,
+                      borderRadius: 2
+                    }}
+                  />
+                )}
+                {apy && (
+                  <Chip
+                    icon={<TrophyOutlined />}
+                    label={`${apy}% APY`}
+                    color="warning"
+                    sx={{
+                      fontSize: '0.875rem',
+                      fontWeight: 600,
+                      px: 2,
+                      py: 1,
+                      borderRadius: 2
+                    }}
+                  />
+                )}
+              </Stack>
+            </Stack>
+          </Box>
+        </Box>
 
       {!nodeInfo && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
-          <CircularProgress />
-          <Typography variant="body1" sx={{ ml: 2 }}>Loading node information...</Typography>
-        </Box>
+        <Card
+          sx={{
+            borderRadius: 4,
+            boxShadow: isDarkMode
+              ? '0 8px 32px rgba(0,0,0,0.4)'
+              : '0 8px 32px rgba(0,0,0,0.1)',
+            background: isDarkMode
+              ? 'linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%)'
+              : 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
+            border: isDarkMode ? '1px solid rgba(255, 255, 255, 0.1)' : 'none'
+          }}
+        >
+          <CardContent sx={{ py: 6 }}>
+            <Stack direction="column" alignItems="center" spacing={3}>
+              <Box sx={{ position: 'relative' }}>
+                <CircularProgress
+                  size={80}
+                  thickness={4}
+                  sx={{
+                    color: isDarkMode ? '#40a9ff' : '#1890ff'
+                  }}
+                />
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    opacity: 0.3
+                  }}
+                >
+                  <NodeIndexOutlined sx={{ fontSize: 32 }} />
+                </Box>
+              </Box>
+              <Typography
+                variant="h6"
+                sx={{
+                  color: isDarkMode ? '#e0e0e0' : 'inherit',
+                  fontWeight: 500
+                }}
+              >
+                Loading node information...
+              </Typography>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{
+                  color: isDarkMode ? '#b0b0b0' : 'inherit',
+                  textAlign: 'center'
+                }}
+              >
+                Fetching node data and staking information
+              </Typography>
+            </Stack>
+          </CardContent>
+        </Card>
       )}
 
       <Stack direction="column" spacing={3} sx={{ width: '100%' }}>
-        {/* Node Overview Card */}
+        {/* Enhanced Node Overview Card */}
         {nodeInfo && (
           <Card
             sx={{
-              borderRadius: '12px',
-              boxShadow: isDarkMode
-                ? '0 4px 12px rgba(0,0,0,0.3)'
-                : '0 4px 12px rgba(0,0,0,0.1)',
+              borderRadius: 4,
+              border: 'none',
               background: isDarkMode
-                ? 'linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%)'
-                : 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)'
+                ? 'linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%)'
+                : 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
+              boxShadow: isDarkMode
+                ? '0 8px 32px rgba(0, 0, 0, 0.3)'
+                : '0 8px 32px rgba(0, 0, 0, 0.1)',
+              transition: 'all 0.3s ease-in-out',
+              '&:hover': {
+                boxShadow: isDarkMode
+                  ? '0 12px 40px rgba(0, 0, 0, 0.4)'
+                  : '0 12px 40px rgba(0, 0, 0, 0.15)'
+              }
             }}
           >
-            <CardContent>
-              <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
-                <GlobalOutlined />
-                <Typography variant="h6">Node Overview</Typography>
+            <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+              <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 3 }}>
+                <Avatar
+                  sx={{
+                    bgcolor: isDarkMode
+                      ? 'rgba(76, 175, 80, 0.2)'
+                      : 'rgba(76, 175, 80, 0.1)',
+                    color: '#4caf50'
+                  }}
+                >
+                  <GlobalOutlined />
+                </Avatar>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: 700,
+                    color: isDarkMode ? '#ffffff' : '#2c3e50'
+                  }}
+                >
+                  Node Overview
+                </Typography>
                 <Chip
                   icon={nodeInfo.status === 'active' ? <ThunderboltOutlined /> : <ClockCircleOutlined />}
                   label={nodeInfo.status === 'active' ? 'Online' : 'Offline'}
                   color={nodeInfo.status === 'active' ? 'success' : 'error'}
+                  sx={{
+                    fontWeight: 600,
+                    fontSize: '0.875rem'
+                  }}
                 />
               </Stack>
 
@@ -269,67 +433,219 @@ const NodeDetail = () => {
               </Stack>
 
               <Stack direction="column" spacing={3} sx={{ width: '100%' }}>
-                {/* Statistics Row */}
-                <Grid container spacing={3}>
+                {/* Enhanced Statistics Row */}
+                <Grid container spacing={{ xs: 2, sm: 3 }}>
                   <Grid item xs={12} sm={6} lg={3}>
-                    <Card sx={{
-                      textAlign: 'center',
-                      background: isDarkMode
-                        ? 'linear-gradient(135deg, #1a237e 0%, #311b92 100%)'
-                        : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                      color: 'white',
-                      borderRadius: '12px'
-                    }}>
-                      <CardContent>
-                        <Stack direction="row" alignItems="center" justifyContent="center" spacing={1} sx={{ mb: 1 }}>
-                          <DollarOutlined />
-                          <Typography variant="body2" sx={{ opacity: 0.8 }}>Staked Amount</Typography>
+                    <Card
+                      sx={{
+                        textAlign: 'center',
+                        background: isDarkMode
+                          ? 'linear-gradient(135deg, #1a237e 0%, #311b92 100%)'
+                          : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        color: 'white',
+                        borderRadius: 4,
+                        border: 'none',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        boxShadow: isDarkMode
+                          ? '0 8px 32px rgba(26, 35, 126, 0.3)'
+                          : '0 8px 32px rgba(102, 126, 234, 0.3)',
+                        transition: 'all 0.3s ease-in-out',
+                        '&:hover': {
+                          transform: 'translateY(-4px)',
+                          boxShadow: isDarkMode
+                            ? '0 12px 40px rgba(26, 35, 126, 0.4)'
+                            : '0 12px 40px rgba(102, 126, 234, 0.4)'
+                        },
+                        '&::before': {
+                          content: '""',
+                          position: 'absolute',
+                          top: 0,
+                          right: 0,
+                          width: 100,
+                          height: 100,
+                          background: 'rgba(255, 255, 255, 0.1)',
+                          borderRadius: '50%',
+                          transform: 'translate(30px, -30px)',
+                        }
+                      }}
+                    >
+                      <CardContent sx={{ p: { xs: 2, sm: 3 }, position: 'relative', zIndex: 1 }}>
+                        <Stack direction="row" alignItems="center" justifyContent="center" spacing={1} sx={{ mb: 2 }}>
+                          <DollarOutlined sx={{ fontSize: { xs: 20, sm: 24 } }} />
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              opacity: 0.9,
+                              fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                              fontWeight: 500
+                            }}
+                          >
+                            Staked Amount
+                          </Typography>
                         </Stack>
-                        <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+                        <Typography
+                          variant="h3"
+                          sx={{
+                            fontWeight: 800,
+                            fontSize: { xs: '2rem', sm: '2.5rem' },
+                            mb: 1
+                          }}
+                        >
                           {nodeStakeInfo.amount} CFLY
                         </Typography>
+                        <Box
+                          sx={{
+                            width: '40px',
+                            height: '3px',
+                            bgcolor: 'rgba(255, 255, 255, 0.3)',
+                            borderRadius: 2,
+                            mx: 'auto'
+                          }}
+                        />
                       </CardContent>
                     </Card>
                   </Grid>
                   <Grid item xs={12} sm={6} lg={3}>
-                    <Card sx={{
-                      textAlign: 'center',
-                      background: isDarkMode
-                        ? 'linear-gradient(135deg, #7b1fa2 0%, #c2185b 100%)'
-                        : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-                      color: 'white',
-                      borderRadius: '12px'
-                    }}>
-                      <CardContent>
-                        <Stack direction="row" alignItems="center" justifyContent="center" spacing={1} sx={{ mb: 1 }}>
-                          <GiftOutlined />
-                          <Typography variant="body2" sx={{ opacity: 0.8 }}>Claimed Rewards</Typography>
+                    <Card
+                      sx={{
+                        textAlign: 'center',
+                        background: isDarkMode
+                          ? 'linear-gradient(135deg, #7b1fa2 0%, #c2185b 100%)'
+                          : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                        color: 'white',
+                        borderRadius: 4,
+                        border: 'none',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        boxShadow: isDarkMode
+                          ? '0 8px 32px rgba(123, 31, 162, 0.3)'
+                          : '0 8px 32px rgba(240, 147, 251, 0.3)',
+                        transition: 'all 0.3s ease-in-out',
+                        '&:hover': {
+                          transform: 'translateY(-4px)',
+                          boxShadow: isDarkMode
+                            ? '0 12px 40px rgba(123, 31, 162, 0.4)'
+                            : '0 12px 40px rgba(240, 147, 251, 0.4)'
+                        },
+                        '&::before': {
+                          content: '""',
+                          position: 'absolute',
+                          top: 0,
+                          right: 0,
+                          width: 100,
+                          height: 100,
+                          background: 'rgba(255, 255, 255, 0.1)',
+                          borderRadius: '50%',
+                          transform: 'translate(30px, -30px)',
+                        }
+                      }}
+                    >
+                      <CardContent sx={{ p: { xs: 2, sm: 3 }, position: 'relative', zIndex: 1 }}>
+                        <Stack direction="row" alignItems="center" justifyContent="center" spacing={1} sx={{ mb: 2 }}>
+                          <GiftOutlined sx={{ fontSize: { xs: 20, sm: 24 } }} />
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              opacity: 0.9,
+                              fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                              fontWeight: 500
+                            }}
+                          >
+                            Claimed Rewards
+                          </Typography>
                         </Stack>
-                        <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+                        <Typography
+                          variant="h3"
+                          sx={{
+                            fontWeight: 800,
+                            fontSize: { xs: '2rem', sm: '2.5rem' },
+                            mb: 1
+                          }}
+                        >
                           {nodeStakeInfo.claimed} CFLY
                         </Typography>
+                        <Box
+                          sx={{
+                            width: '40px',
+                            height: '3px',
+                            bgcolor: 'rgba(255, 255, 255, 0.3)',
+                            borderRadius: 2,
+                            mx: 'auto'
+                          }}
+                        />
                       </CardContent>
                     </Card>
                   </Grid>
                   <Grid item xs={12} sm={6} lg={3}>
-                    <Card sx={{
-                      textAlign: 'center',
-                      background: claimable > 0
-                        ? (isDarkMode
-                            ? 'linear-gradient(135deg, #0277bd 0%, #00acc1 100%)'
-                            : 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)')
-                        : (isDarkMode
-                            ? 'linear-gradient(135deg, #424242 0%, #616161 100%)'
-                            : 'linear-gradient(135deg, #e0e0e0 0%, #c0c0c0 100%)'),
-                      color: 'white',
-                      borderRadius: '12px'
-                    }}>
-                      <CardContent>
-                        <Stack direction="row" alignItems="center" justifyContent="center" spacing={1} sx={{ mb: 1 }}>
-                          <FireOutlined />
-                          <Typography variant="body2" sx={{ opacity: 0.8 }}>Claimable Rewards</Typography>
+                    <Card
+                      sx={{
+                        textAlign: 'center',
+                        background: claimable > 0
+                          ? (isDarkMode
+                              ? 'linear-gradient(135deg, #0277bd 0%, #00acc1 100%)'
+                              : 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)')
+                          : (isDarkMode
+                              ? 'linear-gradient(135deg, #424242 0%, #616161 100%)'
+                              : 'linear-gradient(135deg, #e0e0e0 0%, #c0c0c0 100%)'),
+                        color: 'white',
+                        borderRadius: 4,
+                        border: 'none',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        boxShadow: claimable > 0
+                          ? (isDarkMode
+                              ? '0 8px 32px rgba(2, 119, 189, 0.3)'
+                              : '0 8px 32px rgba(79, 172, 254, 0.3)')
+                          : (isDarkMode
+                              ? '0 8px 32px rgba(66, 66, 66, 0.3)'
+                              : '0 8px 32px rgba(224, 224, 224, 0.3)'),
+                        transition: 'all 0.3s ease-in-out',
+                        '&:hover': {
+                          transform: 'translateY(-4px)',
+                          boxShadow: claimable > 0
+                            ? (isDarkMode
+                                ? '0 12px 40px rgba(2, 119, 189, 0.4)'
+                                : '0 12px 40px rgba(79, 172, 254, 0.4)')
+                            : (isDarkMode
+                                ? '0 12px 40px rgba(66, 66, 66, 0.4)'
+                                : '0 12px 40px rgba(224, 224, 224, 0.4)')
+                        },
+                        '&::before': {
+                          content: '""',
+                          position: 'absolute',
+                          top: 0,
+                          right: 0,
+                          width: 100,
+                          height: 100,
+                          background: 'rgba(255, 255, 255, 0.1)',
+                          borderRadius: '50%',
+                          transform: 'translate(30px, -30px)',
+                        }
+                      }}
+                    >
+                      <CardContent sx={{ p: { xs: 2, sm: 3 }, position: 'relative', zIndex: 1 }}>
+                        <Stack direction="row" alignItems="center" justifyContent="center" spacing={1} sx={{ mb: 2 }}>
+                          <FireOutlined sx={{ fontSize: { xs: 20, sm: 24 } }} />
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              opacity: 0.9,
+                              fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                              fontWeight: 500
+                            }}
+                          >
+                            Claimable Rewards
+                          </Typography>
                         </Stack>
-                        <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+                        <Typography
+                          variant="h3"
+                          sx={{
+                            fontWeight: 800,
+                            fontSize: { xs: '2rem', sm: '2.5rem' },
+                            mb: 1
+                          }}
+                        >
                           {claimable || 0} CFLY
                         </Typography>
                         {claimable > 0 && account && nodeStakeInfo.active && (
@@ -341,6 +657,8 @@ const NodeDetail = () => {
                               mt: 2,
                               background: 'rgba(255,255,255,0.2)',
                               border: '1px solid rgba(255,255,255,0.3)',
+                              borderRadius: 2,
+                              fontWeight: 600,
                               '&:hover': {
                                 background: 'rgba(255,255,255,0.3)'
                               }
@@ -356,87 +674,348 @@ const NodeDetail = () => {
                             Claim
                           </Button>
                         )}
+                        <Box
+                          sx={{
+                            width: '40px',
+                            height: '3px',
+                            bgcolor: 'rgba(255, 255, 255, 0.3)',
+                            borderRadius: 2,
+                            mx: 'auto',
+                            mt: claimable > 0 && account && nodeStakeInfo.active ? 1 : 1
+                          }}
+                        />
                       </CardContent>
                     </Card>
                   </Grid>
                   <Grid item xs={12} sm={6} lg={3}>
-                    <Card sx={{
-                      textAlign: 'center',
+                    <Card
+                      sx={{
+                        textAlign: 'center',
+                        background: isDarkMode
+                          ? 'linear-gradient(135deg, #2e7d32 0%, #4caf50 100%)'
+                          : 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                        color: 'white',
+                        borderRadius: 4,
+                        border: 'none',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        boxShadow: isDarkMode
+                          ? '0 8px 32px rgba(46, 125, 50, 0.3)'
+                          : '0 8px 32px rgba(67, 233, 123, 0.3)',
+                        transition: 'all 0.3s ease-in-out',
+                        '&:hover': {
+                          transform: 'translateY(-4px)',
+                          boxShadow: isDarkMode
+                            ? '0 12px 40px rgba(46, 125, 50, 0.4)'
+                            : '0 12px 40px rgba(67, 233, 123, 0.4)'
+                        },
+                        '&::before': {
+                          content: '""',
+                          position: 'absolute',
+                          top: 0,
+                          right: 0,
+                          width: 100,
+                          height: 100,
+                          background: 'rgba(255, 255, 255, 0.1)',
+                          borderRadius: '50%',
+                          transform: 'translate(30px, -30px)',
+                        }
+                      }}
+                    >
+                      <CardContent sx={{ p: { xs: 2, sm: 3 }, position: 'relative', zIndex: 1 }}>
+                        <Stack direction="row" alignItems="center" justifyContent="center" spacing={1} sx={{ mb: 2 }}>
+                          <TrophyOutlined sx={{ fontSize: { xs: 20, sm: 24 } }} />
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              opacity: 0.9,
+                              fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                              fontWeight: 500
+                            }}
+                          >
+                            Current APY
+                          </Typography>
+                        </Stack>
+                        <Typography
+                          variant="h3"
+                          sx={{
+                            fontWeight: 800,
+                            fontSize: { xs: '2rem', sm: '2.5rem' },
+                            mb: 1
+                          }}
+                        >
+                          {apy}%
+                        </Typography>
+                        <Box
+                          sx={{
+                            width: '40px',
+                            height: '3px',
+                            bgcolor: 'rgba(255, 255, 255, 0.3)',
+                            borderRadius: 2,
+                            mx: 'auto'
+                          }}
+                        />
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                </Grid>
+
+                {/* Enhanced Timeline Information */}
+                <Grid container spacing={{ xs: 2, sm: 3 }}>
+                  <Grid item xs={12} sm={6}>
+                    <Card
+                      sx={{
+                        borderRadius: 4,
+                        border: 'none',
+                        background: isDarkMode
+                          ? 'linear-gradient(135deg, #1a237e 0%, #311b92 100%)'
+                          : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        color: 'white',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        boxShadow: isDarkMode
+                          ? '0 8px 32px rgba(26, 35, 126, 0.3)'
+                          : '0 8px 32px rgba(102, 126, 234, 0.3)',
+                        transition: 'all 0.3s ease-in-out',
+                        '&:hover': {
+                          transform: 'translateY(-4px)',
+                          boxShadow: isDarkMode
+                            ? '0 12px 40px rgba(26, 35, 126, 0.4)'
+                            : '0 12px 40px rgba(102, 126, 234, 0.4)'
+                        },
+                        '&::before': {
+                          content: '""',
+                          position: 'absolute',
+                          top: 0,
+                          right: 0,
+                          width: 100,
+                          height: 100,
+                          background: 'rgba(255, 255, 255, 0.1)',
+                          borderRadius: '50%',
+                          transform: 'translate(30px, -30px)',
+                        }
+                      }}
+                    >
+                      <CardContent sx={{ p: { xs: 3, sm: 4 }, position: 'relative', zIndex: 1 }}>
+                        <Stack direction="row" alignItems="center" justifyContent="center" spacing={2} sx={{ mb: 3 }}>
+                          <CalendarOutlined sx={{ fontSize: { xs: 24, sm: 28 } }} />
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              fontWeight: 700,
+                              fontSize: { xs: '1.1rem', sm: '1.25rem' }
+                            }}
+                          >
+                            Last Claim
+                          </Typography>
+                        </Stack>
+                        <Typography
+                          variant="h4"
+                          sx={{
+                            textAlign: 'center',
+                            fontWeight: 800,
+                            fontSize: { xs: '1.5rem', sm: '2rem' },
+                            mb: 2
+                          }}
+                        >
+                          {formatDate(nodeStakeInfo.last_claim.timep)}
+                        </Typography>
+                        <Box
+                          sx={{
+                            width: '60px',
+                            height: '4px',
+                            bgcolor: 'rgba(255, 255, 255, 0.3)',
+                            borderRadius: 2,
+                            mx: 'auto'
+                          }}
+                        />
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Card
+                      sx={{
+                        borderRadius: 4,
+                        border: 'none',
+                        background: isDarkMode
+                          ? 'linear-gradient(135deg, #7b1fa2 0%, #c2185b 100%)'
+                          : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                        color: 'white',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        boxShadow: isDarkMode
+                          ? '0 8px 32px rgba(123, 31, 162, 0.3)'
+                          : '0 8px 32px rgba(240, 147, 251, 0.3)',
+                        transition: 'all 0.3s ease-in-out',
+                        '&:hover': {
+                          transform: 'translateY(-4px)',
+                          boxShadow: isDarkMode
+                            ? '0 12px 40px rgba(123, 31, 162, 0.4)'
+                            : '0 12px 40px rgba(240, 147, 251, 0.4)'
+                        },
+                        '&::before': {
+                          content: '""',
+                          position: 'absolute',
+                          top: 0,
+                          right: 0,
+                          width: 100,
+                          height: 100,
+                          background: 'rgba(255, 255, 255, 0.1)',
+                          borderRadius: '50%',
+                          transform: 'translate(30px, -30px)',
+                        }
+                      }}
+                    >
+                      <CardContent sx={{ p: { xs: 3, sm: 4 }, position: 'relative', zIndex: 1 }}>
+                        <Stack direction="row" alignItems="center" justifyContent="center" spacing={2} sx={{ mb: 3 }}>
+                          <ClockCircleOutlined sx={{ fontSize: { xs: 24, sm: 28 } }} />
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              fontWeight: 700,
+                              fontSize: { xs: '1.1rem', sm: '1.25rem' }
+                            }}
+                          >
+                            Stake Time
+                          </Typography>
+                        </Stack>
+                        <Typography
+                          variant="h4"
+                          sx={{
+                            textAlign: 'center',
+                            fontWeight: 800,
+                            fontSize: { xs: '1.5rem', sm: '2rem' },
+                            mb: 2
+                          }}
+                        >
+                          {formatDate(nodeStakeInfo.stake_time.timep)}
+                        </Typography>
+                        <Box
+                          sx={{
+                            width: '60px',
+                            height: '4px',
+                            bgcolor: 'rgba(255, 255, 255, 0.3)',
+                            borderRadius: 2,
+                            mx: 'auto'
+                          }}
+                        />
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                </Grid>
+
+                {/* Enhanced Countdown Timer */}
+                {!(claimable > 0) && nodeStakeInfo.active && nodeInfo.status === "active" && (
+                  <Card
+                    sx={{
+                      borderRadius: 4,
+                      border: 'none',
                       background: isDarkMode
                         ? 'linear-gradient(135deg, #2e7d32 0%, #4caf50 100%)'
                         : 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
                       color: 'white',
-                      borderRadius: '12px'
-                    }}>
-                      <CardContent>
-                        <Stack direction="row" alignItems="center" justifyContent="center" spacing={1} sx={{ mb: 1 }}>
-                          <TrophyOutlined />
-                          <Typography variant="body2" sx={{ opacity: 0.8 }}>Current APY</Typography>
-                        </Stack>
-                        <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
-                          {apy}%
+                      position: 'relative',
+                      overflow: 'hidden',
+                      boxShadow: isDarkMode
+                        ? '0 8px 32px rgba(46, 125, 50, 0.3)'
+                        : '0 8px 32px rgba(67, 233, 123, 0.3)',
+                      transition: 'all 0.3s ease-in-out',
+                      '&:hover': {
+                        transform: 'translateY(-4px)',
+                        boxShadow: isDarkMode
+                          ? '0 12px 40px rgba(46, 125, 50, 0.4)'
+                          : '0 12px 40px rgba(67, 233, 123, 0.4)'
+                      },
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        right: 0,
+                        width: 100,
+                        height: 100,
+                        background: 'rgba(255, 255, 255, 0.1)',
+                        borderRadius: '50%',
+                        transform: 'translate(30px, -30px)',
+                      }
+                    }}
+                  >
+                    <CardContent sx={{ p: { xs: 3, sm: 4 }, position: 'relative', zIndex: 1 }}>
+                      <Stack direction="row" alignItems="center" justifyContent="center" spacing={2} sx={{ mb: 3 }}>
+                        <ClockCircleOutlined sx={{ fontSize: { xs: 24, sm: 28 } }} />
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            fontWeight: 700,
+                            fontSize: { xs: '1.1rem', sm: '1.25rem' }
+                          }}
+                        >
+                          Next Claim Countdown
                         </Typography>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                </Grid>
-
-                {/* Timeline Information */}
-                <Grid container spacing={3}>
-                  <Grid item xs={12} sm={6}>
-                    <Card sx={{ borderRadius: '8px' }}>
-                      <CardContent>
-                        <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
-                          <CalendarOutlined />
-                          <Typography variant="h6">Last Claim</Typography>
-                        </Stack>
-                        <Typography variant="h5" sx={{ textAlign: 'center', fontWeight: 'bold' }}>
-                          {formatDate(nodeStakeInfo.last_claim.timep)}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <Card sx={{ borderRadius: '8px' }}>
-                      <CardContent>
-                        <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
-                          <CalendarOutlined />
-                          <Typography variant="h6">Stake Time</Typography>
-                        </Stack>
-                        <Typography variant="h5" sx={{ textAlign: 'center', fontWeight: 'bold' }}>
-                          {formatDate(nodeStakeInfo.stake_time.timep)}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                </Grid>
-
-                {/* Countdown Timer */}
-                {!(claimable > 0) && nodeStakeInfo.active && nodeInfo.status === "active" && (
-                  <Card sx={{
-                    borderRadius: '8px',
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    color: 'white'
-                  }}>
-                    <CardContent>
-                      <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
-                        <ClockCircleOutlined />
-                        <Typography variant="h6">Next Claim Countdown</Typography>
                       </Stack>
-                      <Typography variant="h3" sx={{ textAlign: 'center', fontWeight: 'bold' }}>
+                      <Typography
+                        variant="h2"
+                        sx={{
+                          textAlign: 'center',
+                          fontWeight: 800,
+                          fontSize: { xs: '2.5rem', sm: '3rem' },
+                          mb: 2,
+                          fontFamily: 'monospace'
+                        }}
+                      >
                         {new Date(deadline - Date.now()).toISOString().substr(11, 8)}
                       </Typography>
+                      <Box
+                        sx={{
+                          width: '80px',
+                          height: '4px',
+                          bgcolor: 'rgba(255, 255, 255, 0.3)',
+                          borderRadius: 2,
+                          mx: 'auto'
+                        }}
+                      />
                     </CardContent>
                   </Card>
                 )}
 
-                {/* Action Buttons */}
+                {/* Enhanced Action Buttons */}
                 {account ? (
-                  <Card sx={{
-                    borderRadius: '8px',
-                    background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)'
-                  }}>
-                    <CardContent>
+                  <Card
+                    sx={{
+                      borderRadius: 4,
+                      border: 'none',
+                      background: isDarkMode
+                        ? 'linear-gradient(135deg, #0d1117 0%, #161b22 100%)'
+                        : 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      boxShadow: isDarkMode
+                        ? '0 8px 32px rgba(0, 0, 0, 0.3)'
+                        : '0 8px 32px rgba(0, 0, 0, 0.1)',
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: '4px',
+                        background: isDarkMode
+                          ? 'linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%)'
+                          : 'linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%)'
+                      }
+                    }}
+                  >
+                    <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          mb: 3,
+                          fontWeight: 700,
+                          color: isDarkMode ? '#ffffff' : '#1a1a1a',
+                          textAlign: 'center'
+                        }}
+                      >
+                        Node Management Actions
+                      </Typography>
                       <Stack direction="row" justifyContent="center" spacing={3}>
                         {canStake ? (
                           <Button
@@ -444,13 +1023,26 @@ const NodeDetail = () => {
                             size="large"
                             startIcon={<ArrowUpOutlined />}
                             sx={{
-                              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                              height: '48px',
+                              background: isDarkMode
+                                ? 'linear-gradient(135deg, #1a237e 0%, #311b92 100%)'
+                                : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                              height: '56px',
                               fontSize: '16px',
-                              padding: '0 32px',
-                              borderRadius: '8px',
+                              padding: '0 40px',
+                              borderRadius: 3,
+                              fontWeight: 700,
+                              boxShadow: isDarkMode
+                                ? '0 4px 16px rgba(26, 35, 126, 0.3)'
+                                : '0 4px 16px rgba(102, 126, 234, 0.3)',
+                              transition: 'all 0.3s ease-in-out',
                               '&:hover': {
-                                background: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)'
+                                background: isDarkMode
+                                  ? 'linear-gradient(135deg, #311b92 0%, #1a237e 100%)'
+                                  : 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)',
+                                transform: 'translateY(-2px)',
+                                boxShadow: isDarkMode
+                                  ? '0 8px 24px rgba(26, 35, 126, 0.4)'
+                                  : '0 8px 24px rgba(102, 126, 234, 0.4)'
                               }
                             }}
                             onClick={() => {
@@ -466,17 +1058,29 @@ const NodeDetail = () => {
                         ) : (
                           <Button
                             variant="contained"
-                            color="error"
                             size="large"
                             startIcon={<ArrowDownOutlined />}
                             sx={{
-                              background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%)',
-                              height: '48px',
+                              background: isDarkMode
+                                ? 'linear-gradient(135deg, #7b1fa2 0%, #c2185b 100%)'
+                                : 'linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%)',
+                              height: '56px',
                               fontSize: '16px',
-                              padding: '0 32px',
-                              borderRadius: '8px',
+                              padding: '0 40px',
+                              borderRadius: 3,
+                              fontWeight: 700,
+                              boxShadow: isDarkMode
+                                ? '0 4px 16px rgba(123, 31, 162, 0.3)'
+                                : '0 4px 16px rgba(255, 107, 107, 0.3)',
+                              transition: 'all 0.3s ease-in-out',
                               '&:hover': {
-                                background: 'linear-gradient(135deg, #ee5a52 0%, #ff6b6b 100%)'
+                                background: isDarkMode
+                                  ? 'linear-gradient(135deg, #c2185b 0%, #7b1fa2 100%)'
+                                  : 'linear-gradient(135deg, #ee5a52 0%, #ff6b6b 100%)',
+                                transform: 'translateY(-2px)',
+                                boxShadow: isDarkMode
+                                  ? '0 8px 24px rgba(123, 31, 162, 0.4)'
+                                  : '0 8px 24px rgba(255, 107, 107, 0.4)'
                               }
                             }}
                             onClick={() => {
@@ -494,19 +1098,72 @@ const NodeDetail = () => {
                     </CardContent>
                   </Card>
                 ) : (
-                  <Card sx={{
-                    textAlign: 'center',
-                    borderRadius: '12px',
-                    boxShadow: isDarkMode
-                      ? '0 4px 12px rgba(0,0,0,0.3)'
-                      : '0 4px 12px rgba(0,0,0,0.1)',
-                    padding: '40px'
-                  }}>
-                    <CardContent>
+                  <Card
+                    sx={{
+                      textAlign: 'center',
+                      borderRadius: 4,
+                      border: 'none',
+                      background: isDarkMode
+                        ? 'linear-gradient(135deg, #0d1117 0%, #161b22 100%)'
+                        : 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      boxShadow: isDarkMode
+                        ? '0 8px 32px rgba(0, 0, 0, 0.3)'
+                        : '0 8px 32px rgba(0, 0, 0, 0.1)',
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: '4px',
+                        background: isDarkMode
+                          ? 'linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%)'
+                          : 'linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%)'
+                      }
+                    }}
+                  >
+                    <CardContent sx={{ p: { xs: 4, sm: 5 } }}>
                       <Stack direction="column" alignItems="center" spacing={3}>
-                        <WalletOutlined sx={{ fontSize: 64, color: 'primary.main' }} />
-                        <Typography variant="h4">Connect Your Wallet</Typography>
-                        <Typography variant="body1" color="text.secondary">
+                        <Box sx={{ position: 'relative' }}>
+                          <WalletOutlined sx={{ fontSize: 72, color: isDarkMode ? '#40a9ff' : '#1890ff' }} />
+                          <Box
+                            sx={{
+                              position: 'absolute',
+                              top: -8,
+                              right: -8,
+                              width: 24,
+                              height: 24,
+                              borderRadius: '50%',
+                              background: isDarkMode
+                                ? 'linear-gradient(135deg, #1a237e 0%, #311b92 100%)'
+                                : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}
+                          >
+                            <LinkOutlined sx={{ fontSize: 14, color: 'white' }} />
+                          </Box>
+                        </Box>
+                        <Typography
+                          variant="h5"
+                          sx={{
+                            fontWeight: 700,
+                            color: isDarkMode ? '#ffffff' : '#1a1a1a'
+                          }}
+                        >
+                          Connect Your Wallet
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          sx={{
+                            color: isDarkMode ? '#b0b0b0' : '#666',
+                            maxWidth: 400,
+                            lineHeight: 1.6
+                          }}
+                        >
                           Connect your Kadena wallet to manage staking and claim rewards
                         </Typography>
                         <Button
@@ -514,13 +1171,26 @@ const NodeDetail = () => {
                           size="large"
                           startIcon={<WalletOutlined />}
                           sx={{
-                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                            height: '48px',
+                            background: isDarkMode
+                              ? 'linear-gradient(135deg, #1a237e 0%, #311b92 100%)'
+                              : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            height: '56px',
                             fontSize: '16px',
-                            padding: '0 32px',
-                            borderRadius: '8px',
+                            padding: '0 40px',
+                            borderRadius: 3,
+                            fontWeight: 700,
+                            boxShadow: isDarkMode
+                              ? '0 4px 16px rgba(26, 35, 126, 0.3)'
+                              : '0 4px 16px rgba(102, 126, 234, 0.3)',
+                            transition: 'all 0.3s ease-in-out',
                             '&:hover': {
-                              background: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)'
+                              background: isDarkMode
+                                ? 'linear-gradient(135deg, #311b92 0%, #1a237e 100%)'
+                                : 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)',
+                              transform: 'translateY(-2px)',
+                              boxShadow: isDarkMode
+                                ? '0 8px 24px rgba(26, 35, 126, 0.4)'
+                                : '0 8px 24px rgba(102, 126, 234, 0.4)'
                             }
                           }}
                           onClick={() => initializeKadenaWallet("eckoWallet")}
@@ -603,6 +1273,7 @@ const NodeDetail = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
+    </Container>
     </Box>
   );
 };

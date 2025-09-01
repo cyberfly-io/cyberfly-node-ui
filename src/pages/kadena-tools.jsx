@@ -4,7 +4,7 @@ import {
   Tabs, Tab, Alert, TextField, Tooltip, Modal, Dialog, DialogTitle,
   DialogContent, DialogActions, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Paper, TablePagination, Stack, useTheme, useMediaQuery,
-  Snackbar, Alert as MuiAlert, IconButton, InputAdornment
+  Snackbar, Alert as MuiAlert, IconButton, InputAdornment, Avatar
 } from '@mui/material';
 import {
   VpnKey as KeyOutlined,
@@ -142,9 +142,29 @@ const KadenaTools = () => {
   };
 
   const renderTableRow = (record, index) => (
-    <TableRow key={record.id} hover>
+    <TableRow
+      key={record.id}
+      hover
+      sx={{
+        '&:hover': {
+          bgcolor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)',
+          transform: 'scale(1.01)',
+          transition: 'all 0.2s ease'
+        },
+        '& .MuiTableCell-root': {
+          borderBottom: isDarkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.06)',
+          color: isDarkMode ? '#e0e0e0' : 'inherit'
+        }
+      }}
+    >
       <TableCell>
-        <Typography variant="body2" fontWeight="medium">
+        <Typography
+          variant="body2"
+          sx={{
+            fontWeight: 600,
+            color: isDarkMode ? '#ffffff' : '#1a1a1a'
+          }}
+        >
           {record.label}
         </Typography>
       </TableCell>
@@ -156,59 +176,118 @@ const KadenaTools = () => {
             fontSize: '0.75rem',
             wordBreak: 'break-all',
             cursor: 'pointer',
-            '&:hover': { color: 'primary.main' }
+            transition: 'all 0.2s ease',
+            '&:hover': {
+              color: isDarkMode ? '#40a9ff' : '#1976d2',
+              textDecoration: 'underline'
+            }
           }}
           onClick={() => copyToClipboard(record.publicKey, 'public')}
         >
-          {record.publicKey.substring(0, 20)}...
+          {isMobile ? record.publicKey.substring(0, 20) + '...' : record.publicKey.substring(0, 32) + '...'}
         </Typography>
       </TableCell>
       <TableCell>
-        <Typography variant="body2">
+        <Typography
+          variant="body2"
+          sx={{
+            color: isDarkMode ? '#b0b0b0' : '#666'
+          }}
+        >
           {new Date(record.createdAt).toLocaleDateString()}
         </Typography>
       </TableCell>
       <TableCell>
-        <Stack direction="row" spacing={1}>
-          <IconButton
-            size="small"
-            onClick={() => {
-              setSelectedKeypair(record);
-              setKeyModalVisible(true);
-            }}
-            title="View Details"
-          >
-            <EyeOutlined />
-          </IconButton>
-          <IconButton
-            size="small"
-            onClick={() => copyToClipboard(record.publicKey, 'public')}
-            title="Copy Public Key"
-          >
-            <CopyOutlined />
-          </IconButton>
-          <IconButton
-            size="small"
-            onClick={() => copyToClipboard(record.secretKey, 'private')}
-            title="Copy Private Key"
-          >
-            <CopyOutlined />
-          </IconButton>
-          <IconButton
-            size="small"
-            onClick={() => saveAsFile(record.secretKey, `kadena-privatekey-${record.label}.txt`)}
-            title="Download Private Key"
-          >
-            <DownloadOutlined />
-          </IconButton>
-          <IconButton
-            size="small"
-            color="error"
-            onClick={() => deleteKeypair(record.id)}
-            title="Delete Keypair"
-          >
-            <DeleteOutlined />
-          </IconButton>
+        <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
+          <Tooltip title="View Details">
+            <IconButton
+              size="small"
+              onClick={() => {
+                setSelectedKeypair(record);
+                setKeyModalVisible(true);
+              }}
+              sx={{
+                bgcolor: isDarkMode ? 'rgba(25, 118, 210, 0.1)' : 'rgba(25, 118, 210, 0.05)',
+                color: '#1976d2',
+                '&:hover': {
+                  bgcolor: isDarkMode ? 'rgba(25, 118, 210, 0.2)' : 'rgba(25, 118, 210, 0.1)',
+                  transform: 'scale(1.1)'
+                },
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <EyeOutlined fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Copy Public Key">
+            <IconButton
+              size="small"
+              onClick={() => copyToClipboard(record.publicKey, 'public')}
+              sx={{
+                bgcolor: isDarkMode ? 'rgba(76, 175, 80, 0.1)' : 'rgba(76, 175, 80, 0.05)',
+                color: '#4caf50',
+                '&:hover': {
+                  bgcolor: isDarkMode ? 'rgba(76, 175, 80, 0.2)' : 'rgba(76, 175, 80, 0.1)',
+                  transform: 'scale(1.1)'
+                },
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <CopyOutlined fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Copy Private Key">
+            <IconButton
+              size="small"
+              onClick={() => copyToClipboard(record.secretKey, 'private')}
+              sx={{
+                bgcolor: isDarkMode ? 'rgba(255, 152, 0, 0.1)' : 'rgba(255, 152, 0, 0.05)',
+                color: '#ff9800',
+                '&:hover': {
+                  bgcolor: isDarkMode ? 'rgba(255, 152, 0, 0.2)' : 'rgba(255, 152, 0, 0.1)',
+                  transform: 'scale(1.1)'
+                },
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <CopyOutlined fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Download Private Key">
+            <IconButton
+              size="small"
+              onClick={() => saveAsFile(record.secretKey, `kadena-privatekey-${record.label}.txt`)}
+              sx={{
+                bgcolor: isDarkMode ? 'rgba(156, 39, 176, 0.1)' : 'rgba(156, 39, 176, 0.05)',
+                color: '#9c27b0',
+                '&:hover': {
+                  bgcolor: isDarkMode ? 'rgba(156, 39, 176, 0.2)' : 'rgba(156, 39, 176, 0.1)',
+                  transform: 'scale(1.1)'
+                },
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <DownloadOutlined fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Delete Keypair">
+            <IconButton
+              size="small"
+              color="error"
+              onClick={() => deleteKeypair(record.id)}
+              sx={{
+                bgcolor: isDarkMode ? 'rgba(244, 67, 54, 0.1)' : 'rgba(244, 67, 54, 0.05)',
+                color: '#f44336',
+                '&:hover': {
+                  bgcolor: isDarkMode ? 'rgba(244, 67, 54, 0.2)' : 'rgba(244, 67, 54, 0.1)',
+                  transform: 'scale(1.1)'
+                },
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <DeleteOutlined fontSize="small" />
+            </IconButton>
+          </Tooltip>
         </Stack>
       </TableCell>
     </TableRow>
@@ -216,98 +295,260 @@ const KadenaTools = () => {
 
   const cardStyle = {
     background: isDarkMode
-      ? 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
+      ? 'linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%)'
       : 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
-    border: `1px solid ${isDarkMode ? '#404040' : '#e8e8e8'}`,
-    borderRadius: '12px',
+    border: isDarkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)',
+    borderRadius: 4,
     boxShadow: isDarkMode
-      ? '0 4px 20px rgba(0,0,0,0.3)'
-      : '0 4px 20px rgba(0,0,0,0.08)',
-    transition: 'all 0.3s ease'
+      ? '0 8px 32px rgba(0, 0, 0, 0.3)'
+      : '0 8px 32px rgba(0, 0, 0, 0.1)',
+    transition: 'all 0.3s ease-in-out',
+    '&:hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: isDarkMode
+        ? '0 12px 40px rgba(0, 0, 0, 0.4)'
+        : '0 12px 40px rgba(0, 0, 0, 0.15)'
+    }
   };
 
   const statCardStyle = {
     ...cardStyle,
     textAlign: 'center',
     background: isDarkMode
-      ? 'linear-gradient(135deg, #1890ff 0%, #40a9ff 100%)'
-      : 'linear-gradient(135deg, #1890ff 0%, #40a9ff 100%)',
-    color: 'white'
+      ? 'linear-gradient(135deg, #1a237e 0%, #311b92 100%)'
+      : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    color: 'white',
+    position: 'relative',
+    overflow: 'hidden',
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      width: 100,
+      height: 100,
+      background: 'rgba(255, 255, 255, 0.1)',
+      borderRadius: '50%',
+      transform: 'translate(30px, -30px)',
+    }
   };
 
   return (
-    <Box sx={{ padding: '24px' }}>
-      {/* Header */}
+    <Box sx={{
+      padding: { xs: 2, sm: 3, md: 4 },
+      minHeight: '100vh',
+      background: isDarkMode
+        ? 'linear-gradient(135deg, #0d1117 0%, #161b22 100%)'
+        : 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)'
+    }}>
+      {/* Enhanced Header */}
       <Box
         sx={{
-          padding: '16px 0',
+          padding: { xs: 3, sm: 4 },
           background: isDarkMode
-            ? 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
+            ? 'linear-gradient(135deg, #1a237e 0%, #311b92 100%)'
             : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          borderRadius: '8px',
-          marginBottom: '24px',
-          color: 'white'
+          borderRadius: 4,
+          marginBottom: { xs: 3, sm: 4 },
+          color: 'white',
+          position: 'relative',
+          overflow: 'hidden',
+          boxShadow: isDarkMode
+            ? '0 8px 32px rgba(26, 35, 126, 0.3)'
+            : '0 8px 32px rgba(102, 126, 234, 0.3)',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            width: 200,
+            height: 200,
+            background: 'rgba(255, 255, 255, 0.1)',
+            borderRadius: '50%',
+            transform: 'translate(50px, -50px)',
+          }
         }}
       >
-        <Stack direction="row" alignItems="center" spacing={2} sx={{ px: 3 }}>
-          <KeyOutlined />
-          <Typography variant="h5">Kadena Tools</Typography>
+        <Stack direction="row" alignItems="center" spacing={2} sx={{ px: 1, position: 'relative', zIndex: 1 }}>
+          <Avatar
+            sx={{
+              bgcolor: 'rgba(255, 255, 255, 0.2)',
+              width: { xs: 48, sm: 56 },
+              height: { xs: 48, sm: 56 }
+            }}
+          >
+            <KeyOutlined sx={{ fontSize: { xs: 24, sm: 28 } }} />
+          </Avatar>
+          <Box>
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: 800,
+                fontSize: { xs: '1.5rem', sm: '2rem', md: '2.25rem' },
+                mb: 1
+              }}
+            >
+              Kadena Tools
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{
+                opacity: 0.9,
+                fontSize: { xs: '0.875rem', sm: '1rem' },
+                fontWeight: 400
+              }}
+            >
+              Cryptographic key management and blockchain utilities
+            </Typography>
+          </Box>
         </Stack>
-        <Typography variant="body2" sx={{ px: 3, mt: 1, opacity: 0.8 }}>
-          Cryptographic key management and blockchain utilities
-        </Typography>
       </Box>
 
       <Card sx={{
-        borderRadius: '12px',
-        boxShadow: isDarkMode
-          ? '0 4px 12px rgba(0,0,0,0.3)'
-          : '0 4px 12px rgba(0,0,0,0.1)',
+        borderRadius: 4,
+        border: 'none',
         background: isDarkMode
-          ? 'linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%)'
-          : 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)'
+          ? 'linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%)'
+          : 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
+        boxShadow: isDarkMode
+          ? '0 8px 32px rgba(0, 0, 0, 0.3)'
+          : '0 8px 32px rgba(0, 0, 0, 0.1)',
+        position: 'relative',
+        overflow: 'hidden',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '4px',
+          background: isDarkMode
+            ? 'linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%)'
+            : 'linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%)'
+        }
       }}>
-        <Tabs value={activeTab} onChange={(event, newValue) => setActiveTab(newValue)} sx={{ borderBottom: 1, borderColor: 'divider' }}>
+        <Tabs
+          value={activeTab}
+          onChange={(event, newValue) => setActiveTab(newValue)}
+          sx={{
+            borderBottom: 1,
+            borderColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)',
+            '& .MuiTab-root': {
+              minHeight: { xs: 48, sm: 56 },
+              fontSize: { xs: '0.875rem', sm: '1rem' },
+              fontWeight: 600,
+              color: isDarkMode ? '#b0b0b0' : '#666',
+              '&.Mui-selected': {
+                color: isDarkMode ? '#ffffff' : '#1a1a1a',
+                fontWeight: 700
+              }
+            },
+            '& .MuiTabs-indicator': {
+              height: 3,
+              borderRadius: 2,
+              background: isDarkMode
+                ? 'linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%)'
+                : 'linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%)'
+            }
+          }}
+        >
           <Tab
-            icon={<KeyOutlined />}
+            icon={<KeyOutlined sx={{ fontSize: { xs: 20, sm: 24 } }} />}
             iconPosition="start"
             label="Generate Keys"
-            sx={{ minHeight: 48 }}
+            sx={{ minHeight: { xs: 48, sm: 56 } }}
           />
           <Tab
-            icon={<LockOutlined />}
+            icon={<LockOutlined sx={{ fontSize: { xs: 20, sm: 24 } }} />}
             iconPosition="start"
             label={
-              <Badge badgeContent={keypairs.length} color="primary">
+              <Badge
+                badgeContent={keypairs.length}
+                color="primary"
+                sx={{
+                  '& .MuiBadge-badge': {
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    minWidth: 20,
+                    height: 20
+                  }
+                }}
+              >
                 Manage Keys
               </Badge>
             }
-            sx={{ minHeight: 48 }}
+            sx={{ minHeight: { xs: 48, sm: 56 } }}
           />
         </Tabs>
 
-        <Box sx={{ p: 3 }}>
-          {/* Generate Keys Tab */}
+        <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
+          {/* Enhanced Generate Keys Tab */}
           {activeTab === 0 && (
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
+            <Grid container spacing={{ xs: 2, sm: 3 }}>
+              <Grid item xs={12} lg={6}>
                 <Card sx={{
-                  borderRadius: '8px',
-                  boxShadow: 2,
-                  height: '100%'
+                  ...cardStyle,
+                  height: '100%',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    width: 100,
+                    height: 100,
+                    background: isDarkMode
+                      ? 'rgba(76, 175, 80, 0.1)'
+                      : 'rgba(76, 175, 80, 0.05)',
+                    borderRadius: '50%',
+                    transform: 'translate(30px, -30px)',
+                  }
                 }}>
-                  <CardContent>
-                    <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
-                      <ThunderboltOutlined />
-                      <Typography variant="h6">Generate New Keypair</Typography>
+                  <CardContent sx={{ p: { xs: 3, sm: 4 }, position: 'relative', zIndex: 1 }}>
+                    <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 3 }}>
+                      <Avatar
+                        sx={{
+                          bgcolor: isDarkMode
+                            ? 'rgba(76, 175, 80, 0.2)'
+                            : 'rgba(76, 175, 80, 0.1)',
+                          color: '#4caf50'
+                        }}
+                      >
+                        <ThunderboltOutlined />
+                      </Avatar>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: 700,
+                          color: isDarkMode ? '#ffffff' : '#1a1a1a'
+                        }}
+                      >
+                        Generate New Keypair
+                      </Typography>
                     </Stack>
-                    <Stack direction="column" spacing={2} sx={{ width: '100%' }}>
-                      <Typography variant="body2">
+                    <Stack direction="column" spacing={3} sx={{ width: '100%' }}>
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          color: isDarkMode ? '#b0b0b0' : '#666',
+                          lineHeight: 1.6
+                        }}
+                      >
                         Generate a new cryptographic keypair for Kadena blockchain operations.
                         Your private key will be automatically saved to a file and stored locally.
                       </Typography>
 
-                      <Alert severity="warning" sx={{ mb: 2 }}>
+                      <Alert
+                        severity="warning"
+                        sx={{
+                          mb: 2,
+                          borderRadius: 2,
+                          '& .MuiAlert-icon': {
+                            color: '#ff9800'
+                          }
+                        }}
+                      >
                         <Typography variant="body2" fontWeight="bold">Security Notice</Typography>
                         <Typography variant="body2">
                           Keep your private keys secure and never share them. The generated keys are stored locally in your browser.
@@ -320,6 +561,28 @@ const KadenaTools = () => {
                         startIcon={<KeyOutlined />}
                         onClick={generateKeypair}
                         fullWidth
+                        sx={{
+                          background: isDarkMode
+                            ? 'linear-gradient(135deg, #2e7d32 0%, #4caf50 100%)'
+                            : 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                          height: 56,
+                          fontSize: '16px',
+                          fontWeight: 700,
+                          borderRadius: 3,
+                          boxShadow: isDarkMode
+                            ? '0 4px 16px rgba(46, 125, 50, 0.3)'
+                            : '0 4px 16px rgba(67, 233, 123, 0.3)',
+                          transition: 'all 0.3s ease-in-out',
+                          '&:hover': {
+                            background: isDarkMode
+                              ? 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)'
+                              : 'linear-gradient(135deg, #38f9d7 0%, #43e97b 100%)',
+                            transform: 'translateY(-2px)',
+                            boxShadow: isDarkMode
+                              ? '0 8px 24px rgba(46, 125, 50, 0.4)'
+                              : '0 8px 24px rgba(67, 233, 123, 0.4)'
+                          }
+                        }}
                       >
                         Generate New Keypair
                       </Button>
@@ -328,32 +591,76 @@ const KadenaTools = () => {
                 </Card>
               </Grid>
 
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} lg={6}>
                 <Card sx={{
-                  borderRadius: '8px',
-                  boxShadow: 2,
-                  height: '100%'
+                  ...cardStyle,
+                  height: '100%',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    width: 100,
+                    height: 100,
+                    background: isDarkMode
+                      ? 'rgba(25, 118, 210, 0.1)'
+                      : 'rgba(25, 118, 210, 0.05)',
+                    borderRadius: '50%',
+                    transform: 'translate(30px, -30px)',
+                  }
                 }}>
-                  <CardContent>
-                    <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
-                      <InfoCircleOutlined />
-                      <Typography variant="h6">Keypair Information</Typography>
+                  <CardContent sx={{ p: { xs: 3, sm: 4 }, position: 'relative', zIndex: 1 }}>
+                    <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 3 }}>
+                      <Avatar
+                        sx={{
+                          bgcolor: isDarkMode
+                            ? 'rgba(25, 118, 210, 0.2)'
+                            : 'rgba(25, 118, 210, 0.1)',
+                          color: '#1976d2'
+                        }}
+                      >
+                        <InfoCircleOutlined />
+                      </Avatar>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: 700,
+                          color: isDarkMode ? '#ffffff' : '#1a1a1a'
+                        }}
+                      >
+                        Keypair Information
+                      </Typography>
                     </Stack>
                     {keypair ? (
-                      <Stack direction="column" spacing={2} sx={{ width: '100%' }}>
+                      <Stack direction="column" spacing={3} sx={{ width: '100%' }}>
                         <Box>
-                          <Typography variant="body2" fontWeight="bold">Public Key:</Typography>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              fontWeight: 600,
+                              color: isDarkMode ? '#ffffff' : '#1a1a1a',
+                              mb: 1
+                            }}
+                          >
+                            Public Key:
+                          </Typography>
                           <Typography
                             variant="body2"
                             sx={{
                               fontFamily: 'monospace',
                               wordBreak: 'break-all',
-                              bgcolor: 'grey.100',
-                              p: 1,
-                              borderRadius: 1,
-                              mt: 1,
+                              bgcolor: isDarkMode ? '#1e1e1e' : 'grey.100',
+                              p: 2,
+                              borderRadius: 2,
+                              border: isDarkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)',
                               cursor: 'pointer',
-                              '&:hover': { bgcolor: 'grey.200' }
+                              transition: 'all 0.2s ease',
+                              '&:hover': {
+                                bgcolor: isDarkMode ? '#2d2d2d' : 'grey.200',
+                                transform: 'translateY(-1px)'
+                              }
                             }}
                             onClick={() => copyToClipboard(keypair.publicKey, 'public')}
                           >
@@ -362,16 +669,26 @@ const KadenaTools = () => {
                         </Box>
 
                         <Box>
-                          <Typography variant="body2" fontWeight="bold">Private Key:</Typography>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              fontWeight: 600,
+                              color: isDarkMode ? '#ffffff' : '#1a1a1a',
+                              mb: 1
+                            }}
+                          >
+                            Private Key:
+                          </Typography>
                           <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 1 }}>
                             <Typography
                               variant="body2"
                               sx={{
                                 fontFamily: 'monospace',
                                 wordBreak: 'break-all',
-                                bgcolor: 'grey.100',
-                                p: 1,
-                                borderRadius: 1,
+                                bgcolor: isDarkMode ? '#1e1e1e' : 'grey.100',
+                                p: 2,
+                                borderRadius: 2,
+                                border: isDarkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)',
                                 flex: 1
                               }}
                             >
@@ -386,17 +703,29 @@ const KadenaTools = () => {
                                 ...prev,
                                 [keypair.id]: !prev[keypair.id]
                               }))}
+                              sx={{
+                                bgcolor: isDarkMode ? '#2d2d2d' : 'grey.200',
+                                '&:hover': {
+                                  bgcolor: isDarkMode ? '#3d3d3d' : 'grey.300'
+                                }
+                              }}
                             >
                               {showPrivateKey[keypair.id] ? <EyeInvisibleOutlined /> : <EyeOutlined />}
                             </IconButton>
                           </Stack>
                         </Box>
 
-                        <Stack direction="row" spacing={1}>
+                        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
                           <Button
                             startIcon={<CopyOutlined />}
                             onClick={() => copyToClipboard(keypair.publicKey, 'public')}
                             size="small"
+                            variant="outlined"
+                            fullWidth
+                            sx={{
+                              borderRadius: 2,
+                              fontWeight: 600
+                            }}
                           >
                             Copy Public
                           </Button>
@@ -404,6 +733,12 @@ const KadenaTools = () => {
                             startIcon={<CopyOutlined />}
                             onClick={() => copyToClipboard(keypair.secretKey, 'private')}
                             size="small"
+                            variant="outlined"
+                            fullWidth
+                            sx={{
+                              borderRadius: 2,
+                              fontWeight: 600
+                            }}
                           >
                             Copy Private
                           </Button>
@@ -411,6 +746,12 @@ const KadenaTools = () => {
                             startIcon={<DownloadOutlined />}
                             onClick={() => saveAsFile(keypair.secretKey, `kadena-privatekey-${keypair.label}.txt`)}
                             size="small"
+                            variant="outlined"
+                            fullWidth
+                            sx={{
+                              borderRadius: 2,
+                              fontWeight: 600
+                            }}
                           >
                             Download
                           </Button>
@@ -418,9 +759,24 @@ const KadenaTools = () => {
                       </Stack>
                     ) : (
                       <Box sx={{ textAlign: 'center', py: 4 }}>
-                        <KeyOutlined sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
-                        <Typography variant="body2" color="text.secondary">
+                        <KeyOutlined sx={{ fontSize: 64, color: isDarkMode ? '#666' : 'text.secondary', mb: 2 }} />
+                        <Typography
+                          variant="body1"
+                          sx={{
+                            color: isDarkMode ? '#b0b0b0' : 'text.secondary',
+                            fontWeight: 500
+                          }}
+                        >
                           No keypair generated yet
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: isDarkMode ? '#888' : 'text.secondary',
+                            mt: 1
+                          }}
+                        >
+                          Click "Generate New Keypair" to create your first key
                         </Typography>
                       </Box>
                     )}
@@ -430,25 +786,73 @@ const KadenaTools = () => {
             </Grid>
           )}
 
-          {/* Manage Keys Tab */}
+          {/* Enhanced Manage Keys Tab */}
           {activeTab === 1 && (
             <Box>
-              <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-                <Typography variant="h6">Your Keypairs</Typography>
+              <Stack
+                direction={{ xs: 'column', sm: 'row' }}
+                justifyContent="space-between"
+                alignItems={{ xs: 'stretch', sm: 'center' }}
+                spacing={2}
+                sx={{ mb: 3 }}
+              >
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: 700,
+                    color: isDarkMode ? '#ffffff' : '#1a1a1a'
+                  }}
+                >
+                  Your Keypairs
+                </Typography>
                 <Button
                   variant="contained"
                   startIcon={<PlusOutlined />}
                   onClick={generateKeypair}
+                  sx={{
+                    background: isDarkMode
+                      ? 'linear-gradient(135deg, #1a237e 0%, #311b92 100%)'
+                      : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    fontWeight: 600,
+                    borderRadius: 2,
+                    px: 3,
+                    '&:hover': {
+                      background: isDarkMode
+                        ? 'linear-gradient(135deg, #311b92 0%, #1a237e 100%)'
+                        : 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)'
+                    }
+                  }}
                 >
                   Generate New
                 </Button>
               </Stack>
 
               {keypairs.length > 0 ? (
-                <TableContainer component={Paper} sx={{ maxHeight: 600 }}>
+                <TableContainer
+                  component={Paper}
+                  sx={{
+                    maxHeight: 600,
+                    borderRadius: 3,
+                    border: isDarkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)',
+                    boxShadow: isDarkMode
+                      ? '0 8px 32px rgba(0, 0, 0, 0.3)'
+                      : '0 8px 32px rgba(0, 0, 0, 0.1)',
+                    background: isDarkMode
+                      ? 'linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%)'
+                      : 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)'
+                  }}
+                >
                   <Table stickyHeader>
                     <TableHead>
-                      <TableRow>
+                      <TableRow sx={{
+                        '& .MuiTableCell-head': {
+                          bgcolor: isDarkMode ? '#2d2d2d' : '#f5f5f5',
+                          fontWeight: 700,
+                          fontSize: '0.875rem',
+                          color: isDarkMode ? '#ffffff' : '#1a1a1a',
+                          borderBottom: isDarkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)'
+                        }
+                      }}>
                         <TableCell><Typography variant="subtitle2" fontWeight="bold">Label</Typography></TableCell>
                         <TableCell><Typography variant="subtitle2" fontWeight="bold">Public Key</Typography></TableCell>
                         <TableCell><Typography variant="subtitle2" fontWeight="bold">Created</Typography></TableCell>
@@ -470,14 +874,67 @@ const KadenaTools = () => {
                     page={page}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
+                    sx={{
+                      '& .MuiTablePagination-toolbar': {
+                        color: isDarkMode ? '#b0b0b0' : '#666'
+                      },
+                      '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
+                        color: isDarkMode ? '#b0b0b0' : '#666'
+                      }
+                    }}
                   />
                 </TableContainer>
               ) : (
-                <Box sx={{ textAlign: 'center', py: 6 }}>
-                  <LockOutlined sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
-                  <Typography variant="body1" color="text.secondary">
-                    No keypairs found. Generate or import your first keypair.
+                <Box sx={{ textAlign: 'center', py: 8 }}>
+                  <LockOutlined sx={{
+                    fontSize: 80,
+                    color: isDarkMode ? '#666' : 'text.secondary',
+                    mb: 3
+                  }} />
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      color: isDarkMode ? '#b0b0b0' : 'text.secondary',
+                      fontWeight: 500,
+                      mb: 2
+                    }}
+                  >
+                    No keypairs found
                   </Typography>
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      color: isDarkMode ? '#888' : 'text.secondary',
+                      mb: 4,
+                      maxWidth: 400,
+                      mx: 'auto'
+                    }}
+                  >
+                    Generate or import your first keypair to get started with Kadena blockchain operations.
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    startIcon={<PlusOutlined />}
+                    onClick={generateKeypair}
+                    size="large"
+                    sx={{
+                      background: isDarkMode
+                        ? 'linear-gradient(135deg, #1a237e 0%, #311b92 100%)'
+                        : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      fontWeight: 600,
+                      borderRadius: 3,
+                      px: 4,
+                      py: 1.5,
+                      fontSize: '1rem',
+                      '&:hover': {
+                        background: isDarkMode
+                          ? 'linear-gradient(135deg, #311b92 0%, #1a237e 100%)'
+                          : 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)'
+                      }
+                    }}
+                  >
+                    Generate Your First Keypair
+                  </Button>
                 </Box>
               )}
             </Box>
@@ -485,55 +942,161 @@ const KadenaTools = () => {
         </Box>
       </Card>
 
-      {/* Key Details Modal */}
-      <Modal
+      {/* Enhanced Key Details Modal */}
+      <Dialog
         open={keyModalVisible}
         onClose={() => setKeyModalVisible(false)}
         maxWidth="md"
         fullWidth
+        sx={{
+          '& .MuiDialog-paper': {
+            borderRadius: 4,
+            maxWidth: { xs: '95vw', sm: '600px' },
+            margin: { xs: 2, sm: 3 },
+            background: isDarkMode
+              ? 'linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%)'
+              : 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
+            border: isDarkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)',
+            boxShadow: isDarkMode
+              ? '0 20px 60px rgba(0, 0, 0, 0.5)'
+              : '0 20px 60px rgba(0, 0, 0, 0.15)'
+          }
+        }}
       >
-        <Dialog>
-          <DialogTitle>
+          <DialogTitle
+            sx={{
+              pb: 1,
+              borderBottom: isDarkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)'
+            }}
+          >
             <Stack direction="row" alignItems="center" spacing={2}>
-              <KeyOutlined />
-              <Typography variant="h6">Keypair Details</Typography>
+              <Avatar
+                sx={{
+                  bgcolor: isDarkMode
+                    ? 'rgba(25, 118, 210, 0.2)'
+                    : 'rgba(25, 118, 210, 0.1)',
+                  color: '#1976d2'
+                }}
+              >
+                <KeyOutlined />
+              </Avatar>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 700,
+                  color: isDarkMode ? '#ffffff' : '#1a1a1a'
+                }}
+              >
+                Keypair Details
+              </Typography>
             </Stack>
           </DialogTitle>
-          <DialogContent>
+          <DialogContent sx={{ pt: 3 }}>
             {selectedKeypair && (
-              <Stack direction="column" spacing={3} sx={{ width: '100%', pt: 1 }}>
-                <Card>
+              <Stack direction="column" spacing={3} sx={{ width: '100%' }}>
+                <Card sx={{
+                  background: isDarkMode
+                    ? 'rgba(255,255,255,0.05)'
+                    : 'rgba(0,0,0,0.02)',
+                  border: isDarkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)',
+                  borderRadius: 2
+                }}>
                   <CardContent>
                     <Grid container spacing={2}>
                       <Grid item xs={12} sm={6}>
-                        <Typography variant="body2" color="text.secondary">Label</Typography>
-                        <Typography variant="body1">{selectedKeypair.label}</Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: isDarkMode ? '#b0b0b0' : '#666',
+                            fontWeight: 500,
+                            mb: 1
+                          }}
+                        >
+                          Label
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          sx={{
+                            fontWeight: 600,
+                            color: isDarkMode ? '#ffffff' : '#1a1a1a'
+                          }}
+                        >
+                          {selectedKeypair.label}
+                        </Typography>
                       </Grid>
                       <Grid item xs={12} sm={6}>
-                        <Typography variant="body2" color="text.secondary">Created</Typography>
-                        <Typography variant="body1">
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: isDarkMode ? '#b0b0b0' : '#666',
+                            fontWeight: 500,
+                            mb: 1
+                          }}
+                        >
+                          Created
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          sx={{
+                            fontWeight: 600,
+                            color: isDarkMode ? '#ffffff' : '#1a1a1a'
+                          }}
+                        >
                           {new Date(selectedKeypair.createdAt).toLocaleString()}
                         </Typography>
                       </Grid>
                       <Grid item xs={12} sm={6}>
-                        <Typography variant="body2" color="text.secondary">Type</Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: isDarkMode ? '#b0b0b0' : '#666',
+                            fontWeight: 500,
+                            mb: 1
+                          }}
+                        >
+                          Type
+                        </Typography>
                         <Chip
                           label={selectedKeypair.imported ? 'Imported' : 'Generated'}
                           color={selectedKeypair.imported ? 'warning' : 'success'}
                           size="small"
+                          sx={{
+                            fontWeight: 600,
+                            fontSize: '0.75rem'
+                          }}
                         />
                       </Grid>
                     </Grid>
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card sx={{
+                  background: isDarkMode
+                    ? 'rgba(76, 175, 80, 0.05)'
+                    : 'rgba(76, 175, 80, 0.02)',
+                  border: isDarkMode ? '1px solid rgba(76, 175, 80, 0.2)' : '1px solid rgba(76, 175, 80, 0.1)',
+                  borderRadius: 2
+                }}>
                   <CardContent>
-                    <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
-                      <Typography variant="h6">Public Key</Typography>
+                    <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: 700,
+                          color: isDarkMode ? '#ffffff' : '#1a1a1a'
+                        }}
+                      >
+                        Public Key
+                      </Typography>
                       <IconButton
                         size="small"
                         onClick={() => copyToClipboard(selectedKeypair.publicKey, 'public')}
+                        sx={{
+                          color: '#4caf50',
+                          '&:hover': {
+                            bgcolor: 'rgba(76, 175, 80, 0.1)'
+                          }
+                        }}
                       >
                         <CopyOutlined />
                       </IconButton>
@@ -543,9 +1106,12 @@ const KadenaTools = () => {
                       sx={{
                         fontFamily: 'monospace',
                         wordBreak: 'break-all',
-                        bgcolor: 'grey.100',
+                        bgcolor: isDarkMode ? '#1e1e1e' : 'grey.100',
                         p: 2,
-                        borderRadius: 1
+                        borderRadius: 2,
+                        border: isDarkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)',
+                        fontSize: '0.875rem',
+                        lineHeight: 1.5
                       }}
                     >
                       {selectedKeypair.publicKey}
@@ -553,10 +1119,24 @@ const KadenaTools = () => {
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card sx={{
+                  background: isDarkMode
+                    ? 'rgba(255, 152, 0, 0.05)'
+                    : 'rgba(255, 152, 0, 0.02)',
+                  border: isDarkMode ? '1px solid rgba(255, 152, 0, 0.2)' : '1px solid rgba(255, 152, 0, 0.1)',
+                  borderRadius: 2
+                }}>
                   <CardContent>
-                    <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
-                      <Typography variant="h6">Private Key</Typography>
+                    <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: 700,
+                          color: isDarkMode ? '#ffffff' : '#1a1a1a'
+                        }}
+                      >
+                        Private Key
+                      </Typography>
                       <Stack direction="row" spacing={1}>
                         <IconButton
                           size="small"
@@ -564,12 +1144,24 @@ const KadenaTools = () => {
                             ...prev,
                             [selectedKeypair.id]: !prev[selectedKeypair.id]
                           }))}
+                          sx={{
+                            color: '#ff9800',
+                            '&:hover': {
+                              bgcolor: 'rgba(255, 152, 0, 0.1)'
+                            }
+                          }}
                         >
                           {showPrivateKey[selectedKeypair.id] ? <EyeInvisibleOutlined /> : <EyeOutlined />}
                         </IconButton>
                         <IconButton
                           size="small"
                           onClick={() => copyToClipboard(selectedKeypair.secretKey, 'private')}
+                          sx={{
+                            color: '#ff9800',
+                            '&:hover': {
+                              bgcolor: 'rgba(255, 152, 0, 0.1)'
+                            }
+                          }}
                         >
                           <CopyOutlined />
                         </IconButton>
@@ -580,9 +1172,12 @@ const KadenaTools = () => {
                       sx={{
                         fontFamily: 'monospace',
                         wordBreak: 'break-all',
-                        bgcolor: 'grey.100',
+                        bgcolor: isDarkMode ? '#1e1e1e' : 'grey.100',
                         p: 2,
-                        borderRadius: 1
+                        borderRadius: 2,
+                        border: isDarkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)',
+                        fontSize: '0.875rem',
+                        lineHeight: 1.5
                       }}
                     >
                       {showPrivateKey[selectedKeypair.id] ?
@@ -595,19 +1190,54 @@ const KadenaTools = () => {
               </Stack>
             )}
           </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setKeyModalVisible(false)}>Close</Button>
+          <DialogActions sx={{
+            p: 3,
+            borderTop: isDarkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)'
+          }}>
+            <Button
+              onClick={() => setKeyModalVisible(false)}
+              variant="outlined"
+              sx={{
+                borderRadius: 2,
+                fontWeight: 600,
+                px: 3
+              }}
+            >
+              Close
+            </Button>
           </DialogActions>
         </Dialog>
-      </Modal>
 
       <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        sx={{
+          '& .MuiSnackbar-root': {
+            top: { xs: 16, sm: 24 },
+            right: { xs: 16, sm: 24 }
+          }
+        }}
       >
-        <MuiAlert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+        <MuiAlert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{
+            width: '100%',
+            borderRadius: 3,
+            fontWeight: 600,
+            boxShadow: isDarkMode
+              ? '0 8px 32px rgba(0, 0, 0, 0.3)'
+              : '0 8px 32px rgba(0, 0, 0, 0.1)',
+            '& .MuiAlert-icon': {
+              fontSize: '1.25rem'
+            },
+            '& .MuiAlert-message': {
+              fontSize: '0.875rem'
+            }
+          }}
+        >
           {snackbar.message}
         </MuiAlert>
       </Snackbar>
