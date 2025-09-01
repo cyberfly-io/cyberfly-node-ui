@@ -130,31 +130,18 @@ const App = () => {
                 flexGrow: 1,
                 mr: 2
               }}>
-                <Box sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  mr: 2,
-                  p: 1,
-                  borderRadius: 2,
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)'
-                }}>
-                  <Hub sx={{
-                    fontSize: 28,
-                    mr: 1,
-                    color: '#00ff87'
-                  }} />
+             
+                
                   <img
                     src="https://cyberfly.io/assets/images/newlogo.png"
                     alt="Cyberfly Node"
                     style={{
-                      height: 32,
+                      height: 52,
                       width: 'auto',
                       filter: 'brightness(1.1)'
                     }}
                   />
-                </Box>
+              
 
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                   <Typography
@@ -260,11 +247,16 @@ const App = () => {
                 alignItems: 'center',
                 width: '100%'
               }}>
-                <Hub sx={{
-                  fontSize: 24,
-                  mr: 1,
-                  color: '#00ff87'
-                }} />
+                     <img
+                    src="https://cyberfly.io/assets/images/newlogo.png"
+                    alt="Cyberfly Node"
+                    style={{
+                      height: 52,
+                      width: 'auto',
+                      filter: 'brightness(1.1)'
+                    }}
+                  />
+             
                 <Typography
                   variant="h6"
                   sx={{
