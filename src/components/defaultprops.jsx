@@ -7,7 +7,12 @@ import {
     Cloud,
     Receipt,
     UploadFile,
-    Lan
+    Lan,
+    Map,
+    Settings,
+    Bluetooth,
+    AccountBalanceWallet,
+    VpnKey
     } from '@mui/icons-material';
 import { FiMapPin } from "react-icons/fi";
 import { KRoundedKdacolorBlack } from '@kadena/kode-icons/brand'
@@ -37,53 +42,57 @@ const config = {
       },
       {
         path: '/tools',
-        name: 'DB tools',
+        name: 'DB Tools',
         icon: <Storage />,
         component: '../pages/db-tools',
       },
-  
+      {
+        path: '/files',
+        name: 'Files',
+        icon: <UploadFile />,
+        component: '../pages/files',
+      },
       {
         path: '/pubsub',
         name: 'Pub Sub',
         icon: <Message />,
         component: '../pages/pubsub',
       },
-       /*{
-        path: '/files',
-        name: 'Files',
-        icon: < FileAddOutlined/>,
-        component: '../pages/files',
-      },
-     
       {
         path: '/map',
         name: 'Node Map',
-        icon: <FiMapPin />,
-        component: '../pages/tools',
+        icon: <Map />,
+        component: '../pages/node-map',
       },
       {
-        path: '/stream',
-        name: 'Stream',
-        icon: <VideoCameraOutlined />,
-        component: '../pages/stream',
-      },*/
-      {
         path: '/dialer',
-        name: 'Connection checker',
+        name: 'Connection Checker',
         icon: <Call />,
         component: '../pages/dialer',
       },
-      /*{
+      {
+        path: '/ble',
+        name: 'BLE Tools',
+        icon: <Bluetooth />,
+        component: '../pages/ble',
+      },
+      {
         path: '/faucet',
         name: 'Testnet Faucet',
-        icon: <TransactionOutlined />,
+        icon: <AccountBalanceWallet />,
         component: '../pages/faucet',
-      },*/
+      },
       {
         path: '/kadena-tools',
-        name: 'Kadena tools',
-        icon: <KRoundedKdacolorBlack/>,
+        name: 'Kadena Tools',
+        icon: <VpnKey />,
         component: '../pages/kadena-tools',
+      },
+      {
+        path: '/settings',
+        name: 'Settings',
+        icon: <Settings />,
+        component: '../pages/settings',
       },
     ],
   },

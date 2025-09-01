@@ -7,7 +7,7 @@ import MainContent from './components/MainContent'
 import { useDarkMode } from './contexts/DarkModeContext';
 import PubSubPage from './pages/pubsub';
 import defaultProps from './components/defaultprops';
-import { Brightness4, Brightness7, AccountCircle, AccountBalanceWallet, Menu, MenuOpen } from '@mui/icons-material'
+import { Brightness4, Brightness7, AccountCircle, AccountBalanceWallet, Menu, MenuOpen, Hub, NetworkCheck, Security } from '@mui/icons-material'
 import { useKadenaWalletContext } from "./contexts/kadenaWalletContext";
 import { TrackerCard } from '@kadena/kode-ui';
 import Dialer from './pages/dialer';
@@ -100,26 +100,125 @@ const App = () => {
         <CssBaseline />
         <Box sx={{ display: 'flex' }}>
           {/* App Bar */}
-          <AppBar position="fixed" sx={{ zIndex: muiTheme.zIndex.drawer + 1, background: bg }}>
-            <Toolbar>
+          <AppBar position="fixed" sx={{
+            zIndex: muiTheme.zIndex.drawer + 1,
+            background: bg,
+            boxShadow: isDarkMode
+              ? '0 4px 20px rgba(0, 0, 0, 0.3)'
+              : '0 4px 20px rgba(0, 0, 0, 0.1)'
+          }}>
+            <Toolbar sx={{ minHeight: 64 }}>
               <IconButton
                 color="inherit"
                 aria-label="open drawer"
                 onClick={() => setDrawerOpen(!drawerOpen)}
                 edge="start"
+                sx={{
+                  mr: 1,
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                  }
+                }}
               >
                 {drawerOpen ? <MenuOpen /> : <Menu />}
               </IconButton>
-              <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-                <img src="https://cyberfly.io/assets/images/newlogo.png" alt="Cyberfly Node" style={{ height: 40, marginRight: 10 }} />
-                Cyberfly Node
-              </Typography>
-              <IconButton onClick={toggleDarkMode} color="inherit">
-                {isDarkMode ? <Brightness7 /> : <Brightness4 />}
-              </IconButton>
-              <IconButton onClick={handleMenuClick} color="inherit">
-                <AccountBalanceWallet />
-              </IconButton>
+
+              {/* Enhanced Logo Section */}
+              <Box sx={{
+                display: 'flex',
+                alignItems: 'center',
+                flexGrow: 1,
+                mr: 2
+              }}>
+                <Box sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  mr: 2,
+                  p: 1,
+                  borderRadius: 2,
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)'
+                }}>
+                  <Hub sx={{
+                    fontSize: 28,
+                    mr: 1,
+                    color: '#00ff87'
+                  }} />
+                  <img
+                    src="https://cyberfly.io/assets/images/newlogo.png"
+                    alt="Cyberfly Node"
+                    style={{
+                      height: 32,
+                      width: 'auto',
+                      filter: 'brightness(1.1)'
+                    }}
+                  />
+                </Box>
+
+                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                  <Typography
+                    variant="h6"
+                    noWrap
+                    component="div"
+                    sx={{
+                      fontWeight: 700,
+                      fontSize: '1.1rem',
+                      lineHeight: 1.2,
+                      background: 'linear-gradient(45deg, #ffffff 30%, #00ff87 90%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent'
+                    }}
+                  >
+                    Cyberfly Node
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
+                    <NetworkCheck sx={{
+                      fontSize: 14,
+                      mr: 0.5,
+                      color: '#60efff'
+                    }} />
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: 'rgba(255, 255, 255, 0.7)',
+                        fontSize: '0.7rem'
+                      }}
+                    >
+                      Decentralized Network
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+
+              {/* Action Buttons */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <IconButton
+                  onClick={toggleDarkMode}
+                  color="inherit"
+                  sx={{
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                    }
+                  }}
+                  title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                >
+                  {isDarkMode ? <Brightness7 /> : <Brightness4 />}
+                </IconButton>
+
+                <IconButton
+                  onClick={handleMenuClick}
+                  color="inherit"
+                  sx={{
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                    }
+                  }}
+                  title="Wallet & Account"
+                >
+                  <AccountBalanceWallet />
+                </IconButton>
+              </Box>
             </Toolbar>
           </AppBar>
 
@@ -129,17 +228,58 @@ const App = () => {
             open={drawerOpen}
             onClose={() => setDrawerOpen(false)}
             sx={{
-              width: 240,
+              width: 280,
               flexShrink: 0,
               '& .MuiDrawer-paper': {
-                width: 240,
+                width: 280,
                 boxSizing: 'border-box',
+                background: isDarkMode
+                  ? 'linear-gradient(180deg, #1a1a1a 0%, #2d2d2d 100%)'
+                  : 'linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%)',
+                borderRight: isDarkMode
+                  ? '1px solid rgba(255,255,255,0.1)'
+                  : '1px solid rgba(0,0,0,0.08)',
+                boxShadow: isDarkMode
+                  ? '4px 0 20px rgba(0, 0, 0, 0.3)'
+                  : '4px 0 20px rgba(0, 0, 0, 0.1)'
               },
             }}
           >
-            <Toolbar />
-            <Box sx={{ overflow: 'auto' }}>
-              <List>
+            <Toolbar sx={{
+              minHeight: 64,
+              borderBottom: isDarkMode
+                ? '1px solid rgba(255,255,255,0.1)'
+                : '1px solid rgba(0,0,0,0.08)',
+              background: isDarkMode
+                ? 'rgba(0, 0, 0, 0.2)'
+                : 'rgba(255, 255, 255, 0.8)',
+              backdropFilter: 'blur(10px)'
+            }}>
+              <Box sx={{
+                display: 'flex',
+                alignItems: 'center',
+                width: '100%'
+              }}>
+                <Hub sx={{
+                  fontSize: 24,
+                  mr: 1,
+                  color: '#00ff87'
+                }} />
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: 700,
+                    background: 'linear-gradient(45deg, #0061ff 30%, #00ff87 90%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent'
+                  }}
+                >
+                  Cyberfly
+                </Typography>
+              </Box>
+            </Toolbar>
+            <Box sx={{ overflow: 'auto', flex: 1 }}>
+              <List sx={{ pt: 1 }}>
                 {defaultProps.route.routes.map((item) => (
                   <ListItem key={item.path} disablePadding>
                     <ListItemButton
@@ -149,11 +289,46 @@ const App = () => {
                         setPathname(item.path || '/');
                         setDrawerOpen(false);
                       }}
+                      sx={{
+                        mx: 1,
+                        my: 0.5,
+                        borderRadius: 2,
+                        transition: 'all 0.2s ease',
+                        '&:hover': {
+                          backgroundColor: isDarkMode
+                            ? 'rgba(0, 255, 135, 0.1)'
+                            : 'rgba(0, 97, 255, 0.08)',
+                          transform: 'translateX(4px)',
+                          '& .MuiListItemIcon-root': {
+                            color: '#00ff87'
+                          }
+                        },
+                        '&.Mui-selected': {
+                          backgroundColor: isDarkMode
+                            ? 'rgba(0, 255, 135, 0.15)'
+                            : 'rgba(0, 97, 255, 0.12)',
+                          '& .MuiListItemIcon-root': {
+                            color: '#00ff87'
+                          }
+                        }
+                      }}
                     >
-                      <ListItemIcon>
+                      <ListItemIcon sx={{
+                        minWidth: 40,
+                        color: isDarkMode ? '#b0b0b0' : '#666',
+                        transition: 'color 0.2s ease'
+                      }}>
                         {item.icon}
                       </ListItemIcon>
-                      <ListItemText primary={item.name} />
+                      <ListItemText
+                        primary={item.name}
+                        sx={{
+                          '& .MuiTypography-root': {
+                            fontWeight: 500,
+                            color: isDarkMode ? '#e0e0e0' : '#333'
+                          }
+                        }}
+                      />
                     </ListItemButton>
                   </ListItem>
                 ))}
