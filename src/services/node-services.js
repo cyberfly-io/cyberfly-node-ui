@@ -9,6 +9,9 @@ export const getHost = ()=>{
   else if(hostname.includes(".cyberfly.io")){
   return hostname
   }
+  else if(hostname.includes(".vercel.app")) {
+    return "node.cyberfly.io"
+  }
   else{
     return hostname+":31003"
   }
