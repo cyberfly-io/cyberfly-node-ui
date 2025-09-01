@@ -28,8 +28,10 @@ import {
 } from '@mui/icons-material';
 import { getHost } from '../services/node-services';
 import { signFileCID } from '../services/pact-services';
+import { useDarkMode } from '../contexts/DarkModeContext';
 
 const FileUpload = () => {
+  const { isDarkMode } = useDarkMode();
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -630,14 +632,34 @@ const FileUpload = () => {
       </Box>
 
       {file && (
-        <Paper sx={{ p: 2, bgcolor: 'grey.50' }}>
+        <Paper sx={{
+          p: 2,
+          bgcolor: isDarkMode ? 'rgba(255,255,255,0.06)' : 'grey.50',
+          color: isDarkMode ? '#ffffff' : 'inherit',
+          border: isDarkMode ? '1px solid rgba(255,255,255,0.15)' : '1px solid rgba(0,0,0,0.08)',
+          borderRadius: 2,
+          boxShadow: isDarkMode ? '0 4px 16px rgba(0,0,0,0.4)' : '0 2px 8px rgba(0,0,0,0.08)'
+        }}>
           <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
             <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
               <FileIcon color="primary" />
-              <Typography variant="body1" fontWeight="bold">
+              <Typography variant="body1" fontWeight="bold" sx={{
+                maxWidth: { xs: '220px', sm: '340px' },
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                color: isDarkMode ? '#fff' : 'inherit'
+              }}>
                 {file.name}
               </Typography>
-              <Chip label={fileType || file.type || 'unknown'} size="small" />
+              <Chip
+                label={fileType || file.type || 'unknown'}
+                size="small"
+                sx={{
+                  bgcolor: isDarkMode ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.04)',
+                  color: isDarkMode ? '#fff' : 'inherit'
+                }}
+              />
               <Typography variant="body2" color="text.secondary">
                 {formatBytes(file.size)}
               </Typography>
