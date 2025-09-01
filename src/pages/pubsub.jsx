@@ -11,6 +11,7 @@ import {
 import { io } from "socket.io-client"
 import { getHost } from '../services/node-services'
 import { useDarkMode } from '../contexts/DarkModeContext'
+import GradientHeader from '../components/GradientHeader'
 
 const PubSubPage = () => {
 
@@ -123,126 +124,92 @@ const handlePublish = () => {
   }, ...prev.slice(0, 49)]);
 
   showMessage("Message published successfully", "success");
-  setPublishTopic('');
-  setPublishMessage('');
 };
 
+// Unsubscribe from a topic
 const handleUnsubscribe = (topicToRemove) => {
-  setTopics(prev => prev.filter(topic => topic !== topicToRemove))
-  socket.emit("unsubscribe", topicToRemove)
-  showMessage(`Unsubscribed from ${topicToRemove}`, "info");
-}
+  setTopics(prev => prev.filter(topic => topic !== topicToRemove));
+  if (socket) {
+    socket.emit('unsubscribe', topicToRemove);
+  }
+  showMessage(`Unsubscribed from ${topicToRemove}`, 'info');
+};
 
+// Clear message history
 const clearMessageHistory = () => {
-  setMessageHistory([])
-  showMessage('Message history cleared', "info");
-}
+  setMessageHistory([]);
+  showMessage('Message history cleared', 'info');
+};
 
-  return (
-    <Container maxWidth="xl" sx={{ py: 3 }}>
-      {/* Header */}
-      <Box
-        sx={{
-          mb: 3,
-          p: 3,
-          background: isDarkMode
-            ? 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
-            : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          borderRadius: 2,
-          color: 'white'
-        }}
-      >
-        <Stack direction="row" alignItems="center" justifyContent="space-between">
-          <Stack direction="row" alignItems="center" spacing={2}>
-            <Public />
-            <Box>
-              <Typography variant="h4" component="h1" sx={{ mb: 1 }}>
-                PubSub Communication
-              </Typography>
-              <Typography variant="body1">
-                Real-time messaging with WebSocket connection
-              </Typography>
-            </Box>
-          </Stack>
-          <Badge
-            variant="dot"
+return (
+  <Container maxWidth="xl" sx={{ py: 3 }}>
+    <GradientHeader
+      icon={<ElectricBolt sx={{ fontSize: 28 }} />}
+      title="PubSub Messaging"
+      subtitle="Real-time topic-based messaging system"
+      chips={[
+        { label: `Status: ${connectionStatus}` },
+        { label: `Topics: ${topics.length}` },
+        { label: `Messages: ${messageHistory.length}` }
+      ]}
+    />
+    {/* Connection Status Card */}
+    <Card
+      sx={{
+        mb: 3,
+        borderRadius: 3,
+        boxShadow: isDarkMode
+          ? '0 4px 12px rgba(0,0,0,0.3)'
+          : '0 4px 12px rgba(0,0,0,0.1)',
+        background: isDarkMode
+          ? 'linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%)'
+          : 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)'
+      }}
+    >
+      <CardContent>
+        <Stack direction="row" alignItems="center" spacing={2}>
+          <Avatar
+            sx={{
+              width: 48,
+              height: 48,
+              bgcolor: connectionStatus === 'connected' ? 'success.main' :
+                       connectionStatus === 'connecting' ? 'warning.main' : 'error.main'
+            }}
+          >
+            {connectionStatus === 'connected' ? <ElectricBolt /> :
+             connectionStatus === 'connecting' ? <Wifi /> :
+             <LinkOff />}
+          </Avatar>
+          <Box flex={1}>
+            <Typography variant="h5" sx={{ mb: 1, color: isDarkMode ? '#e0e0e0' : 'inherit' }}>
+              WebSocket Connection
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ color: isDarkMode ? '#b0b0b0' : 'inherit' }}>
+              {connectionStatus === 'connected' ? 'Connected to CyberFly node' :
+               connectionStatus === 'connecting' ? 'Establishing connection...' :
+               'Connection lost - attempting to reconnect'}
+            </Typography>
+          </Box>
+          <Chip
+            label={
+              connectionStatus === 'connected' ? 'Online' :
+              connectionStatus === 'connecting' ? 'Connecting' : 'Offline'
+            }
             color={
               connectionStatus === 'connected' ? 'success' :
               connectionStatus === 'connecting' ? 'warning' : 'error'
             }
-            sx={{
-              '& .MuiBadge-badge': {
-                width: 12,
-                height: 12,
-                borderRadius: '50%'
-              }
-            }}
-          >
-            <Typography variant="body2">
-              {connectionStatus === 'connected' ? 'Connected' :
-               connectionStatus === 'connecting' ? 'Connecting...' : 'Disconnected'}
-            </Typography>
-          </Badge>
+            icon={
+              connectionStatus === 'connected' ? <CheckCircle /> :
+              connectionStatus === 'connecting' ? <Schedule /> :
+              <LinkOff />
+            }
+            size="small"
+          />
         </Stack>
-      </Box>
-      {/* Connection Status Card */}
-      <Card
-        sx={{
-          mb: 3,
-          borderRadius: 3,
-          boxShadow: isDarkMode
-            ? '0 4px 12px rgba(0,0,0,0.3)'
-            : '0 4px 12px rgba(0,0,0,0.1)',
-          background: isDarkMode
-            ? 'linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%)'
-            : 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)'
-        }}
-      >
-        <CardContent>
-          <Stack direction="row" alignItems="center" spacing={2}>
-            <Avatar
-              sx={{
-                width: 48,
-                height: 48,
-                bgcolor: connectionStatus === 'connected' ? 'success.main' :
-                         connectionStatus === 'connecting' ? 'warning.main' : 'error.main'
-              }}
-            >
-              {connectionStatus === 'connected' ? <ElectricBolt /> :
-               connectionStatus === 'connecting' ? <Wifi /> :
-               <LinkOff />}
-            </Avatar>
-            <Box flex={1}>
-              <Typography variant="h5" sx={{ mb: 1, color: isDarkMode ? '#e0e0e0' : 'inherit' }}>
-                WebSocket Connection
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ color: isDarkMode ? '#b0b0b0' : 'inherit' }}>
-                {connectionStatus === 'connected' ? 'Connected to CyberFly node' :
-                 connectionStatus === 'connecting' ? 'Establishing connection...' :
-                 'Connection lost - attempting to reconnect'}
-              </Typography>
-            </Box>
-            <Chip
-              label={
-                connectionStatus === 'connected' ? 'Online' :
-                connectionStatus === 'connecting' ? 'Connecting' : 'Offline'
-              }
-              color={
-                connectionStatus === 'connected' ? 'success' :
-                connectionStatus === 'connecting' ? 'warning' : 'error'
-              }
-              icon={
-                connectionStatus === 'connected' ? <CheckCircle /> :
-                connectionStatus === 'connecting' ? <Schedule /> :
-                <LinkOff />
-              }
-              size="small"
-            />
-          </Stack>
-        </CardContent>
-      </Card>
-
-      <Grid container spacing={3}>
+      </CardContent>
+    </Card>
+  <Grid container spacing={3}>
         {/* Subscribe Section */}
         <Grid item xs={12} lg={6}>
           <Card

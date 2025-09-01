@@ -8,6 +8,7 @@ import {
 } from '@mui/icons-material'
 import ReactJson from 'react-json-view'
 import { useDarkMode } from '../contexts/DarkModeContext'
+import GradientHeader from '../components/GradientHeader'
 import { getDBInfo, getReadDB } from '../services/node-services'
 
 const Tools = () => {
@@ -62,30 +63,12 @@ const Tools = () => {
 
   return (
     <Container maxWidth="lg" sx={{ py: 3 }}>
-      {/* Header */}
-      <Box
-        sx={{
-          mb: 3,
-          p: 3,
-          background: isDarkMode
-            ? 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
-            : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          borderRadius: 2,
-          color: 'white'
-        }}
-      >
-        <Stack direction="row" alignItems="center" spacing={2}>
-          <Storage />
-          <Box>
-            <Typography variant="h4" component="h1" sx={{ mb: 1 }}>
-              Database Tools
-            </Typography>
-            <Typography variant="body1">
-              Query and analyze blockchain database information
-            </Typography>
-          </Box>
-        </Stack>
-      </Box>
+      <GradientHeader
+        icon={<Storage />}
+        title="Database Tools"
+        subtitle="Query and analyze blockchain database information"
+        chips={[]}
+      />
 
       <Box sx={{ position: 'relative' }}>
         {loading && (

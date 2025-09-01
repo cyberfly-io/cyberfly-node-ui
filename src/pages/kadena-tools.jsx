@@ -342,20 +342,21 @@ const KadenaTools = () => {
         : 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)'
     }}>
       {/* Enhanced Header */}
-      <Box
+      <Paper
+        elevation={6}
         sx={{
-          padding: { xs: 3, sm: 4 },
+          p: { xs: 3, md: 4 },
+          mb: { xs: 3, md: 4 },
           background: isDarkMode
-            ? 'linear-gradient(135deg, #1a237e 0%, #311b92 100%)'
+            ? 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
             : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           borderRadius: 4,
-          marginBottom: { xs: 3, sm: 4 },
           color: 'white',
           position: 'relative',
           overflow: 'hidden',
           boxShadow: isDarkMode
-            ? '0 8px 32px rgba(26, 35, 126, 0.3)'
-            : '0 8px 32px rgba(102, 126, 234, 0.3)',
+            ? '0 20px 60px rgba(0, 0, 0, 0.4)'
+            : '0 20px 60px rgba(102, 126, 234, 0.3)',
           '&::before': {
             content: '""',
             position: 'absolute',
@@ -369,23 +370,30 @@ const KadenaTools = () => {
           }
         }}
       >
-        <Stack direction="row" alignItems="center" spacing={2} sx={{ px: 1, position: 'relative', zIndex: 1 }}>
+        <Box sx={{
+          display: 'flex',
+          alignItems: 'center',
+          mb: 2,
+          position: 'relative',
+          zIndex: 1
+        }}>
           <Avatar
             sx={{
+              mr: 2,
               bgcolor: 'rgba(255, 255, 255, 0.2)',
-              width: { xs: 48, sm: 56 },
-              height: { xs: 48, sm: 56 }
+              width: 56,
+              height: 56
             }}
           >
-            <KeyOutlined sx={{ fontSize: { xs: 24, sm: 28 } }} />
+            <KeyOutlined sx={{ fontSize: 28 }} />
           </Avatar>
           <Box>
             <Typography
               variant="h4"
               sx={{
-                fontWeight: 800,
-                fontSize: { xs: '1.5rem', sm: '2rem', md: '2.25rem' },
-                mb: 1
+                mb: 1,
+                fontWeight: 700,
+                fontSize: { xs: '1.8rem', md: '2.2rem' }
               }}
             >
               Kadena Tools
@@ -394,15 +402,43 @@ const KadenaTools = () => {
               variant="body1"
               sx={{
                 opacity: 0.9,
-                fontSize: { xs: '0.875rem', sm: '1rem' },
-                fontWeight: 400
+                fontSize: { xs: '0.9rem', md: '1rem' }
               }}
             >
-              Cryptographic key management and blockchain utilities
+              Generate and manage Kadena blockchain cryptographic keys
             </Typography>
           </Box>
-        </Stack>
-      </Box>
+        </Box>
+        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', position: 'relative', zIndex: 1 }}>
+          <Chip
+            icon={<CheckCircleOutlined />}
+            label="Secure Key Generation"
+            sx={{
+              bgcolor: 'rgba(255, 255, 255, 0.15)',
+              color: 'white',
+              '& .MuiChip-icon': { color: 'white' }
+            }}
+          />
+          <Chip
+            icon={<CheckCircleOutlined />}
+            label="Local Storage"
+            sx={{
+              bgcolor: 'rgba(255, 255, 255, 0.15)',
+              color: 'white',
+              '& .MuiChip-icon': { color: 'white' }
+            }}
+          />
+          <Chip
+            icon={<CheckCircleOutlined />}
+            label="Export Options"
+            sx={{
+              bgcolor: 'rgba(255, 255, 255, 0.15)',
+              color: 'white',
+              '& .MuiChip-icon': { color: 'white' }
+            }}
+          />
+        </Box>
+      </Paper>
 
       <Card sx={{
         borderRadius: 4,

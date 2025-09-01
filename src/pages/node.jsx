@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { getNodeStake, getNode, getNodeClaimable, getAPY, claimReward, nodeStake, nodeUnStake } from "../services/pact-services";
 import {
   Button, Card, CardContent, Typography, Box, Grid, Chip, Avatar, Divider,
-  Stack, useTheme, useMediaQuery, Snackbar, Alert, CircularProgress, Container
+  Stack, useTheme, useMediaQuery, Snackbar, Alert, CircularProgress, Container,
+  Paper
 } from "@mui/material";
 import {
   CheckCircle as CheckCircleOutlined,
@@ -93,10 +94,11 @@ const NodeDetail = () => {
     }}>
       <Container maxWidth="xl" sx={{ px: { xs: 2, sm: 3 } }}>
         {/* Enhanced Header */}
-        <Box
+        <Paper
+          elevation={6}
           sx={{
-            mb: { xs: 3, sm: 4 },
-            p: { xs: 3, sm: 4 },
+            p: { xs: 3, md: 4 },
+            mb: { xs: 3, md: 4 },
             background: isDarkMode
               ? 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
               : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -105,111 +107,90 @@ const NodeDetail = () => {
             position: 'relative',
             overflow: 'hidden',
             boxShadow: isDarkMode
-              ? '0 8px 32px rgba(0,0,0,0.4)'
-              : '0 8px 32px rgba(0,0,0,0.1)',
+              ? '0 20px 60px rgba(0, 0, 0, 0.4)'
+              : '0 20px 60px rgba(102, 126, 234, 0.3)',
             '&::before': {
               content: '""',
               position: 'absolute',
               top: 0,
-              left: 0,
               right: 0,
-              bottom: 0,
-              background: 'rgba(255, 255, 255, 0.05)',
-              borderRadius: 4,
+              width: 200,
+              height: 200,
+              background: 'rgba(255, 255, 255, 0.1)',
+              borderRadius: '50%',
+              transform: 'translate(50px, -50px)',
             }
           }}
         >
-          <Box sx={{ position: 'relative', zIndex: 1 }}>
-            <Stack
-              direction={{ xs: 'column', sm: 'row' }}
-              alignItems={{ xs: 'flex-start', sm: 'center' }}
-              spacing={{ xs: 2, sm: 3 }}
-              sx={{ mb: { xs: 2, sm: 3 } }}
+          <Box sx={{
+            display: 'flex',
+            alignItems: 'center',
+            mb: 2,
+            position: 'relative',
+            zIndex: 1
+          }}>
+            <Avatar
+              sx={{
+                mr: 2,
+                bgcolor: 'rgba(255, 255, 255, 0.2)',
+                width: 56,
+                height: 56
+              }}
             >
-              <Avatar
+              <NodeIndexOutlined sx={{ fontSize: 28 }} />
+            </Avatar>
+            <Box>
+              <Typography
+                variant="h4"
                 sx={{
-                  width: { xs: 48, sm: 56 },
-                  height: { xs: 48, sm: 56 },
-                  bgcolor: 'rgba(255, 255, 255, 0.2)',
-                  backdropFilter: 'blur(10px)'
+                  mb: 1,
+                  fontWeight: 700,
+                  fontSize: { xs: '1.8rem', md: '2.2rem' }
                 }}
               >
-                <NodeIndexOutlined sx={{ fontSize: { xs: 24, sm: 28 } }} />
-              </Avatar>
-              <Box>
-                <Typography
-                  variant="h4"
-                  component="h1"
-                  sx={{
-                    fontSize: { xs: '1.75rem', sm: '2.25rem' },
-                    fontWeight: 700,
-                    mb: 1
-                  }}
-                >
-                  Node Details
-                </Typography>
-                <Typography
-                  variant="subtitle1"
-                  sx={{
-                    fontSize: { xs: '0.9rem', sm: '1rem' },
-                    opacity: 0.9,
-                    fontWeight: 400
-                  }}
-                >
-                  Comprehensive node information and staking dashboard
-                </Typography>
-              </Box>
-            </Stack>
-
-            <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ width: '100%' }}>
-              <Box sx={{ flex: 1 }}>
-                {peerId && (
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      fontFamily: 'monospace',
-                      fontSize: { xs: '0.75rem', sm: '0.875rem' },
-                      fontWeight: 500,
-                      opacity: 0.9
-                    }}
-                  >
-                    {isMobile ? `${peerId.slice(0, 12)}...${peerId.slice(-6)}` : `${peerId.slice(0, 24)}...${peerId.slice(-8)}`}
-                  </Typography>
-                )}
-              </Box>
-              <Stack direction="row" spacing={2}>
-                {nodeInfo && (
-                  <Chip
-                    icon={nodeInfo.status === 'active' ? <ThunderboltOutlined /> : <ClockCircleOutlined />}
-                    label={nodeInfo.status === 'active' ? 'Active' : 'Inactive'}
-                    color={nodeInfo.status === 'active' ? 'success' : 'error'}
-                    sx={{
-                      fontSize: '0.875rem',
-                      fontWeight: 600,
-                      px: 2,
-                      py: 1,
-                      borderRadius: 2
-                    }}
-                  />
-                )}
-                {apy && (
-                  <Chip
-                    icon={<TrophyOutlined />}
-                    label={`${apy}% APY`}
-                    color="warning"
-                    sx={{
-                      fontSize: '0.875rem',
-                      fontWeight: 600,
-                      px: 2,
-                      py: 1,
-                      borderRadius: 2
-                    }}
-                  />
-                )}
-              </Stack>
-            </Stack>
+                Node Details
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{
+                  opacity: 0.9,
+                  fontSize: { xs: '0.9rem', md: '1rem' }
+                }}
+              >
+                Monitor and manage your Cyberfly network node
+              </Typography>
+            </Box>
           </Box>
-        </Box>
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', position: 'relative', zIndex: 1 }}>
+            <Chip
+              icon={<CheckCircleOutlined />}
+              label="Real-time Monitoring"
+              sx={{
+                bgcolor: 'rgba(255, 255, 255, 0.15)',
+                color: 'white',
+                '& .MuiChip-icon': { color: 'white' }
+              }}
+            />
+            <Chip
+              icon={<CheckCircleOutlined />}
+              label="Network Status"
+              sx={{
+                bgcolor: 'rgba(255, 255, 255, 0.15)',
+                color: 'white',
+                '& .MuiChip-icon': { color: 'white' }
+              }}
+            />
+            <Chip
+              icon={<CheckCircleOutlined />}
+              label="Performance Metrics"
+              sx={{
+                bgcolor: 'rgba(255, 255, 255, 0.15)',
+                color: 'white',
+                '& .MuiChip-icon': { color: 'white' }
+              }}
+            />
+          </Box>
+        </Paper>
 
       {!nodeInfo && (
         <Card

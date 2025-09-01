@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { getMyNodes, getNodeStake } from '../services/pact-services';
 import {
   Card, CardContent, CardActions, Button, Tooltip, Grid, Typography,
-  Box, Chip, Avatar, CircularProgress, Divider, Stack, useTheme, useMediaQuery, Container
+  Box, Chip, Avatar, CircularProgress, Divider, Stack, useTheme, useMediaQuery, Container,
+  Paper
 } from '@mui/material';
 import {
   Visibility as EyeOutlined,
@@ -12,7 +13,8 @@ import {
   Public as GlobalOutlined,
   ElectricBolt as ThunderboltOutlined,
   Storage as DatabaseOutlined,
-  AccountBalanceWallet as WalletOutlined
+  AccountBalanceWallet as WalletOutlined,
+  CheckCircle as CheckCircleOutlined
 } from '@mui/icons-material';
 import { useKadenaWalletContext } from '../contexts/kadenaWalletContext';
 import { useNavigate } from 'react-router-dom';
@@ -277,10 +279,11 @@ const MyNode = () => {
     }}>
       <Container maxWidth="xl" sx={{ px: { xs: 2, sm: 3 } }}>
         {/* Enhanced Header */}
-        <Box
+        <Paper
+          elevation={6}
           sx={{
-            mb: { xs: 3, sm: 4 },
-            p: { xs: 3, sm: 4 },
+            p: { xs: 3, md: 4 },
+            mb: { xs: 3, md: 4 },
             background: isDarkMode
               ? 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
               : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -289,89 +292,90 @@ const MyNode = () => {
             position: 'relative',
             overflow: 'hidden',
             boxShadow: isDarkMode
-              ? '0 8px 32px rgba(0,0,0,0.4)'
-              : '0 8px 32px rgba(0,0,0,0.1)',
+              ? '0 20px 60px rgba(0, 0, 0, 0.4)'
+              : '0 20px 60px rgba(102, 126, 234, 0.3)',
             '&::before': {
               content: '""',
               position: 'absolute',
               top: 0,
-              left: 0,
               right: 0,
-              bottom: 0,
-              background: 'rgba(255, 255, 255, 0.05)',
-              borderRadius: 4,
+              width: 200,
+              height: 200,
+              background: 'rgba(255, 255, 255, 0.1)',
+              borderRadius: '50%',
+              transform: 'translate(50px, -50px)',
             }
           }}
         >
-          <Box sx={{ position: 'relative', zIndex: 1 }}>
-            <Stack
-              direction={{ xs: 'column', sm: 'row' }}
-              alignItems={{ xs: 'flex-start', sm: 'center' }}
-              spacing={{ xs: 2, sm: 3 }}
-              sx={{ mb: { xs: 2, sm: 3 } }}
+          <Box sx={{
+            display: 'flex',
+            alignItems: 'center',
+            mb: 2,
+            position: 'relative',
+            zIndex: 1
+          }}>
+            <Avatar
+              sx={{
+                mr: 2,
+                bgcolor: 'rgba(255, 255, 255, 0.2)',
+                width: 56,
+                height: 56
+              }}
             >
-              <Avatar
+              <DatabaseOutlined sx={{ fontSize: 28 }} />
+            </Avatar>
+            <Box>
+              <Typography
+                variant="h4"
                 sx={{
-                  width: { xs: 48, sm: 56 },
-                  height: { xs: 48, sm: 56 },
-                  bgcolor: 'rgba(255, 255, 255, 0.2)',
-                  backdropFilter: 'blur(10px)'
+                  mb: 1,
+                  fontWeight: 700,
+                  fontSize: { xs: '1.8rem', md: '2.2rem' }
                 }}
               >
-                <DatabaseOutlined sx={{ fontSize: { xs: 24, sm: 28 } }} />
-              </Avatar>
-              <Box>
-                <Typography
-                  variant="h4"
-                  component="h1"
-                  sx={{
-                    fontSize: { xs: '1.75rem', sm: '2.25rem' },
-                    fontWeight: 700,
-                    mb: 1
-                  }}
-                >
-                  My Nodes
-                </Typography>
-                <Typography
-                  variant="subtitle1"
-                  sx={{
-                    fontSize: { xs: '0.9rem', sm: '1rem' },
-                    opacity: 0.9,
-                    fontWeight: 400
-                  }}
-                >
-                  Manage and monitor your CyberFly network nodes
-                </Typography>
-              </Box>
-            </Stack>
-
-            {account && (
-              <Box
+                My Nodes
+              </Typography>
+              <Typography
+                variant="body1"
                 sx={{
-                  p: 2,
-                  bgcolor: 'rgba(255, 255, 255, 0.1)',
-                  borderRadius: 2,
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)'
+                  opacity: 0.9,
+                  fontSize: { xs: '0.9rem', md: '1rem' }
                 }}
               >
-                <Stack direction="row" alignItems="center" spacing={2}>
-                  <WalletOutlined sx={{ fontSize: 20, opacity: 0.8 }} />
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      fontFamily: 'monospace',
-                      fontSize: { xs: '0.75rem', sm: '0.875rem' },
-                      fontWeight: 500
-                    }}
-                  >
-                    {isMobile ? `${account.slice(0, 12)}...${account.slice(-6)}` : account}
-                  </Typography>
-                </Stack>
-              </Box>
-            )}
+                Manage and monitor your Cyberfly network nodes
+              </Typography>
+            </Box>
           </Box>
-        </Box>
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', position: 'relative', zIndex: 1 }}>
+            <Chip
+              icon={<CheckCircleOutlined />}
+              label="Node Management"
+              sx={{
+                bgcolor: 'rgba(255, 255, 255, 0.15)',
+                color: 'white',
+                '& .MuiChip-icon': { color: 'white' }
+              }}
+            />
+            <Chip
+              icon={<CheckCircleOutlined />}
+              label="Staking Dashboard"
+              sx={{
+                bgcolor: 'rgba(255, 255, 255, 0.15)',
+                color: 'white',
+                '& .MuiChip-icon': { color: 'white' }
+              }}
+            />
+            <Chip
+              icon={<CheckCircleOutlined />}
+              label="Performance Tracking"
+              sx={{
+                bgcolor: 'rgba(255, 255, 255, 0.15)',
+                color: 'white',
+                '& .MuiChip-icon': { color: 'white' }
+              }}
+            />
+          </Box>
+        </Paper>
 
         {loading && (
           <Card

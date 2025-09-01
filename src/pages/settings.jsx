@@ -36,6 +36,7 @@ import {
 import { getNode } from '../services/pact-services'
 import { getNodeInfo } from '../services/node-services'
 import { useDarkMode } from '../contexts/DarkModeContext';
+import GradientHeader from '../components/GradientHeader';
 
 const Settings = () => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();

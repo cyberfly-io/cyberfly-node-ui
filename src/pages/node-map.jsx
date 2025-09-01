@@ -23,6 +23,7 @@ import {
 } from '@mui/icons-material'
 import { getHost, getNodeInfo } from '../services/node-services'
 import { useDarkMode } from '../contexts/DarkModeContext'
+import GradientHeader from '../components/GradientHeader'
 
 const NodeMap = () => {
     const [ipData, setIpData] = useState([])
@@ -198,27 +199,11 @@ const NodeMap = () => {
 
     return (
       <Container maxWidth="xl" sx={{ py: 3 }}>
-        <Box
-          sx={{
-            p: 3,
-            mb: 3,
-            background: (theme) => isDarkMode
-              ? 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
-              : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            borderRadius: 2,
-            color: 'white'
-          }}
-        >
-          <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
-            <Public color="inherit" />
-            <Typography variant="h4" component="h1">
-              Node Explorer
-            </Typography>
-          </Stack>
-          <Typography variant="h6">
-            Interactive world map of CyberFly network nodes
-          </Typography>
-        </Box>
+        <GradientHeader
+          icon={<Public sx={{ fontSize: 28 }} />}
+          title="Node Explorer"
+          subtitle="Interactive world map of CyberFly network nodes"
+        />
 
         <Stack spacing={3}>
           {/* Statistics Dashboard */}

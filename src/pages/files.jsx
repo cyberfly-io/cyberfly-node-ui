@@ -66,7 +66,7 @@ const Files = () => {
       {/* Enhanced Header Section */}
       <Fade in={true} timeout={800}>
         <Paper
-          elevation={4}
+          elevation={6}
           sx={{
             p: { xs: 3, md: 4 },
             mb: { xs: 3, md: 4 },
@@ -85,8 +85,8 @@ const Files = () => {
               position: 'absolute',
               top: 0,
               right: 0,
-              width: 300,
-              height: 300,
+              width: 200,
+              height: 200,
               background: 'rgba(255, 255, 255, 0.1)',
               borderRadius: '50%',
               transform: 'translate(50px, -50px)',
@@ -194,84 +194,7 @@ const Files = () => {
               }
             }}
           >
-            <CardContent sx={{ p: { xs: 3, md: 4 }, position: 'relative', zIndex: 1 }}>
-              <Grid container spacing={4} alignItems="center">
-                <Grid item xs={12} md={7}>
-                  <Box>
-                    <Typography
-                      variant="h3"
-                      sx={{
-                        mb: 2,
-                        fontWeight: 800,
-                        background: isDarkMode
-                          ? 'linear-gradient(45deg, #ffffff 30%, #e0e0e0 90%)'
-                          : 'linear-gradient(45deg, #1a1a1a 30%, #666 90%)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        fontSize: { xs: '2rem', md: '2.5rem' }
-                      }}
-                    >
-                      File Upload Center
-                    </Typography>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        mb: 3,
-                        color: isDarkMode ? '#b0b0b0' : '#666',
-                        fontWeight: 400,
-                        lineHeight: 1.6
-                      }}
-                    >
-                      Upload files to the decentralized Cyberfly network for secure, distributed storage and sharing
-                    </Typography>
-                    <Button
-                      variant="contained"
-                      size="large"
-                      endIcon={<ArrowForward />}
-                      sx={{
-                        borderRadius: 3,
-                        px: 4,
-                        py: 1.5,
-                        fontWeight: 600,
-                        textTransform: 'none',
-                        boxShadow: '0 4px 20px rgba(25, 118, 210, 0.3)',
-                        '&:hover': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 8px 30px rgba(25, 118, 210, 0.4)',
-                        },
-                        transition: 'all 0.3s ease'
-                      }}
-                    >
-                      Get Started
-                    </Button>
-                  </Box>
-                </Grid>
-                <Grid item xs={12} md={5} sx={{ display: 'flex', justifyContent: 'center' }}>
-                  <Zoom in={true} timeout={1200} style={{ transitionDelay: '400ms' }}>
-                    <Box
-                      sx={{
-                        p: 3,
-                        borderRadius: '50%',
-                        background: isDarkMode
-                          ? 'rgba(76, 175, 80, 0.1)'
-                          : 'rgba(76, 175, 80, 0.05)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                    >
-                      <CloudUpload
-                        sx={{
-                          fontSize: { xs: 80, md: 100 },
-                          color: 'success.main',
-                          opacity: 0.8
-                        }}
-                      />
-                    </Box>
-                  </Zoom>
-                </Grid>
-              </Grid>
-            </CardContent>
+            
           </Card>
         </Grow>
 

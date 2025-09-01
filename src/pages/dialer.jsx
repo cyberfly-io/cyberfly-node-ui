@@ -26,6 +26,7 @@ import {
 import { dialNode, findPeer } from '../services/node-services'
 import ReactJson from 'react-json-view'
 import { useDarkMode } from '../contexts/DarkModeContext'
+import GradientHeader from '../components/GradientHeader'
 import { getNode } from '../services/pact-services'
 
 const Dialer = () => {
@@ -103,40 +104,23 @@ const Dialer = () => {
 
   return (
     <Container maxWidth="xl" sx={{ py: 3 }}>
-      <Box
-        sx={{
-          p: 3,
-          mb: 3,
-          background: (theme) => isDarkMode
-            ? 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
-            : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          borderRadius: 2,
-          color: 'white'
-        }}
-      >
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Box>
-            <Typography variant="h4" component="h1" gutterBottom>
-              Network Connection Tools
-            </Typography>
-            <Typography variant="body1">
-              Test multi-address connections and find network peers
-            </Typography>
-          </Box>
-          {(peerInfo || nodeInfo) && (
-            <Button
-              size="small"
-              variant="outlined"
-              color="error"
-              startIcon={<Cancel />}
-              onClick={clearResults}
-              sx={{ color: 'white', borderColor: 'white' }}
-            >
-              Clear Results
-            </Button>
-          )}
-        </Stack>
-      </Box>
+      <GradientHeader
+        icon={<ElectricBolt />}
+        title="Network Connection Tools"
+        subtitle="Test multi-address connections and find network peers"
+        actions={(peerInfo || nodeInfo) && (
+          <Button
+            size="small"
+            variant="outlined"
+            color="error"
+            startIcon={<Cancel />}
+            onClick={clearResults}
+            sx={{ color: 'white', borderColor: 'white' }}
+          >
+            Clear Results
+          </Button>
+        )}
+      />
 
       <Snackbar
         open={snackbar.open}
