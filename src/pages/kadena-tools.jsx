@@ -1,32 +1,39 @@
-import { PageContainer } from '@ant-design/pro-components'
-import {
-  Button, message as msg, Card, Space, Typography, Row, Col,
-  Statistic, Tag, Tabs, Alert, Input, Tooltip, Empty, Descriptions,
-  Badge, Modal as AntModal, Form, Select, Table, Grid
-} from 'antd';
-import {
-  KeyOutlined, CopyOutlined, DownloadOutlined, HistoryOutlined,
-  CheckCircleOutlined, ExclamationCircleOutlined, InfoCircleOutlined,
-  ThunderboltOutlined, SafetyOutlined, FileTextOutlined, LockOutlined,
-  EyeOutlined, EyeInvisibleOutlined, PlusOutlined, DeleteOutlined
-} from '@ant-design/icons';
-import { genKeyPair } from '@kadena/cryptography-utils';
 import React, { useEffect, useState } from 'react';
+import {
+  Button, Card, CardContent, Typography, Box, Grid, Chip, Badge,
+  Tabs, Tab, Alert, TextField, Tooltip, Modal, Dialog, DialogTitle,
+  DialogContent, DialogActions, Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow, Paper, TablePagination, Stack, useTheme, useMediaQuery,
+  Snackbar, Alert as MuiAlert, IconButton, InputAdornment
+} from '@mui/material';
+import {
+  VpnKey as KeyOutlined,
+  ContentCopy as CopyOutlined,
+  Download as DownloadOutlined,
+  History as HistoryOutlined,
+  CheckCircle as CheckCircleOutlined,
+  Warning as ExclamationCircleOutlined,
+  Info as InfoCircleOutlined,
+  ElectricBolt as ThunderboltOutlined,
+  Security as SafetyOutlined,
+  Description as FileTextOutlined,
+  Lock as LockOutlined,
+  Visibility as EyeOutlined,
+  VisibilityOff as EyeInvisibleOutlined,
+  Add as PlusOutlined,
+  Delete as DeleteOutlined
+} from '@mui/icons-material';
+import { genKeyPair } from '@kadena/cryptography-utils';
 import { useDarkMode } from '../contexts/DarkModeContext';
-
-const { Title, Text } = Typography;
-const { TabPane } = Tabs;
-const { TextArea } = Input;
-const { Option } = Select;
-const { useBreakpoint } = Grid;
 
 const KadenaTools = () => {
   const { isDarkMode } = useDarkMode();
-  const screens = useBreakpoint();
-  const [messageApi, contextHolder] = msg.useMessage();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
   const [keypair, setKeypair] = useState(null);
   const [keypairs, setKeypairs] = useState([]);
-  const [activeTab, setActiveTab] = useState('generate');
+  const [activeTab, setActiveTab] = useState(0);
   const [showPrivateKey, setShowPrivateKey] = useState({});
   const [keyStats, setKeyStats] = useState({
     totalKeys: 0,
@@ -36,7 +43,16 @@ const KadenaTools = () => {
   const [selectedKeypair, setSelectedKeypair] = useState(null);
   const [keyModalVisible, setKeyModalVisible] = useState(false);
   const [importModalVisible, setImportModalVisible] = useState(false);
-  const [importForm] = Form.useForm();
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const showMessage = (message, severity = 'info') => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
 
   // Load saved keypairs from localStorage
   useEffect(() => {
@@ -102,21 +118,101 @@ const KadenaTools = () => {
 
     // Auto-save to file
     saveAsFile(newKeypair.secretKey, `kadena-privatekey-${newKeypair.secretKey.substring(0, 8)}.txt`);
-    messageApi.success('New keypair generated and saved!');
+    showMessage('New keypair generated and saved!', 'success');
   };
 
   const copyToClipboard = (text, type = 'key') => {
     navigator.clipboard.writeText(text);
-    messageApi.success(`${type === 'key' ? 'Private key' : 'Public key'} copied to clipboard!`);
+    showMessage(`${type === 'key' ? 'Private key' : 'Public key'} copied to clipboard!`, 'success');
   };
 
   const deleteKeypair = (id) => {
     const updated = keypairs.filter(k => k.id !== id);
     saveKeypairs(updated);
-    messageApi.success('Keypair deleted successfully');
+    showMessage('Keypair deleted successfully', 'success');
   };
 
- 
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const renderTableRow = (record, index) => (
+    <TableRow key={record.id} hover>
+      <TableCell>
+        <Typography variant="body2" fontWeight="medium">
+          {record.label}
+        </Typography>
+      </TableCell>
+      <TableCell>
+        <Typography
+          variant="body2"
+          sx={{
+            fontFamily: 'monospace',
+            fontSize: '0.75rem',
+            wordBreak: 'break-all',
+            cursor: 'pointer',
+            '&:hover': { color: 'primary.main' }
+          }}
+          onClick={() => copyToClipboard(record.publicKey, 'public')}
+        >
+          {record.publicKey.substring(0, 20)}...
+        </Typography>
+      </TableCell>
+      <TableCell>
+        <Typography variant="body2">
+          {new Date(record.createdAt).toLocaleDateString()}
+        </Typography>
+      </TableCell>
+      <TableCell>
+        <Stack direction="row" spacing={1}>
+          <IconButton
+            size="small"
+            onClick={() => {
+              setSelectedKeypair(record);
+              setKeyModalVisible(true);
+            }}
+            title="View Details"
+          >
+            <EyeOutlined />
+          </IconButton>
+          <IconButton
+            size="small"
+            onClick={() => copyToClipboard(record.publicKey, 'public')}
+            title="Copy Public Key"
+          >
+            <CopyOutlined />
+          </IconButton>
+          <IconButton
+            size="small"
+            onClick={() => copyToClipboard(record.secretKey, 'private')}
+            title="Copy Private Key"
+          >
+            <CopyOutlined />
+          </IconButton>
+          <IconButton
+            size="small"
+            onClick={() => saveAsFile(record.secretKey, `kadena-privatekey-${record.label}.txt`)}
+            title="Download Private Key"
+          >
+            <DownloadOutlined />
+          </IconButton>
+          <IconButton
+            size="small"
+            color="error"
+            onClick={() => deleteKeypair(record.id)}
+            title="Delete Keypair"
+          >
+            <DeleteOutlined />
+          </IconButton>
+        </Stack>
+      </TableCell>
+    </TableRow>
+  );
 
   const cardStyle = {
     background: isDarkMode
@@ -139,359 +235,384 @@ const KadenaTools = () => {
     color: 'white'
   };
 
-  const columns = [
-    {
-      title: 'Label',
-      dataIndex: 'label',
-      key: 'label',
-      render: (text, record) => (
-        <Space>
-          <KeyOutlined />
-          <span>{text}</span>
-          {record.imported && <Tag color="orange">Imported</Tag>}
-        </Space>
-      )
-    },
-    {
-      title: 'Public Key',
-      dataIndex: 'publicKey',
-      key: 'publicKey',
-      render: (text) => (
-        <Text code copyable style={{ fontSize: '12px' }}>
-          {text.substring(0, 20)}...
-        </Text>
-      )
-    },
-    {
-      title: 'Created',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      render: (text) => new Date(text).toLocaleDateString()
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      render: (_, record) => (
-        <Space size="small">
-          <Tooltip title="View Details">
-            <Button
-              type="text"
-              size="small"
-              icon={<EyeOutlined />}
-              onClick={() => {
-                setSelectedKeypair(record);
-                setKeyModalVisible(true);
-              }}
-            />
-          </Tooltip>
-          <Tooltip title="Copy Public Key">
-            <Button
-              type="text"
-              size="small"
-              icon={<CopyOutlined />}
-              onClick={() => copyToClipboard(record.publicKey, 'public')}
-            />
-          </Tooltip>
-          <Tooltip title="Download Private Key">
-            <Button
-              type="text"
-              size="small"
-              icon={<DownloadOutlined />}
-              onClick={() => saveAsFile(record.secretKey, `kadena-privatekey-${record.label}.txt`)}
-            />
-          </Tooltip>
-          <Tooltip title="Delete">
-            <Button
-              type="text"
-              size="small"
-              danger
-              icon={<DeleteOutlined />}
-              onClick={() => deleteKeypair(record.id)}
-            />
-          </Tooltip>
-        </Space>
-      )
-    }
-  ];
-
   return (
-    <PageContainer
-      title={
-        <Space>
-          <KeyOutlined />
-          <span>Kadena Tools</span>
-        </Space>
-      }
-      subTitle="Cryptographic key management and blockchain utilities"
-      header={{
-        style: {
+    <Box sx={{ padding: '24px' }}>
+      {/* Header */}
+      <Box
+        sx={{
           padding: '16px 0',
           background: isDarkMode
             ? 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
             : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           borderRadius: '8px',
-          marginBottom: '24px'
-        }
-      }}
-    >
-      {contextHolder}
+          marginBottom: '24px',
+          color: 'white'
+        }}
+      >
+        <Stack direction="row" alignItems="center" spacing={2} sx={{ px: 3 }}>
+          <KeyOutlined />
+          <Typography variant="h5">Kadena Tools</Typography>
+        </Stack>
+        <Typography variant="body2" sx={{ px: 3, mt: 1, opacity: 0.8 }}>
+          Cryptographic key management and blockchain utilities
+        </Typography>
+      </Box>
 
-    
-      {/* Main Content */}
-      <Card style={cardStyle} bodyStyle={{ padding: 0 }}>
-        <Tabs activeKey={activeTab} onChange={setActiveTab} type="card">
-          {/* Generate Keys Tab */}
-          <TabPane
-            tab={
-              <Space>
-                <KeyOutlined />
-                <span>Generate Keys</span>
-              </Space>
+      <Card sx={{
+        borderRadius: '12px',
+        boxShadow: isDarkMode
+          ? '0 4px 12px rgba(0,0,0,0.3)'
+          : '0 4px 12px rgba(0,0,0,0.1)',
+        background: isDarkMode
+          ? 'linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%)'
+          : 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)'
+      }}>
+        <Tabs value={activeTab} onChange={(event, newValue) => setActiveTab(newValue)} sx={{ borderBottom: 1, borderColor: 'divider' }}>
+          <Tab
+            icon={<KeyOutlined />}
+            iconPosition="start"
+            label="Generate Keys"
+            sx={{ minHeight: 48 }}
+          />
+          <Tab
+            icon={<LockOutlined />}
+            iconPosition="start"
+            label={
+              <Badge badgeContent={keypairs.length} color="primary">
+                Manage Keys
+              </Badge>
             }
-            key="generate"
-          >
-            <div style={{ padding: '24px' }}>
-              <Row gutter={[24, 24]}>
-                <Col xs={24} md={12}>
-                  <Card
-                    title={
-                      <Space>
-                        <ThunderboltOutlined />
-                        <span>Generate New Keypair</span>
-                      </Space>
-                    }
-                    style={cardStyle}
-                  >
-                    <Space direction="vertical" size="large" style={{ width: '100%' }}>
-                      <Text>
+            sx={{ minHeight: 48 }}
+          />
+        </Tabs>
+
+        <Box sx={{ p: 3 }}>
+          {/* Generate Keys Tab */}
+          {activeTab === 0 && (
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
+                <Card sx={{
+                  borderRadius: '8px',
+                  boxShadow: 2,
+                  height: '100%'
+                }}>
+                  <CardContent>
+                    <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
+                      <ThunderboltOutlined />
+                      <Typography variant="h6">Generate New Keypair</Typography>
+                    </Stack>
+                    <Stack direction="column" spacing={2} sx={{ width: '100%' }}>
+                      <Typography variant="body2">
                         Generate a new cryptographic keypair for Kadena blockchain operations.
                         Your private key will be automatically saved to a file and stored locally.
-                      </Text>
+                      </Typography>
 
-                      <Alert
-                        message="Security Notice"
-                        description="Keep your private keys secure and never share them. The generated keys are stored locally in your browser."
-                        type="warning"
-                        showIcon
-                        style={{ marginBottom: 16 }}
-                      />
+                      <Alert severity="warning" sx={{ mb: 2 }}>
+                        <Typography variant="body2" fontWeight="bold">Security Notice</Typography>
+                        <Typography variant="body2">
+                          Keep your private keys secure and never share them. The generated keys are stored locally in your browser.
+                        </Typography>
+                      </Alert>
 
                       <Button
-                        type="primary"
+                        variant="contained"
                         size="large"
-                        icon={<KeyOutlined />}
+                        startIcon={<KeyOutlined />}
                         onClick={generateKeypair}
-                        block
+                        fullWidth
                       >
                         Generate New Keypair
                       </Button>
-                    </Space>
-                  </Card>
-                </Col>
+                    </Stack>
+                  </CardContent>
+                </Card>
+              </Grid>
 
-                <Col xs={24} md={12}>
-                  <Card
-                    title={
-                      <Space>
-                        <InfoCircleOutlined />
-                        <span>Keypair Information</span>
-                      </Space>
-                    }
-                    style={cardStyle}
-                  >
+              <Grid item xs={12} md={6}>
+                <Card sx={{
+                  borderRadius: '8px',
+                  boxShadow: 2,
+                  height: '100%'
+                }}>
+                  <CardContent>
+                    <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
+                      <InfoCircleOutlined />
+                      <Typography variant="h6">Keypair Information</Typography>
+                    </Stack>
                     {keypair ? (
-                      <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                        <div>
-                          <Text strong>Public Key:</Text>
-                          <br />
-                          <Text code copyable style={{ wordBreak: 'break-all' }}>
+                      <Stack direction="column" spacing={2} sx={{ width: '100%' }}>
+                        <Box>
+                          <Typography variant="body2" fontWeight="bold">Public Key:</Typography>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              fontFamily: 'monospace',
+                              wordBreak: 'break-all',
+                              bgcolor: 'grey.100',
+                              p: 1,
+                              borderRadius: 1,
+                              mt: 1,
+                              cursor: 'pointer',
+                              '&:hover': { bgcolor: 'grey.200' }
+                            }}
+                            onClick={() => copyToClipboard(keypair.publicKey, 'public')}
+                          >
                             {keypair.publicKey}
-                          </Text>
-                        </div>
+                          </Typography>
+                        </Box>
 
-                        <div>
-                          <Text strong>Private Key:</Text>
-                          <br />
-                          <Space>
-                            <Text code style={{ wordBreak: 'break-all' }}>
+                        <Box>
+                          <Typography variant="body2" fontWeight="bold">Private Key:</Typography>
+                          <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 1 }}>
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                fontFamily: 'monospace',
+                                wordBreak: 'break-all',
+                                bgcolor: 'grey.100',
+                                p: 1,
+                                borderRadius: 1,
+                                flex: 1
+                              }}
+                            >
                               {showPrivateKey[keypair.id] ?
                                 keypair.secretKey :
                                 `${keypair.secretKey.substring(0, 20)}...`
                               }
-                            </Text>
-                            <Button
-                              type="text"
+                            </Typography>
+                            <IconButton
                               size="small"
-                              icon={showPrivateKey[keypair.id] ? <EyeInvisibleOutlined /> : <EyeOutlined />}
                               onClick={() => setShowPrivateKey(prev => ({
                                 ...prev,
                                 [keypair.id]: !prev[keypair.id]
                               }))}
-                            />
-                          </Space>
-                        </div>
+                            >
+                              {showPrivateKey[keypair.id] ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                            </IconButton>
+                          </Stack>
+                        </Box>
 
-                        <Space>
+                        <Stack direction="row" spacing={1}>
                           <Button
-                            icon={<CopyOutlined />}
+                            startIcon={<CopyOutlined />}
                             onClick={() => copyToClipboard(keypair.publicKey, 'public')}
+                            size="small"
                           >
                             Copy Public
                           </Button>
                           <Button
-                            icon={<CopyOutlined />}
+                            startIcon={<CopyOutlined />}
                             onClick={() => copyToClipboard(keypair.secretKey, 'private')}
+                            size="small"
                           >
                             Copy Private
                           </Button>
                           <Button
-                            icon={<DownloadOutlined />}
+                            startIcon={<DownloadOutlined />}
                             onClick={() => saveAsFile(keypair.secretKey, `kadena-privatekey-${keypair.label}.txt`)}
+                            size="small"
                           >
                             Download
                           </Button>
-                        </Space>
-                      </Space>
+                        </Stack>
+                      </Stack>
                     ) : (
-                      <Empty
-                        description="No keypair generated yet"
-                        image={Empty.PRESENTED_IMAGE_SIMPLE}
-                      />
+                      <Box sx={{ textAlign: 'center', py: 4 }}>
+                        <KeyOutlined sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+                        <Typography variant="body2" color="text.secondary">
+                          No keypair generated yet
+                        </Typography>
+                      </Box>
                     )}
-                  </Card>
-                </Col>
-              </Row>
-            </div>
-          </TabPane>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+          )}
 
           {/* Manage Keys Tab */}
-          <TabPane
-            tab={
-              <Space>
-                <LockOutlined />
-                <span>Manage Keys</span>
-                <Badge count={keypairs.length} size="small" />
-              </Space>
-            }
-            key="manage"
-          >
-            <div style={{ padding: '24px' }}>
-              <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'space-between' }}>
-                <Title level={4} style={{ margin: 0 }}>Your Keypairs</Title>
-                <Space>
-                  <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={generateKeypair}
-                  >
-                    Generate New
-                  </Button>
-                </Space>
-              </Space>
+          {activeTab === 1 && (
+            <Box>
+              <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+                <Typography variant="h6">Your Keypairs</Typography>
+                <Button
+                  variant="contained"
+                  startIcon={<PlusOutlined />}
+                  onClick={generateKeypair}
+                >
+                  Generate New
+                </Button>
+              </Stack>
 
               {keypairs.length > 0 ? (
-                <Table
-                  columns={columns}
-                  dataSource={keypairs}
-                  rowKey="id"
-                  pagination={{ pageSize: 10 }}
-                  size="small"
-                />
+                <TableContainer component={Paper} sx={{ maxHeight: 600 }}>
+                  <Table stickyHeader>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell><Typography variant="subtitle2" fontWeight="bold">Label</Typography></TableCell>
+                        <TableCell><Typography variant="subtitle2" fontWeight="bold">Public Key</Typography></TableCell>
+                        <TableCell><Typography variant="subtitle2" fontWeight="bold">Created</Typography></TableCell>
+                        <TableCell><Typography variant="subtitle2" fontWeight="bold">Actions</Typography></TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {keypairs
+                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                        .map((record, index) => renderTableRow(record, index))
+                      }
+                    </TableBody>
+                  </Table>
+                  <TablePagination
+                    rowsPerPageOptions={[5, 10, 25]}
+                    component="div"
+                    count={keypairs.length}
+                    rowsPerPage={rowsPerPage}
+                    page={page}
+                    onPageChange={handleChangePage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                  />
+                </TableContainer>
               ) : (
-                <Empty
-                  description="No keypairs found. Generate or import your first keypair."
-                  image={Empty.PRESENTED_IMAGE_SIMPLE}
-                />
+                <Box sx={{ textAlign: 'center', py: 6 }}>
+                  <LockOutlined sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+                  <Typography variant="body1" color="text.secondary">
+                    No keypairs found. Generate or import your first keypair.
+                  </Typography>
+                </Box>
               )}
-            </div>
-          </TabPane>
-
-        
-        </Tabs>
+            </Box>
+          )}
+        </Box>
       </Card>
 
       {/* Key Details Modal */}
-      <AntModal
-        title={
-          <Space>
-            <KeyOutlined />
-            <span>Keypair Details</span>
-          </Space>
-        }
+      <Modal
         open={keyModalVisible}
-        onCancel={() => setKeyModalVisible(false)}
-        footer={null}
-        width={600}
+        onClose={() => setKeyModalVisible(false)}
+        maxWidth="md"
+        fullWidth
       >
-        {selectedKeypair && (
-          <Space direction="vertical" size="large" style={{ width: '100%' }}>
-            <Card size="small">
-              <Descriptions column={1}>
-                <Descriptions.Item label="Label">{selectedKeypair.label}</Descriptions.Item>
-               
-                <Descriptions.Item label="Created">
-                  {new Date(selectedKeypair.createdAt).toLocaleString()}
-                </Descriptions.Item>
-                <Descriptions.Item label="Type">
-                  {selectedKeypair.imported ? 'Imported' : 'Generated'}
-                </Descriptions.Item>
-              </Descriptions>
-            </Card>
+        <Dialog>
+          <DialogTitle>
+            <Stack direction="row" alignItems="center" spacing={2}>
+              <KeyOutlined />
+              <Typography variant="h6">Keypair Details</Typography>
+            </Stack>
+          </DialogTitle>
+          <DialogContent>
+            {selectedKeypair && (
+              <Stack direction="column" spacing={3} sx={{ width: '100%', pt: 1 }}>
+                <Card>
+                  <CardContent>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} sm={6}>
+                        <Typography variant="body2" color="text.secondary">Label</Typography>
+                        <Typography variant="body1">{selectedKeypair.label}</Typography>
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <Typography variant="body2" color="text.secondary">Created</Typography>
+                        <Typography variant="body1">
+                          {new Date(selectedKeypair.createdAt).toLocaleString()}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <Typography variant="body2" color="text.secondary">Type</Typography>
+                        <Chip
+                          label={selectedKeypair.imported ? 'Imported' : 'Generated'}
+                          color={selectedKeypair.imported ? 'warning' : 'success'}
+                          size="small"
+                        />
+                      </Grid>
+                    </Grid>
+                  </CardContent>
+                </Card>
 
-            <Card
-              title="Public Key"
-              size="small"
-              extra={
-                <Button
-                  icon={<CopyOutlined />}
-                  onClick={() => copyToClipboard(selectedKeypair.publicKey, 'public')}
-                >
-                  Copy
-                </Button>
-              }
-            >
-              <Text code style={{ wordBreak: 'break-all' }}>
-                {selectedKeypair.publicKey}
-              </Text>
-            </Card>
+                <Card>
+                  <CardContent>
+                    <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
+                      <Typography variant="h6">Public Key</Typography>
+                      <IconButton
+                        size="small"
+                        onClick={() => copyToClipboard(selectedKeypair.publicKey, 'public')}
+                      >
+                        <CopyOutlined />
+                      </IconButton>
+                    </Stack>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontFamily: 'monospace',
+                        wordBreak: 'break-all',
+                        bgcolor: 'grey.100',
+                        p: 2,
+                        borderRadius: 1
+                      }}
+                    >
+                      {selectedKeypair.publicKey}
+                    </Typography>
+                  </CardContent>
+                </Card>
 
-            <Card
-              title="Private Key"
-              size="small"
-              extra={
-                <Space>
-                  <Button
-                    icon={showPrivateKey[selectedKeypair.id] ? <EyeInvisibleOutlined /> : <EyeOutlined />}
-                    onClick={() => setShowPrivateKey(prev => ({
-                      ...prev,
-                      [selectedKeypair.id]: !prev[selectedKeypair.id]
-                    }))}
-                  >
-                    {showPrivateKey[selectedKeypair.id] ? 'Hide' : 'Show'}
-                  </Button>
-                  <Button
-                    icon={<CopyOutlined />}
-                    onClick={() => copyToClipboard(selectedKeypair.secretKey, 'private')}
-                  >
-                    Copy
-                  </Button>
-                </Space>
-              }
-            >
-              <Text code style={{ wordBreak: 'break-all' }}>
-                {showPrivateKey[selectedKeypair.id] ?
-                  selectedKeypair.secretKey :
-                  `${selectedKeypair.secretKey.substring(0, 20)}...`
-                }
-              </Text>
-            </Card>
-          </Space>
-        )}
-      </AntModal>
+                <Card>
+                  <CardContent>
+                    <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
+                      <Typography variant="h6">Private Key</Typography>
+                      <Stack direction="row" spacing={1}>
+                        <IconButton
+                          size="small"
+                          onClick={() => setShowPrivateKey(prev => ({
+                            ...prev,
+                            [selectedKeypair.id]: !prev[selectedKeypair.id]
+                          }))}
+                        >
+                          {showPrivateKey[selectedKeypair.id] ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          onClick={() => copyToClipboard(selectedKeypair.secretKey, 'private')}
+                        >
+                          <CopyOutlined />
+                        </IconButton>
+                      </Stack>
+                    </Stack>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontFamily: 'monospace',
+                        wordBreak: 'break-all',
+                        bgcolor: 'grey.100',
+                        p: 2,
+                        borderRadius: 1
+                      }}
+                    >
+                      {showPrivateKey[selectedKeypair.id] ?
+                        selectedKeypair.secretKey :
+                        `${selectedKeypair.secretKey.substring(0, 20)}...`
+                      }
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Stack>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setKeyModalVisible(false)}>Close</Button>
+          </DialogActions>
+        </Dialog>
+      </Modal>
 
-    
-    </PageContainer>
-  )
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <MuiAlert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </MuiAlert>
+      </Snackbar>
+    </Box>
+  );
 }
 
 export default KadenaTools

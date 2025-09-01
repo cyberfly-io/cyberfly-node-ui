@@ -1,23 +1,41 @@
-import { PageContainer } from '@ant-design/pro-components'
 import React, { useEffect, useState } from 'react'
-import { Card, Row, Col, Space, Typography, Spin, Statistic, Tag, Divider, Button, Switch, Select, message } from 'antd';
+import {
+  Container,
+  Card,
+  CardContent,
+  Typography,
+  Grid,
+  Stack,
+  CircularProgress,
+  Backdrop,
+  Chip,
+  Divider,
+  Button,
+  Switch,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Box,
+  Paper,
+  Snackbar,
+  Alert
+} from '@mui/material'
+import {
+  Settings as SettingsIcon,
+  Person as PersonIcon,
+  Public as PublicIcon,
+  Storage as StorageIcon,
+  Api as ApiIcon,
+  Hub as HubIcon,
+  Bolt as FlashIcon,
+  Save as SaveIcon,
+  Refresh as RefreshIcon,
+  ContentCopy as ContentCopyIcon
+} from '@mui/icons-material'
 import { getNode } from '../services/pact-services'
 import { getNodeInfo } from '../services/node-services'
 import { useDarkMode } from '../contexts/DarkModeContext';
-import {
-  SettingOutlined,
-  UserOutlined,
-  GlobalOutlined,
-  DatabaseOutlined,
-  ApiOutlined,
-  NodeIndexOutlined,
-  ThunderboltOutlined,
-  SaveOutlined,
-  ReloadOutlined
-} from '@ant-design/icons';
-
-const { Text, Paragraph } = Typography;
-const { Option } = Select;
 
 const Settings = () => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
@@ -30,6 +48,7 @@ const Settings = () => {
     autoRefresh: true,
     refreshInterval: 5000
   })
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
 
   useEffect(()=>{
     loadNodeInfo()
@@ -73,239 +92,307 @@ const Settings = () => {
   const saveSettings = () => {
     // Here you would typically save to localStorage or backend
     localStorage.setItem('cyberfly-settings', JSON.stringify(settings))
-    message.success('Settings saved successfully!')
+    setSnackbar({ open: true, message: 'Settings saved successfully!', severity: 'success' })
+  }
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false })
   }
 
   return (
-    <PageContainer
-      title={
-        <Space>
-          <SettingOutlined />
-          <span>Settings</span>
-        </Space>
-      }
-      subTitle="Configure your node and application preferences"
-      header={{
-        style: {
-          padding: '16px 0',
+    <Container maxWidth="xl" sx={{ py: 3 }}>
+      {/* Header */}
+      <Paper
+        elevation={2}
+        sx={{
+          p: 3,
+          mb: 3,
           background: isDarkMode
             ? 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
             : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          borderRadius: '8px',
-          marginBottom: '24px'
-        }
-      }}
-      extra={[
-        <Button
-          key="refresh"
-          icon={<ReloadOutlined />}
-          onClick={loadNodeInfo}
-          loading={loading}
-        >
-          Refresh
-        </Button>,
-        <Button
-          key="save"
-          type="primary"
-          icon={<SaveOutlined />}
-          onClick={saveSettings}
-        >
-          Save Settings
-        </Button>
-      ]}
-    >
-      <Spin spinning={loading} tip="Loading settings..." size="large">
-        <Space direction="vertical" size="large" style={{ width: '100%' }}>
-          {/* Node Information Section */}
-          <Card
-            title={
-              <Space>
-                <NodeIndexOutlined />
-                <span>Node Information</span>
-              </Space>
-            }
-            bordered={false}
-            style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
-          >
-            <Row gutter={[24, 24]}>
-              <Col xs={24} sm={12} lg={8}>
-                <Statistic
-                  title="Peer ID"
-                  value={nodeInfo?.peerId ? `${nodeInfo.peerId.substring(0, 12)}...` : 'Not available'}
-                  prefix={<NodeIndexOutlined />}
-                />
+          color: 'white',
+          borderRadius: 2
+        }}
+      >
+        <Stack direction="row" alignItems="center" justifyContent="space-between">
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <SettingsIcon fontSize="large" />
+            <Box>
+              <Typography variant="h4" component="h1" fontWeight="bold">
+                Settings
+              </Typography>
+              <Typography variant="body1" sx={{ opacity: 0.8 }}>
+                Configure your node and application preferences
+              </Typography>
+            </Box>
+          </Stack>
+          <Stack direction="row" spacing={2}>
+            <Button
+              variant="outlined"
+              startIcon={<RefreshIcon />}
+              onClick={loadNodeInfo}
+              disabled={loading}
+              sx={{ color: 'white', borderColor: 'white' }}
+            >
+              Refresh
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={<SaveIcon />}
+              onClick={saveSettings}
+              sx={{ bgcolor: 'white', color: 'primary.main', '&:hover': { bgcolor: 'grey.100' } }}
+            >
+              Save Settings
+            </Button>
+          </Stack>
+        </Stack>
+      </Paper>
+
+      <Backdrop open={loading} sx={{ color: '#fff', zIndex: 9999 }}>
+        <Stack alignItems="center" spacing={2}>
+          <CircularProgress color="inherit" />
+          <Typography variant="h6">Loading settings...</Typography>
+        </Stack>
+      </Backdrop>
+      {/* Node Information Section */}
+      <Card elevation={2} sx={{ mb: 3 }}>
+        <CardContent>
+          <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 3 }}>
+            <HubIcon color="primary" />
+            <Typography variant="h5" component="h2" fontWeight="bold">
+              Node Information
+            </Typography>
+          </Stack>
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={6} lg={4}>
+              <Box>
+                <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+                  <HubIcon color="action" />
+                  <Typography variant="h6">Peer ID</Typography>
+                </Stack>
+                <Typography variant="body1" sx={{ mb: 1 }}>
+                  {nodeInfo?.peerId ? `${nodeInfo.peerId.substring(0, 12)}...` : 'Not available'}
+                </Typography>
                 {nodeInfo?.peerId && (
-                  <Paragraph
-                    copyable={{ text: nodeInfo.peerId }}
-                    style={{ marginTop: 8, fontSize: 12 }}
+                  <Button
+                    size="small"
+                    startIcon={<ContentCopyIcon />}
+                    onClick={() => navigator.clipboard.writeText(nodeInfo.peerId)}
+                    sx={{ textTransform: 'none' }}
                   >
-                    <Text type="secondary">Click to copy full peer ID</Text>
-                  </Paragraph>
+                    Copy full peer ID
+                  </Button>
                 )}
-              </Col>
-              <Col xs={24} sm={12} lg={8}>
-                <Statistic
-                  title="Node Owner"
-                  value={nodeInfo?.account ? `${nodeInfo.account.substring(0, 12)}...` : 'Not available'}
-                  prefix={<UserOutlined />}
-                />
+              </Box>
+            </Grid>
+            <Grid item xs={12} sm={6} lg={4}>
+              <Box>
+                <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+                  <PersonIcon color="action" />
+                  <Typography variant="h6">Node Owner</Typography>
+                </Stack>
+                <Typography variant="body1" sx={{ mb: 1 }}>
+                  {nodeInfo?.account ? `${nodeInfo.account.substring(0, 12)}...` : 'Not available'}
+                </Typography>
                 {nodeInfo?.account && (
-                  <Paragraph
-                    copyable={{ text: nodeInfo.account }}
-                    style={{ marginTop: 8, fontSize: 12 }}
+                  <Button
+                    size="small"
+                    startIcon={<ContentCopyIcon />}
+                    onClick={() => navigator.clipboard.writeText(nodeInfo.account)}
+                    sx={{ textTransform: 'none' }}
                   >
-                    <Text type="secondary">Click to copy full account</Text>
-                  </Paragraph>
+                    Copy full account
+                  </Button>
                 )}
-              </Col>
-              <Col xs={24} sm={12} lg={8}>
-                <Statistic
-                  title="Version"
-                  value={nodeInfo?.version || 'Unknown'}
-                  prefix={<ThunderboltOutlined />}
+              </Box>
+            </Grid>
+            <Grid item xs={12} sm={6} lg={4}>
+              <Box>
+                <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+                  <FlashIcon color="action" />
+                  <Typography variant="h6">Version</Typography>
+                </Stack>
+                <Typography variant="body1">
+                  {nodeInfo?.version || 'Unknown'}
+                </Typography>
+              </Box>
+            </Grid>
+          </Grid>
+
+          {networkNode && (
+            <>
+              <Divider sx={{ my: 3 }} />
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={6} lg={3}>
+                  <Box>
+                    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+                      <PublicIcon color="action" />
+                      <Typography variant="h6">Connected Peers</Typography>
+                    </Stack>
+                    <Typography variant="h4" color="primary">
+                      {networkNode.connected || 0}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={6} lg={3}>
+                  <Box>
+                    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+                      <ApiIcon color="action" />
+                      <Typography variant="h6">Discovered Peers</Typography>
+                    </Stack>
+                    <Typography variant="h4" color="primary">
+                      {networkNode.discovered || 0}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={6} lg={3}>
+                  <Box>
+                    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+                      <StorageIcon color="action" />
+                      <Typography variant="h6">Active Stakes</Typography>
+                    </Stack>
+                    <Typography variant="h4" color="primary">
+                      {networkNode.stakes || 0}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={6} lg={3}>
+                  <Box>
+                    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+                      <FlashIcon color="success" />
+                      <Typography variant="h6">Network Status</Typography>
+                    </Stack>
+                    <Chip label="Online" color="success" variant="outlined" />
+                  </Box>
+                </Grid>
+              </Grid>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Application Settings */}
+      <Card elevation={2} sx={{ mb: 3 }}>
+        <CardContent>
+          <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 3 }}>
+            <SettingsIcon color="primary" />
+            <Typography variant="h5" component="h2" fontWeight="bold">
+              Application Settings
+            </Typography>
+          </Stack>
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={6} lg={3}>
+              <FormControl fullWidth>
+                <InputLabel>Theme</InputLabel>
+                <Select
+                  value={settings.theme}
+                  label="Theme"
+                  onChange={(e) => handleSettingChange('theme', e.target.value)}
+                >
+                  <MenuItem value="light">Light</MenuItem>
+                  <MenuItem value="dark">Dark</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6} lg={3}>
+              <Box>
+                <Typography variant="body1" fontWeight="bold" sx={{ mb: 1 }}>
+                  Notifications
+                </Typography>
+                <Switch
+                  checked={settings.notifications}
+                  onChange={(e) => handleSettingChange('notifications', e.target.checked)}
                 />
-              </Col>
-            </Row>
+              </Box>
+            </Grid>
+            <Grid item xs={12} sm={6} lg={3}>
+              <Box>
+                <Typography variant="body1" fontWeight="bold" sx={{ mb: 1 }}>
+                  Auto Refresh
+                </Typography>
+                <Switch
+                  checked={settings.autoRefresh}
+                  onChange={(e) => handleSettingChange('autoRefresh', e.target.checked)}
+                />
+              </Box>
+            </Grid>
+            <Grid item xs={12} sm={6} lg={3}>
+              <FormControl fullWidth>
+                <InputLabel>Refresh Interval</InputLabel>
+                <Select
+                  value={settings.refreshInterval}
+                  label="Refresh Interval"
+                  onChange={(e) => handleSettingChange('refreshInterval', e.target.value)}
+                  disabled={!settings.autoRefresh}
+                >
+                  <MenuItem value={2000}>2 seconds</MenuItem>
+                  <MenuItem value={5000}>5 seconds</MenuItem>
+                  <MenuItem value={10000}>10 seconds</MenuItem>
+                  <MenuItem value={30000}>30 seconds</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
 
-            {networkNode && (
-              <>
-                <Divider />
-                <Row gutter={[24, 24]}>
-                  <Col xs={24} sm={12} lg={6}>
-                    <Statistic
-                      title="Connected Peers"
-                      value={networkNode.connected || 0}
-                      prefix={<GlobalOutlined />}
-                    />
-                  </Col>
-                  <Col xs={24} sm={12} lg={6}>
-                    <Statistic
-                      title="Discovered Peers"
-                      value={networkNode.discovered || 0}
-                      prefix={<ApiOutlined />}
-                    />
-                  </Col>
-                  <Col xs={24} sm={12} lg={6}>
-                    <Statistic
-                      title="Active Stakes"
-                      value={networkNode.stakes || 0}
-                      prefix={<DatabaseOutlined />}
-                    />
-                  </Col>
-                  <Col xs={24} sm={12} lg={6}>
-                    <Statistic
-                      title="Network Status"
-                      value="Online"
-                      valueStyle={{ color: '#52c41a' }}
-                      prefix={<ThunderboltOutlined style={{ color: '#52c41a' }} />}
-                    />
-                  </Col>
-                </Row>
-              </>
-            )}
-          </Card>
+      {/* System Information */}
+      <Card elevation={2}>
+        <CardContent>
+          <Typography variant="h5" component="h2" fontWeight="bold" sx={{ mb: 3 }}>
+            System Information
+          </Typography>
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={6} lg={3}>
+              <Box>
+                <Typography variant="h6" sx={{ mb: 1 }}>Browser</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {navigator.userAgent.split(' ').pop()}
+                </Typography>
+              </Box>
+            </Grid>
+            <Grid item xs={12} sm={6} lg={3}>
+              <Box>
+                <Typography variant="h6" sx={{ mb: 1 }}>Platform</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {navigator.platform}
+                </Typography>
+              </Box>
+            </Grid>
+            <Grid item xs={12} sm={6} lg={3}>
+              <Box>
+                <Typography variant="h6" sx={{ mb: 1 }}>Language</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {navigator.language}
+                </Typography>
+              </Box>
+            </Grid>
+            <Grid item xs={12} sm={6} lg={3}>
+              <Box>
+                <Typography variant="h6" sx={{ mb: 1 }}>Online</Typography>
+                <Chip
+                  label={navigator.onLine ? 'Yes' : 'No'}
+                  color={navigator.onLine ? 'success' : 'error'}
+                  variant="outlined"
+                />
+              </Box>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
 
-          {/* Application Settings */}
-          <Card
-            title={
-              <Space>
-                <SettingOutlined />
-                <span>Application Settings</span>
-              </Space>
-            }
-            bordered={false}
-            style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
-          >
-            <Row gutter={[24, 24]}>
-              <Col xs={24} sm={12} lg={8}>
-                <div style={{ marginBottom: 16 }}>
-                  <Text strong style={{ display: 'block', marginBottom: 8 }}>Theme</Text>
-                  <Select
-                    value={settings.theme}
-                    onChange={(value) => handleSettingChange('theme', value)}
-                    style={{ width: '100%' }}
-                  >
-                    <Option value="light">Light</Option>
-                    <Option value="dark">Dark</Option>
-                  </Select>
-                </div>
-              </Col>
-              <Col xs={24} sm={12} lg={8}>
-                <div style={{ marginBottom: 16 }}>
-                  <Text strong style={{ display: 'block', marginBottom: 8 }}>Notifications</Text>
-                  <Switch
-                    checked={settings.notifications}
-                    onChange={(checked) => handleSettingChange('notifications', checked)}
-                  />
-                </div>
-              </Col>
-              <Col xs={24} sm={12} lg={8}>
-                <div style={{ marginBottom: 16 }}>
-                  <Text strong style={{ display: 'block', marginBottom: 8 }}>Auto Refresh</Text>
-                  <Switch
-                    checked={settings.autoRefresh}
-                    onChange={(checked) => handleSettingChange('autoRefresh', checked)}
-                  />
-                </div>
-              </Col>
-              <Col xs={24} sm={12} lg={8}>
-                <div style={{ marginBottom: 16 }}>
-                  <Text strong style={{ display: 'block', marginBottom: 8 }}>Refresh Interval (ms)</Text>
-                  <Select
-                    value={settings.refreshInterval}
-                    onChange={(value) => handleSettingChange('refreshInterval', value)}
-                    style={{ width: '100%' }}
-                    disabled={!settings.autoRefresh}
-                  >
-                    <Option value={2000}>2 seconds</Option>
-                    <Option value={5000}>5 seconds</Option>
-                    <Option value={10000}>10 seconds</Option>
-                    <Option value={30000}>30 seconds</Option>
-                  </Select>
-                </div>
-              </Col>
-            </Row>
-          </Card>
-
-          {/* System Information */}
-          <Card
-            title="System Information"
-            bordered={false}
-            style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
-            size="small"
-          >
-            <Row gutter={[24, 24]}>
-              <Col xs={24} sm={12} lg={6}>
-                <Space direction="vertical" size="small">
-                  <Text strong>Browser</Text>
-                  <Text type="secondary">{navigator.userAgent.split(' ').pop()}</Text>
-                </Space>
-              </Col>
-              <Col xs={24} sm={12} lg={6}>
-                <Space direction="vertical" size="small">
-                  <Text strong>Platform</Text>
-                  <Text type="secondary">{navigator.platform}</Text>
-                </Space>
-              </Col>
-              <Col xs={24} sm={12} lg={6}>
-                <Space direction="vertical" size="small">
-                  <Text strong>Language</Text>
-                  <Text type="secondary">{navigator.language}</Text>
-                </Space>
-              </Col>
-              <Col xs={24} sm={12} lg={6}>
-                <Space direction="vertical" size="small">
-                  <Text strong>Online</Text>
-                  <Tag color={navigator.onLine ? 'success' : 'error'}>
-                    {navigator.onLine ? 'Yes' : 'No'}
-                  </Tag>
-                </Space>
-              </Col>
-            </Row>
-          </Card>
-        </Space>
-      </Spin>
-    </PageContainer>
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+    </Container>
   )
 }
 

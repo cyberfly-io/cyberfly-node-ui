@@ -1,21 +1,32 @@
-import { PageContainer } from '@ant-design/pro-components'
 import React, { useEffect, useState } from 'react'
-import { Button, Table, Card, Space, Typography, Statistic, Row, Col, Tag, Avatar, Tooltip, Input, Divider } from 'antd'
+import {
+  Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  Card, CardContent, Typography, Box, Grid, Chip, Avatar, Tooltip,
+  TextField, InputAdornment, Divider, Stack, Paper, TablePagination,
+  useTheme, useMediaQuery, CircularProgress
+} from '@mui/material'
+import {
+  Search as SearchOutlined,
+  AccountTree as NodeIndexOutlined,
+  Public as GlobalOutlined,
+  Visibility as EyeOutlined,
+  Refresh as ReloadOutlined
+} from '@mui/icons-material'
 import { getActiveNodes } from '../services/pact-services';
 import { getIPFromMultiAddr } from '../utils/utils';
-import { SearchOutlined, NodeIndexOutlined, GlobalOutlined, EyeOutlined, ReloadOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useDarkMode } from '../contexts/DarkModeContext';
-
-const { Text, Paragraph } = Typography;
-const { Search } = Input;
 
 const NodeList = () => {
   const [searchText, setSearchText] = useState('');
   const [nodes, setNodes] = useState([])
   const [filteredNodes, setFilteredNodes] = useState([])
   const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { isDarkMode } = useDarkMode();
 
   useEffect(() => {
@@ -49,11 +60,22 @@ const NodeList = () => {
 
   const handleSearch = (value) => {
     setSearchText(value)
+    setPage(0); // Reset to first page when searching
   }
 
   const handleReset = () => {
     setSearchText('')
+    setPage(0);
   }
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
@@ -64,244 +86,291 @@ const NodeList = () => {
       case 'inactive':
         return 'error'
       case 'syncing':
-        return 'processing'
+        return 'warning'
       default:
         return 'default'
     }
   }
 
-  const columns = [
-    {
-      title: 'Node Info',
-      key: 'node_info',
-      render: (_, record) => (
-        <Space>
+  const renderTableRow = (record, index) => (
+    <TableRow key={record.peer_id} hover>
+      <TableCell>
+        <Stack direction="row" alignItems="center" spacing={2}>
           <Avatar
-            icon={<NodeIndexOutlined />}
-            style={{ backgroundColor: '#1890ff' }}
-            size="small"
-          />
-          <div>
-            <Text strong style={{ display: 'block' }}>
-              {record.peer_id?.substring(0, 16)}...
-            </Text>
-            <Text type="secondary" style={{ fontSize: 12 }}>
-              {getIPFromMultiAddr(record.multiaddr)}
-            </Text>
-          </div>
-        </Space>
-      ),
-      responsive: ['xs', 'sm', 'md', 'lg', 'xl']
-    },
-    {
-      title: 'Status',
-      key: 'status',
-      render: (_, record) => (
-        <Tag color={getStatusColor(record.status)} icon={<NodeIndexOutlined />}>
-          {record.status || 'Unknown'}
-        </Tag>
-      ),
-      responsive: ['sm', 'md', 'lg', 'xl']
-    },
-    {
-      title: 'Network Address',
-      key: 'network_address',
-      render: (_, record) => (
-        <Tooltip title="Click to copy full address">
-          <Paragraph
-            copyable={{ text: getIPFromMultiAddr(record.multiaddr) }}
-            style={{ margin: 0, maxWidth: 200 }}
-            ellipsis
+            sx={{
+              width: 32,
+              height: 32,
+              backgroundColor: 'primary.main',
+              fontSize: '16px'
+            }}
           >
-            {getIPFromMultiAddr(record.multiaddr)}
-          </Paragraph>
-        </Tooltip>
-      ),
-      responsive: ['md', 'lg', 'xl']
-    },
-    {
-      title: 'Actions',
-      key: 'action',
-      render: (_, record) => (
+            <NodeIndexOutlined fontSize="small" />
+          </Avatar>
+          <Box>
+            <Typography variant="body2" fontWeight="bold">
+              {record.peer_id?.substring(0, 16)}...
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              {getIPFromMultiAddr(record.multiaddr)}
+            </Typography>
+          </Box>
+        </Stack>
+      </TableCell>
+      {!isMobile && (
+        <TableCell>
+          <Chip
+            label={record.status || 'Unknown'}
+            color={getStatusColor(record.status)}
+            size="small"
+            icon={<NodeIndexOutlined />}
+          />
+        </TableCell>
+      )}
+      {!isMobile && (
+        <TableCell>
+          <Tooltip title="Click to copy full address">
+            <Typography
+              variant="body2"
+              sx={{
+                maxWidth: 200,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                cursor: 'pointer',
+                '&:hover': { textDecoration: 'underline' }
+              }}
+              onClick={() => navigator.clipboard.writeText(getIPFromMultiAddr(record.multiaddr))}
+            >
+              {getIPFromMultiAddr(record.multiaddr)}
+            </Typography>
+          </Tooltip>
+        </TableCell>
+      )}
+      <TableCell>
         <Button
-          type='primary'
-          icon={<EyeOutlined />}
+          variant="contained"
           size="small"
-          onClick={() => {
-            navigate(`/node/${record.peer_id}`)
-          }}
+          startIcon={<EyeOutlined />}
+          onClick={() => navigate(`/node/${record.peer_id}`)}
         >
-          View Details
+          {isMobile ? 'View' : 'View Details'}
         </Button>
-      ),
-      responsive: ['xs', 'sm', 'md', 'lg', 'xl']
-    }
-  ]
+      </TableCell>
+    </TableRow>
+  );
 
   return (
-    <PageContainer
-      title={
-        <Space>
-          <NodeIndexOutlined />
-          <span>Network Nodes</span>
-        </Space>
-      }
-      subTitle="Monitor and manage active nodes in the Cyberfly network"
-      header={{
-        style: {
+    <Box sx={{ padding: '24px' }}>
+      {/* Header */}
+      <Box
+        sx={{
           padding: '16px 0',
           background: isDarkMode
             ? 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
             : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           borderRadius: '8px',
-          marginBottom: '24px'
-        }
-      }}
-      extra={[
-        <Button
-          key="refresh"
-          icon={<ReloadOutlined />}
-          onClick={loadNodes}
-          loading={loading}
-        >
-          Refresh
-        </Button>
-      ]}
-    >
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
+          marginBottom: '24px',
+          color: 'white'
+        }}
+      >
+        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ px: 3 }}>
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <NodeIndexOutlined />
+            <Typography variant="h5">Network Nodes</Typography>
+          </Stack>
+          <Button
+            variant="outlined"
+            startIcon={<ReloadOutlined />}
+            onClick={loadNodes}
+            disabled={loading}
+            sx={{
+              color: 'white',
+              borderColor: 'rgba(255,255,255,0.3)',
+              '&:hover': {
+                borderColor: 'white',
+                backgroundColor: 'rgba(255,255,255,0.1)'
+              }
+            }}
+          >
+            Refresh
+          </Button>
+        </Stack>
+        <Typography variant="body2" sx={{ px: 3, mt: 1, opacity: 0.8 }}>
+          Monitor and manage active nodes in the Cyberfly network
+        </Typography>
+      </Box>
+
+      <Stack direction="column" spacing={3} sx={{ width: '100%' }}>
         {/* Statistics Overview */}
-        <Row gutter={[24, 24]}>
-          <Col xs={24} sm={12} lg={6}>
-            <Card bordered={false} style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-              <Statistic
-                title="Total Nodes"
-                value={nodes.length}
-                prefix={<NodeIndexOutlined />}
-                valueStyle={{ color: '#1890ff' }}
-              />
+        <Grid container spacing={3}>
+          <Grid item xs={12} sm={6} lg={3}>
+            <Card sx={{ boxShadow: 2 }}>
+              <CardContent>
+                <Stack direction="row" alignItems="center" spacing={2}>
+                  <NodeIndexOutlined color="primary" />
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">Total Nodes</Typography>
+                    <Typography variant="h4" color="primary.main" fontWeight="bold">
+                      {nodes.length}
+                    </Typography>
+                  </Box>
+                </Stack>
+              </CardContent>
             </Card>
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <Card bordered={false} style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-              <Statistic
-                title="Active Nodes"
-                value={nodes.filter(n => n.status === 'active' || n.status === 'online').length}
-                prefix={<GlobalOutlined />}
-                valueStyle={{ color: '#52c41a' }}
-              />
+          </Grid>
+          <Grid item xs={12} sm={6} lg={3}>
+            <Card sx={{ boxShadow: 2 }}>
+              <CardContent>
+                <Stack direction="row" alignItems="center" spacing={2}>
+                  <GlobalOutlined color="success" />
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">Active Nodes</Typography>
+                    <Typography variant="h4" color="success.main" fontWeight="bold">
+                      {nodes.filter(n => n.status === 'active' || n.status === 'online').length}
+                    </Typography>
+                  </Box>
+                </Stack>
+              </CardContent>
             </Card>
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <Card bordered={false} style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-              <Statistic
-                title="Filtered Results"
-                value={filteredNodes.length}
-                prefix={<SearchOutlined />}
-                valueStyle={{ color: '#fa8c16' }}
-              />
+          </Grid>
+          <Grid item xs={12} sm={6} lg={3}>
+            <Card sx={{ boxShadow: 2 }}>
+              <CardContent>
+                <Stack direction="row" alignItems="center" spacing={2}>
+                  <SearchOutlined color="warning" />
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">Filtered Results</Typography>
+                    <Typography variant="h4" color="warning.main" fontWeight="bold">
+                      {filteredNodes.length}
+                    </Typography>
+                  </Box>
+                </Stack>
+              </CardContent>
             </Card>
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <Card bordered={false} style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-              <Statistic
-                title="Network Health"
-                value={nodes.length > 0 ? Math.round((nodes.filter(n => n.status === 'active' || n.status === 'online').length / nodes.length) * 100) : 0}
-                suffix="%"
-                prefix={<NodeIndexOutlined />}
-                valueStyle={{ color: '#722ed1' }}
-              />
+          </Grid>
+          <Grid item xs={12} sm={6} lg={3}>
+            <Card sx={{ boxShadow: 2 }}>
+              <CardContent>
+                <Stack direction="row" alignItems="center" spacing={2}>
+                  <NodeIndexOutlined color="secondary" />
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">Network Health</Typography>
+                    <Typography variant="h4" color="secondary.main" fontWeight="bold">
+                      {nodes.length > 0 ? Math.round((nodes.filter(n => n.status === 'active' || n.status === 'online').length / nodes.length) * 100) : 0}%
+                    </Typography>
+                  </Box>
+                </Stack>
+              </CardContent>
             </Card>
-          </Col>
-        </Row>
+          </Grid>
+        </Grid>
 
         {/* Search and Filters */}
-        <Card
-          title={
-            <Space>
+        <Card sx={{ boxShadow: 2 }}>
+          <CardContent>
+            <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
               <SearchOutlined />
-              <span>Search & Filter</span>
-            </Space>
-          }
-          bordered={false}
-          style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
-          size="small"
-        >
-          <Row gutter={[16, 16]}>
-            <Col xs={24} sm={16} lg={18}>
-              <Search
-                placeholder="Search by Peer ID, IP address, or status..."
-                allowClear
-                enterButton="Search"
-                size="large"
-                onSearch={handleSearch}
-                onChange={(e) => handleSearch(e.target.value)}
-                value={searchText}
-              />
-            </Col>
-            <Col xs={24} sm={8} lg={6}>
-              <Button
-                onClick={handleReset}
-                size="large"
-                style={{ width: '100%' }}
-                disabled={!searchText}
-              >
-                Clear Search
-              </Button>
-            </Col>
-          </Row>
+              <Typography variant="h6">Search & Filter</Typography>
+            </Stack>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={8} lg={9}>
+                <TextField
+                  fullWidth
+                  placeholder="Search by Peer ID, IP address, or status..."
+                  value={searchText}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchOutlined />
+                      </InputAdornment>
+                    ),
+                  }}
+                  variant="outlined"
+                  size="small"
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} lg={3}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  onClick={handleReset}
+                  disabled={!searchText}
+                  size="large"
+                >
+                  Clear Search
+                </Button>
+              </Grid>
+            </Grid>
+          </CardContent>
         </Card>
 
         {/* Nodes Table */}
-        <Card
-          title={
-            <Space>
+        <Card sx={{ boxShadow: 2 }}>
+          <CardContent>
+            <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
               <NodeIndexOutlined />
-              <span>Active Nodes</span>
-              <Tag color="blue">{filteredNodes.length} nodes</Tag>
-            </Space>
-          }
-          bordered={false}
-          style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
-        >
-          <Table
-            dataSource={filteredNodes}
-            columns={columns}
-            rowKey="peer_id"
-            loading={loading}
-            pagination={{
-              pageSize: 10,
-              showSizeChanger: true,
-              showQuickJumper: true,
-              showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} nodes`
-            }}
-            scroll={{ x: 600 }}
-            size="middle"
-          />
+              <Typography variant="h6">Active Nodes</Typography>
+              <Chip label={`${filteredNodes.length} nodes`} color="primary" size="small" />
+            </Stack>
+
+            {loading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
+                <CircularProgress />
+                <Typography variant="body1" sx={{ ml: 2 }}>Loading nodes...</Typography>
+              </Box>
+            ) : (
+              <TableContainer component={Paper} sx={{ maxHeight: 600 }}>
+                <Table stickyHeader>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell><Typography variant="subtitle2" fontWeight="bold">Node Info</Typography></TableCell>
+                      {!isMobile && <TableCell><Typography variant="subtitle2" fontWeight="bold">Status</Typography></TableCell>}
+                      {!isMobile && <TableCell><Typography variant="subtitle2" fontWeight="bold">Network Address</Typography></TableCell>}
+                      <TableCell><Typography variant="subtitle2" fontWeight="bold">Actions</Typography></TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {filteredNodes
+                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                      .map((record, index) => renderTableRow(record, index))
+                    }
+                  </TableBody>
+                </Table>
+                <TablePagination
+                  rowsPerPageOptions={[5, 10, 25, 50]}
+                  component="div"
+                  count={filteredNodes.length}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  onPageChange={handleChangePage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                />
+              </TableContainer>
+            )}
+          </CardContent>
         </Card>
 
         {/* Information Section */}
-        <Card
-          title="Node Information"
-          bordered={false}
-          style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
-          size="small"
-        >
-          <Space direction="vertical" size="small">
-            <Text strong>Understanding Node Status:</Text>
-            <ul style={{ paddingLeft: 20, margin: 0 }}>
-              <li><Tag color="success">Active/Online</Tag> - Node is fully operational and responding</li>
-              <li><Tag color="processing">Syncing</Tag> - Node is synchronizing with the network</li>
-              <li><Tag color="error">Offline/Inactive</Tag> - Node is not responding or unreachable</li>
-            </ul>
-            <Divider style={{ margin: '12px 0' }} />
-            <Text type="secondary">
-              Click "View Details" to see comprehensive information about any node, including its configuration,
-              performance metrics, and network connections.
-            </Text>
-          </Space>
+        <Card sx={{ boxShadow: 2 }}>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>Node Information</Typography>
+            <Stack direction="column" spacing={1}>
+              <Typography variant="subtitle2" fontWeight="bold">Understanding Node Status:</Typography>
+              <Box component="ul" sx={{ pl: 3, m: 0 }}>
+                <li><Chip label="Active/Online" color="success" size="small" sx={{ mr: 1 }} /> - Node is fully operational and responding</li>
+                <li><Chip label="Syncing" color="warning" size="small" sx={{ mr: 1 }} /> - Node is synchronizing with the network</li>
+                <li><Chip label="Offline/Inactive" color="error" size="small" sx={{ mr: 1 }} /> - Node is not responding or unreachable</li>
+              </Box>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="body2" color="text.secondary">
+                Click "View Details" to see comprehensive information about any node, including its configuration,
+                performance metrics, and network connections.
+              </Typography>
+            </Stack>
+          </CardContent>
         </Card>
-      </Space>
-    </PageContainer>
+      </Stack>
+    </Box>
   )
 }
 

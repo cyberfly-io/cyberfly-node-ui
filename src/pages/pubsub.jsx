@@ -1,32 +1,44 @@
-import { PageContainer } from '@ant-design/pro-components'
 import React, { useState, useEffect, useRef } from 'react'
 import {
-  Flex, Form, Input, Button, Tag, Divider, message as msg, notification,
-  Card, Row, Col, Space, Typography, Avatar, Badge, List, Empty, Alert
-} from 'antd'
+  Box, Container, TextField, Button, Chip, Divider, Card, CardContent,
+  Grid, Stack, Typography, Avatar, Badge, List, ListItem, ListItemAvatar,
+  ListItemText, Alert, Snackbar, IconButton, Paper
+} from '@mui/material'
 import {
-  WifiOutlined, SendOutlined, NotificationOutlined, GlobalOutlined,
-  MessageOutlined, ThunderboltOutlined, DisconnectOutlined,
-  CheckCircleOutlined, ClockCircleOutlined, DeleteOutlined
-} from '@ant-design/icons';
-import { io } from "socket.io-client";
-import { getHost } from '../services/node-services';
-import { useDarkMode } from '../contexts/DarkModeContext';
-
-const { Title, Text } = Typography;
-const { TextArea } = Input;
+  Wifi, Send, Notifications, Public, Message, ElectricBolt, LinkOff,
+  CheckCircle, Schedule, Delete, Close
+} from '@mui/icons-material'
+import { io } from "socket.io-client"
+import { getHost } from '../services/node-services'
+import { useDarkMode } from '../contexts/DarkModeContext'
 
 const PubSubPage = () => {
 
 const [topics, setTopics] = useState([])
-const [form]  = Form.useForm();
-const [publishForm] = Form.useForm();
-const [messageApi, contextHolder] = msg.useMessage();
-const [api, notificationContextHolder] = notification.useNotification();
-const [connectionStatus, setConnectionStatus] = useState('connecting');
-const [messageHistory, setMessageHistory] = useState([]);
-const { isDarkMode } = useDarkMode();
-const socketRef = useRef(null);
+const [connectionStatus, setConnectionStatus] = useState('connecting')
+const [messageHistory, setMessageHistory] = useState([])
+const { isDarkMode } = useDarkMode()
+const socketRef = useRef(null)
+
+// MUI Snackbar states
+const [snackbarOpen, setSnackbarOpen] = useState(false)
+const [snackbarMessage, setSnackbarMessage] = useState('')
+const [snackbarSeverity, setSnackbarSeverity] = useState('success')
+
+// Form states for MUI
+const [subscribeTopic, setSubscribeTopic] = useState('')
+const [publishTopic, setPublishTopic] = useState('')
+const [publishMessage, setPublishMessage] = useState('')
+
+const showMessage = (message, severity = 'success') => {
+  setSnackbarMessage(message);
+  setSnackbarSeverity(severity);
+  setSnackbarOpen(true);
+};
+
+const handleSnackbarClose = () => {
+  setSnackbarOpen(false);
+};
 
 const host = getHost(); // Get the host without protocol
 const protocol = window.location.protocol; // Get the current protocol
@@ -49,18 +61,12 @@ const socket = socketRef.current;
 useEffect(() => {
   socket.on("connect",()=>{
     setConnectionStatus('connected');
-    messageApi.open({
-      type:"success",
-      content:"WebSocket connected successfully"
-    })
+    showMessage("WebSocket connected successfully", "success");
   })
 
   socket.on("disconnect", () => {
     setConnectionStatus('disconnected');
-    messageApi.open({
-      type:"warning",
-      content:"WebSocket disconnected"
-    })
+    showMessage("WebSocket disconnected", "warning");
   })
 
   socket.on("onmessage", (data)=>{
@@ -76,12 +82,7 @@ useEffect(() => {
       type: 'received'
     }, ...prev.slice(0, 49)]) // Keep last 50 messages
 
-    api.info({
-      message:`Message received for topic: ${topic}`,
-      description: message.length > 100 ? message.substring(0, 100) + '...' : message,
-      placement:"topRight",
-      duration: 4
-    })
+    showMessage(`Message received for topic: ${topic}`, "info");
   })
 
   return () => {
@@ -89,443 +90,437 @@ useEffect(() => {
     socket.off("disconnect");
     socket.off("onmessage");
   }
-}, [messageApi, api, socket])
+}, [socket])
 
-const onFinish = async (values) => {
-  form.resetFields()
-  console.log('Received values:', values);
-  let updatedTopics = [...topics];
-  updatedTopics.push(values.topic)
-  socket.emit("subscribe", values.topic)
-  messageApi.open({
-    type: 'success',
-    content: `Subscribed to ${values.topic}`,
-  });
-  setTopics(updatedTopics)
+const handleSubscribe = () => {
+  if (!subscribeTopic.trim()) {
+    showMessage("Please enter a topic name", "error");
+    return;
+  }
+
+  const updatedTopics = [...topics, subscribeTopic];
+  socket.emit("subscribe", subscribeTopic);
+  showMessage(`Subscribed to ${subscribeTopic}`, "success");
+  setTopics(updatedTopics);
+  setSubscribeTopic('');
 };
 
-const onFinishFailed = (errorInfo) => {
-  console.log('Failed:', errorInfo);
-};
+const handlePublish = () => {
+  if (!publishTopic.trim() || !publishMessage.trim()) {
+    showMessage("Please fill in both topic and message", "error");
+    return;
+  }
 
-const handlePublish = async (values) => {
-  socket.emit("publish", {topic: values.topic, message: values.message})
+  socket.emit("publish", {topic: publishTopic, message: publishMessage});
 
   // Add to message history
   setMessageHistory(prev => [{
     id: Date.now(),
-    topic: values.topic,
-    message: values.message,
+    topic: publishTopic,
+    message: publishMessage,
     timestamp: new Date(),
     type: 'sent'
-  }, ...prev.slice(0, 49)])
+  }, ...prev.slice(0, 49)]);
 
-  messageApi.open({
-    type:"success",
-    content:"Message published successfully"
-  })
-
-  publishForm.resetFields()
-}
+  showMessage("Message published successfully", "success");
+  setPublishTopic('');
+  setPublishMessage('');
+};
 
 const handleUnsubscribe = (topicToRemove) => {
   setTopics(prev => prev.filter(topic => topic !== topicToRemove))
   socket.emit("unsubscribe", topicToRemove)
-  messageApi.open({
-    type: 'info',
-    content: `Unsubscribed from ${topicToRemove}`,
-  });
+  showMessage(`Unsubscribed from ${topicToRemove}`, "info");
 }
 
 const clearMessageHistory = () => {
   setMessageHistory([])
-  messageApi.open({
-    type: 'info',
-    content: 'Message history cleared',
-  });
+  showMessage('Message history cleared', "info");
 }
 
   return (
-    <PageContainer
-      title={
-        <Space>
-          <GlobalOutlined />
-          <span>PubSub Communication</span>
-        </Space>
-      }
-      subTitle="Real-time messaging with WebSocket connection"
-      header={{
-        style: {
-          padding: '16px 0',
+    <Container maxWidth="xl" sx={{ py: 3 }}>
+      {/* Header */}
+      <Box
+        sx={{
+          mb: 3,
+          p: 3,
           background: isDarkMode
             ? 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
             : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          borderRadius: '8px',
-          marginBottom: '24px'
-        }
-      }}
-      extra={[
-        <Badge
-          status={connectionStatus === 'connected' ? 'success' : connectionStatus === 'connecting' ? 'processing' : 'error'}
-          text={
-            <Text style={{ color: 'white' }}>
-              {connectionStatus === 'connected' ? 'Connected' : connectionStatus === 'connecting' ? 'Connecting...' : 'Disconnected'}
-            </Text>
-          }
-        />
-      ]}
-    >
-      {contextHolder}
-      {notificationContextHolder}
-
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
-        {/* Connection Status Card */}
-        <Card
-          bordered={false}
-          style={{
-            borderRadius: '12px',
-            boxShadow: isDarkMode
-              ? '0 4px 12px rgba(0,0,0,0.3)'
-              : '0 4px 12px rgba(0,0,0,0.1)',
-            background: isDarkMode
-              ? 'linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%)'
-              : 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)'
-          }}
-        >
-          <Row gutter={16} align="middle">
-            <Col>
-              <Avatar
-                size={48}
-                icon={
-                  connectionStatus === 'connected' ? <ThunderboltOutlined /> :
-                  connectionStatus === 'connecting' ? <WifiOutlined /> :
-                  <DisconnectOutlined />
-                }
-                style={{
-                  background: connectionStatus === 'connected' ? '#52c41a' :
-                             connectionStatus === 'connecting' ? '#faad14' : '#ff4d4f'
-                }}
-              />
-            </Col>
-            <Col flex="auto">
-              <Title level={4} style={{ margin: 0, color: isDarkMode ? '#e0e0e0' : undefined }}>
+          borderRadius: 2,
+          color: 'white'
+        }}
+      >
+        <Stack direction="row" alignItems="center" justifyContent="space-between">
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <Public />
+            <Box>
+              <Typography variant="h4" component="h1" sx={{ mb: 1 }}>
+                PubSub Communication
+              </Typography>
+              <Typography variant="body1">
+                Real-time messaging with WebSocket connection
+              </Typography>
+            </Box>
+          </Stack>
+          <Badge
+            variant="dot"
+            color={
+              connectionStatus === 'connected' ? 'success' :
+              connectionStatus === 'connecting' ? 'warning' : 'error'
+            }
+            sx={{
+              '& .MuiBadge-badge': {
+                width: 12,
+                height: 12,
+                borderRadius: '50%'
+              }
+            }}
+          >
+            <Typography variant="body2">
+              {connectionStatus === 'connected' ? 'Connected' :
+               connectionStatus === 'connecting' ? 'Connecting...' : 'Disconnected'}
+            </Typography>
+          </Badge>
+        </Stack>
+      </Box>
+      {/* Connection Status Card */}
+      <Card
+        sx={{
+          mb: 3,
+          borderRadius: 3,
+          boxShadow: isDarkMode
+            ? '0 4px 12px rgba(0,0,0,0.3)'
+            : '0 4px 12px rgba(0,0,0,0.1)',
+          background: isDarkMode
+            ? 'linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%)'
+            : 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)'
+        }}
+      >
+        <CardContent>
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <Avatar
+              sx={{
+                width: 48,
+                height: 48,
+                bgcolor: connectionStatus === 'connected' ? 'success.main' :
+                         connectionStatus === 'connecting' ? 'warning.main' : 'error.main'
+              }}
+            >
+              {connectionStatus === 'connected' ? <ElectricBolt /> :
+               connectionStatus === 'connecting' ? <Wifi /> :
+               <LinkOff />}
+            </Avatar>
+            <Box flex={1}>
+              <Typography variant="h5" sx={{ mb: 1, color: isDarkMode ? '#e0e0e0' : 'inherit' }}>
                 WebSocket Connection
-              </Title>
-              <Text type="secondary" style={{ color: isDarkMode ? '#b0b0b0' : undefined }}>
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ color: isDarkMode ? '#b0b0b0' : 'inherit' }}>
                 {connectionStatus === 'connected' ? 'Connected to CyberFly node' :
                  connectionStatus === 'connecting' ? 'Establishing connection...' :
                  'Connection lost - attempting to reconnect'}
-              </Text>
-            </Col>
-            <Col>
-              <Tag
-                color={
-                  connectionStatus === 'connected' ? 'success' :
-                  connectionStatus === 'connecting' ? 'warning' : 'error'
-                }
-                icon={
-                  connectionStatus === 'connected' ? <CheckCircleOutlined /> :
-                  connectionStatus === 'connecting' ? <ClockCircleOutlined /> :
-                  <DisconnectOutlined />
-                }
-              >
-                {connectionStatus === 'connected' ? 'Online' :
-                 connectionStatus === 'connecting' ? 'Connecting' : 'Offline'}
-              </Tag>
-            </Col>
-          </Row>
-        </Card>
-
-        <Row gutter={[24, 24]}>
-          {/* Subscribe Section */}
-          <Col xs={24} lg={12}>
-            <Card
-              title={
-                <Space>
-                  <NotificationOutlined />
-                  <span>Subscribe to Topics</span>
-                </Space>
+              </Typography>
+            </Box>
+            <Chip
+              label={
+                connectionStatus === 'connected' ? 'Online' :
+                connectionStatus === 'connecting' ? 'Connecting' : 'Offline'
               }
-              bordered={false}
-              style={{
-                borderRadius: '12px',
-                boxShadow: isDarkMode
-                  ? '0 4px 12px rgba(0,0,0,0.3)'
-                  : '0 4px 12px rgba(0,0,0,0.1)',
-                height: '100%'
-              }}
-            >
-              <Form
-                form={form}
-                name="subscribe"
-                layout="vertical"
-                onFinish={onFinish}
-                onFinishFailed={onFinishFailed}
-              >
-                <Form.Item
-                  label={<Text style={{ color: isDarkMode ? '#e0e0e0' : undefined }}>Topic Name</Text>}
-                  name="topic"
-                  rules={[
-                    {
-                      required: true,
-                      message: 'Please input topic name!',
-                    },
-                  ]}
-                >
-                  <Input
-                    size='large'
-                    placeholder="Enter topic to subscribe"
-                    style={{
-                      background: isDarkMode ? '#1f1f1f' : undefined,
-                      color: isDarkMode ? '#e0e0e0' : undefined
-                    }}
-                  />
-                </Form.Item>
-
-                <Form.Item>
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    size="large"
-                    icon={<NotificationOutlined />}
-                    style={{
-                      width: '100%',
-                      background: isDarkMode
-                        ? 'linear-gradient(135deg, #1890ff 0%, #40a9ff 100%)'
-                        : 'linear-gradient(135deg, #1890ff 0%, #40a9ff 100%)',
-                      border: 'none',
-                      height: '48px'
-                    }}
-                  >
-                    Subscribe to Topic
-                  </Button>
-                </Form.Item>
-              </Form>
-
-              {/* Subscribed Topics */}
-              {topics.length > 0 && (
-                <div style={{ marginTop: '24px' }}>
-                  <Text style={{ color: isDarkMode ? '#e0e0e0' : undefined, fontWeight: 'bold' }}>
-                    Active Subscriptions ({topics.length})
-                  </Text>
-                  <div style={{ marginTop: '12px' }}>
-                    {topics.map((topic, index) => (
-                      <Tag
-                        key={index}
-                        closable
-                        onClose={() => handleUnsubscribe(topic)}
-                        style={{
-                          margin: '4px 4px 0 0',
-                          background: isDarkMode ? '#1f1f1f' : undefined,
-                          color: isDarkMode ? '#e0e0e0' : undefined,
-                          borderColor: isDarkMode ? '#444' : undefined
-                        }}
-                      >
-                        {topic}
-                      </Tag>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </Card>
-          </Col>
-
-          {/* Publish Section */}
-          <Col xs={24} lg={12}>
-            <Card
-              title={
-                <Space>
-                  <SendOutlined />
-                  <span>Publish Messages</span>
-                </Space>
+              color={
+                connectionStatus === 'connected' ? 'success' :
+                connectionStatus === 'connecting' ? 'warning' : 'error'
               }
-              bordered={false}
-              style={{
-                borderRadius: '12px',
-                boxShadow: isDarkMode
-                  ? '0 4px 12px rgba(0,0,0,0.3)'
-                  : '0 4px 12px rgba(0,0,0,0.1)',
-                height: '100%'
-              }}
-            >
-              <Form
-                form={publishForm}
-                name="publish"
-                layout="vertical"
-                onFinish={handlePublish}
-              >
-                <Form.Item
-                  label={<Text style={{ color: isDarkMode ? '#e0e0e0' : undefined }}>Topic</Text>}
-                  name="topic"
-                  rules={[
-                    {
-                      required: true,
-                      message: 'Please input topic!',
-                    },
-                  ]}
-                >
-                  <Input
-                    size='large'
-                    placeholder="Enter topic to publish to"
-                    style={{
-                      background: isDarkMode ? '#1f1f1f' : undefined,
-                      color: isDarkMode ? '#e0e0e0' : undefined
-                    }}
-                  />
-                </Form.Item>
+              icon={
+                connectionStatus === 'connected' ? <CheckCircle /> :
+                connectionStatus === 'connecting' ? <Schedule /> :
+                <LinkOff />
+              }
+              size="small"
+            />
+          </Stack>
+        </CardContent>
+      </Card>
 
-                <Form.Item
-                  label={<Text style={{ color: isDarkMode ? '#e0e0e0' : undefined }}>Message</Text>}
-                  name="message"
-                  rules={[
-                    {
-                      required: true,
-                      message: 'Please input message!',
-                    },
-                  ]}
-                >
-                  <TextArea
-                    rows={4}
-                    placeholder="Enter your message"
-                    style={{
-                      background: isDarkMode ? '#1f1f1f' : undefined,
-                      color: isDarkMode ? '#e0e0e0' : undefined
-                    }}
-                  />
-                </Form.Item>
-
-                <Form.Item>
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    size="large"
-                    icon={<SendOutlined />}
-                    style={{
-                      width: '100%',
-                      background: isDarkMode
-                        ? 'linear-gradient(135deg, #52c41a 0%, #73d13d 100%)'
-                        : 'linear-gradient(135deg, #52c41a 0%, #73d13d 100%)',
-                      border: 'none',
-                      height: '48px'
-                    }}
-                  >
-                    Publish Message
-                  </Button>
-                </Form.Item>
-              </Form>
-            </Card>
-          </Col>
-        </Row>
-
-        {/* Message History */}
-        {messageHistory.length > 0 && (
+      <Grid container spacing={3}>
+        {/* Subscribe Section */}
+        <Grid item xs={12} lg={6}>
           <Card
-            title={
-              <Space>
-                <MessageOutlined />
-                <span>Message History</span>
-                <Badge count={messageHistory.length} style={{ backgroundColor: '#1890ff' }} />
-              </Space>
-            }
-            extra={
-              <Button
-                size="small"
-                icon={<DeleteOutlined />}
-                onClick={clearMessageHistory}
-                danger
-              >
-                Clear History
-              </Button>
-            }
-            bordered={false}
-            style={{
-              borderRadius: '12px',
+            sx={{
+              height: '100%',
+              borderRadius: 3,
               boxShadow: isDarkMode
                 ? '0 4px 12px rgba(0,0,0,0.3)'
                 : '0 4px 12px rgba(0,0,0,0.1)'
             }}
           >
-            <List
-              dataSource={messageHistory}
-              renderItem={(item) => (
-                <List.Item
-                  style={{
-                    padding: '12px',
-                    background: isDarkMode ? '#1f1f1f' : '#fafafa',
-                    marginBottom: '8px',
-                    borderRadius: '8px',
+            <CardContent>
+              <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 3 }}>
+                <Notifications />
+                <Typography variant="h6">Subscribe to Topics</Typography>
+              </Stack>
+
+              <Stack spacing={2}>
+                <TextField
+                  fullWidth
+                  label="Topic Name"
+                  value={subscribeTopic}
+                  onChange={(e) => setSubscribeTopic(e.target.value)}
+                  placeholder="Enter topic to subscribe"
+                  size="small"
+                  sx={{
+                    '& .MuiInputBase-root': {
+                      bgcolor: isDarkMode ? '#1f1f1f' : 'inherit',
+                      color: isDarkMode ? '#e0e0e0' : 'inherit'
+                    }
+                  }}
+                />
+
+                <Button
+                  fullWidth
+                  variant="contained"
+                  onClick={handleSubscribe}
+                  startIcon={<Notifications />}
+                  sx={{
+                    height: 48,
+                    background: isDarkMode
+                      ? 'linear-gradient(135deg, #1890ff 0%, #40a9ff 100%)'
+                      : 'linear-gradient(135deg, #1890ff 0%, #40a9ff 100%)',
+                    '&:hover': {
+                      background: isDarkMode
+                        ? 'linear-gradient(135deg, #40a9ff 0%, #1890ff 100%)'
+                        : 'linear-gradient(135deg, #40a9ff 0%, #1890ff 100%)'
+                    }
+                  }}
+                >
+                  Subscribe to Topic
+                </Button>
+              </Stack>
+
+              {/* Subscribed Topics */}
+              {topics.length > 0 && (
+                <Box sx={{ mt: 3 }}>
+                  <Typography variant="subtitle2" sx={{ mb: 2, color: isDarkMode ? '#e0e0e0' : 'inherit' }}>
+                    Active Subscriptions ({topics.length})
+                  </Typography>
+                  <Stack direction="row" flexWrap="wrap" spacing={1}>
+                    {topics.map((topic, index) => (
+                      <Chip
+                        key={index}
+                        label={topic}
+                        onDelete={() => handleUnsubscribe(topic)}
+                        size="small"
+                        sx={{
+                          bgcolor: isDarkMode ? '#1f1f1f' : 'inherit',
+                          color: isDarkMode ? '#e0e0e0' : 'inherit',
+                          borderColor: isDarkMode ? '#444' : 'inherit'
+                        }}
+                      />
+                    ))}
+                  </Stack>
+                </Box>
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Publish Section */}
+        <Grid item xs={12} lg={6}>
+          <Card
+            sx={{
+              height: '100%',
+              borderRadius: 3,
+              boxShadow: isDarkMode
+                ? '0 4px 12px rgba(0,0,0,0.3)'
+                : '0 4px 12px rgba(0,0,0,0.1)'
+            }}
+          >
+            <CardContent>
+              <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 3 }}>
+                <Send />
+                <Typography variant="h6">Publish Messages</Typography>
+              </Stack>
+
+              <Stack spacing={2}>
+                <TextField
+                  fullWidth
+                  label="Topic"
+                  value={publishTopic}
+                  onChange={(e) => setPublishTopic(e.target.value)}
+                  placeholder="Enter topic to publish to"
+                  size="small"
+                  sx={{
+                    '& .MuiInputBase-root': {
+                      bgcolor: isDarkMode ? '#1f1f1f' : 'inherit',
+                      color: isDarkMode ? '#e0e0e0' : 'inherit'
+                    }
+                  }}
+                />
+
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={4}
+                  label="Message"
+                  value={publishMessage}
+                  onChange={(e) => setPublishMessage(e.target.value)}
+                  placeholder="Enter your message"
+                  size="small"
+                  sx={{
+                    '& .MuiInputBase-root': {
+                      bgcolor: isDarkMode ? '#1f1f1f' : 'inherit',
+                      color: isDarkMode ? '#e0e0e0' : 'inherit'
+                    }
+                  }}
+                />
+
+                <Button
+                  fullWidth
+                  variant="contained"
+                  onClick={handlePublish}
+                  startIcon={<Send />}
+                  sx={{
+                    height: 48,
+                    background: isDarkMode
+                      ? 'linear-gradient(135deg, #52c41a 0%, #73d13d 100%)'
+                      : 'linear-gradient(135deg, #52c41a 0%, #73d13d 100%)',
+                    '&:hover': {
+                      background: isDarkMode
+                        ? 'linear-gradient(135deg, #73d13d 0%, #52c41a 100%)'
+                        : 'linear-gradient(135deg, #73d13d 0%, #52c41a 100%)'
+                    }
+                  }}
+                >
+                  Publish Message
+                </Button>
+              </Stack>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Message History */}
+      {messageHistory.length > 0 && (
+        <Card
+          sx={{
+            borderRadius: 3,
+            boxShadow: isDarkMode
+              ? '0 4px 12px rgba(0,0,0,0.3)'
+              : '0 4px 12px rgba(0,0,0,0.1)'
+          }}
+        >
+          <CardContent>
+            <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <Message />
+                <Typography variant="h6">Message History</Typography>
+                <Badge badgeContent={messageHistory.length} color="primary" />
+              </Stack>
+              <Button
+                size="small"
+                variant="outlined"
+                color="error"
+                startIcon={<Delete />}
+                onClick={clearMessageHistory}
+              >
+                Clear History
+              </Button>
+            </Stack>
+
+            <List>
+              {messageHistory.map((item) => (
+                <ListItem
+                  key={item.id}
+                  sx={{
+                    mb: 1,
+                    bgcolor: isDarkMode ? '#1f1f1f' : '#fafafa',
+                    borderRadius: 2,
                     border: `1px solid ${isDarkMode ? '#333' : '#f0f0f0'}`
                   }}
                 >
-                  <List.Item.Meta
-                    avatar={
-                      <Avatar
-                        icon={item.type === 'sent' ? <SendOutlined /> : <NotificationOutlined />}
-                        style={{
-                          background: item.type === 'sent' ? '#52c41a' : '#1890ff'
-                        }}
-                      />
-                    }
-                    title={
-                      <Space>
-                        <Text style={{ color: isDarkMode ? '#e0e0e0' : undefined }}>
-                          Topic: <Text code>{item.topic}</Text>
-                        </Text>
-                        <Tag
-                          color={item.type === 'sent' ? 'success' : 'processing'}
+                  <ListItemAvatar>
+                    <Avatar
+                      sx={{
+                        bgcolor: item.type === 'sent' ? 'success.main' : 'primary.main'
+                      }}
+                    >
+                      {item.type === 'sent' ? <Send /> : <Notifications />}
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={
+                      <Stack direction="row" alignItems="center" spacing={1}>
+                        <Typography variant="body2" sx={{ color: isDarkMode ? '#e0e0e0' : 'inherit' }}>
+                          Topic: <Typography component="span" variant="body2" sx={{ fontFamily: 'monospace' }}>{item.topic}</Typography>
+                        </Typography>
+                        <Chip
+                          label={item.type === 'sent' ? 'Sent' : 'Received'}
+                          color={item.type === 'sent' ? 'success' : 'primary'}
                           size="small"
-                        >
-                          {item.type === 'sent' ? 'Sent' : 'Received'}
-                        </Tag>
-                      </Space>
+                        />
+                      </Stack>
                     }
-                    description={
-                      <div>
-                        <Text style={{ color: isDarkMode ? '#b0b0b0' : '#666' }}>
+                    secondary={
+                      <Box>
+                        <Typography variant="body2" sx={{ color: isDarkMode ? '#b0b0b0' : '#666', mb: 1 }}>
                           {item.message}
-                        </Text>
-                        <br />
-                        <Text type="secondary" style={{ fontSize: '12px' }}>
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
                           {item.timestamp.toLocaleString()}
-                        </Text>
-                      </div>
+                        </Typography>
+                      </Box>
                     }
                   />
-                </List.Item>
-              )}
-            />
-          </Card>
-        )}
+                </ListItem>
+              ))}
+            </List>
+          </CardContent>
+        </Card>
+      )}
 
-        {/* Empty State for Message History */}
-        {messageHistory.length === 0 && (
-          <Card
-            bordered={false}
-            style={{
-              borderRadius: '12px',
-              boxShadow: isDarkMode
-                ? '0 4px 12px rgba(0,0,0,0.3)'
-                : '0 4px 12px rgba(0,0,0,0.1)',
-              textAlign: 'center'
-            }}
-          >
-            <Empty
-              image={Empty.PRESENTED_IMAGE_SIMPLE}
-              description={
-                <Space direction="vertical">
-                  <Text style={{ color: isDarkMode ? '#e0e0e0' : undefined }}>
-                    No messages yet
-                  </Text>
-                  <Text type="secondary" style={{ color: isDarkMode ? '#b0b0b0' : undefined }}>
-                    Subscribe to topics and publish messages to see them here
-                  </Text>
-                </Space>
-              }
-            />
-          </Card>
-        )}
-      </Space>
-    </PageContainer>
+      {/* Empty State for Message History */}
+      {messageHistory.length === 0 && (
+        <Card
+          sx={{
+            borderRadius: 3,
+            boxShadow: isDarkMode
+              ? '0 4px 12px rgba(0,0,0,0.3)'
+              : '0 4px 12px rgba(0,0,0,0.1)',
+            textAlign: 'center'
+          }}
+        >
+          <CardContent>
+            <Stack spacing={2} alignItems="center">
+              <Message sx={{ fontSize: 48, color: 'text.secondary' }} />
+              <Box>
+                <Typography variant="h6" sx={{ color: isDarkMode ? '#e0e0e0' : 'inherit' }}>
+                  No messages yet
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ color: isDarkMode ? '#b0b0b0' : 'inherit' }}>
+                  Subscribe to topics and publish messages to see them here
+                </Typography>
+              </Box>
+            </Stack>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={4000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbarSeverity}
+          sx={{ width: '100%' }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+    </Container>
   )
 }
 

@@ -1,10 +1,9 @@
 import React, { useState, createContext, useEffect, useCallback, useContext } from 'react';
 import useLocalStorage from '../hooks/useLocalStorage';
 import { connect } from '@kadena/spirekey-sdk';
-
 import { NETWORKID} from '../constants/contextConstants'
-import { message } from 'antd';
 import { newRequest } from '../utils/utils';
+import { Snackbar, Alert } from '@mui/material';
 
 export const KadenaWalletContext = createContext();
 export const useKadenaWalletContext = () => useContext(KadenaWalletContext);
@@ -22,7 +21,24 @@ const initialKadenaWalletState = {
   export const KadenaWalletProvider = (props) => {
     const linx = (...args) => window.flutter_inappwebview.callHandler('LinxWallet', ...args)
 
-    const [messageApi, contextHolder] = message.useMessage();
+    // Notification state
+    const [notification, setNotification] = useState({
+      open: false,
+      message: '',
+      severity: 'info' // 'success', 'error', 'warning', 'info'
+    });
+
+    const showNotification = (message, severity = 'info') => {
+      setNotification({
+        open: true,
+        message,
+        severity
+      });
+    };
+
+    const hideNotification = () => {
+      setNotification(prev => ({ ...prev, open: false }));
+    };
 
     const [kadenaExt, setKadenaExt] = useState(null);
     const [account, setAccount, removeAccount] = useLocalStorage('acct', { account: null, guard: null, balance: 0 });
@@ -86,7 +102,7 @@ const initialKadenaWalletState = {
           const networkInfo = await getNetworkInfo();
           console.log('Network Info:', networkInfo);
           if (networkInfo == null) {
-            messageApi.warning("Please install eckowallet Extension");
+            showNotification("Please install eckowallet Extension", "warning");
           } else {
             if (networkInfo.networkId !== NETWORKID) {
               showNetworkError();
@@ -95,10 +111,7 @@ const initialKadenaWalletState = {
               console.log('connectResponse', connectResponse);
               if (connectResponse?.status === 'success') {
                 await setAccountData();
-                messageApi.open({
-                  type: 'success',
-                  content: 'Wallet Connected',
-                });
+                showNotification('Wallet Connected', 'success');
               }
             }
           }
@@ -139,10 +152,7 @@ const initialKadenaWalletState = {
           networkId: NETWORKID,
         });
         logout();
-        messageApi.open({
-            type: 'success',
-            content: 'Wallet Disconnected',
-          });
+        showNotification('Wallet Disconnected', 'success');
       }
       else if(window.flutter_inappwebview){
         setKadenaWalletState({
@@ -151,10 +161,7 @@ const initialKadenaWalletState = {
           isConnected: false,
         });
         logout();
-        messageApi.open({
-            type: 'success',
-            content: 'Wallet Disconnected',
-          });
+        showNotification('Wallet Disconnected', 'success');
       }
     };
 
@@ -253,7 +260,7 @@ const initialKadenaWalletState = {
     };
   
     const showNetworkError = () => {
-     messageApi.open({type:"error", content:`Please change network to ${NETWORKID}`})
+     showNotification(`Please change network to ${NETWORKID}`, 'error');
     };
   
 
@@ -266,11 +273,20 @@ const initialKadenaWalletState = {
           disconnectWallet,
           requestSign,
           logout,
-          messageApi
+          showNotification
         }}
       >
-        {contextHolder}
         {props.children}
+        <Snackbar
+          open={notification.open}
+          autoHideDuration={6000}
+          onClose={hideNotification}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        >
+          <Alert onClose={hideNotification} severity={notification.severity} sx={{ width: '100%' }}>
+            {notification.message}
+          </Alert>
+        </Snackbar>
       </KadenaWalletContext.Provider>
     );
   };

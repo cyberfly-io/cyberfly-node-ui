@@ -1,19 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react'
 import {
-  Card, Button, Form, Input, Select, Alert, Space, Typography, Row, Col,
-  Statistic, Tag, Descriptions, Modal, Drawer, Switch, InputNumber,
-  TextArea, Badge, List, Empty, Divider
-} from 'antd';
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Container,
+  Stack,
+  Alert
+} from '@mui/material'
 import {
-  WifiOutlined, ThunderboltOutlined, SyncOutlined, DisconnectOutlined,
-  CheckCircleTwoTone, WarningTwoTone, SendOutlined, EditOutlined,
-  CodeOutlined, NotificationOutlined, ClearOutlined, ExportOutlined,
-  CopyOutlined, EyeOutlined, LinkOutlined, SettingOutlined
-} from '@ant-design/icons';
-import { PageContainer } from '@ant-design/pro-components';
-
-const { Title, Text } = Typography;
-const { Option } = Select;
+  Wifi
+} from '@mui/icons-material'
 
 // BLE Service and Characteristic UUIDs
 const SERVICE_UUID = '12345678-1234-1234-1234-123456789abc';
@@ -55,11 +52,10 @@ const BLEPage = () => {
   const [lastScanError, setLastScanError] = useState(null);
 
   // Refs
-  const logRef = useRef(null);
-  const [form] = Form.useForm();
+  const logRef = useRef(null)
 
   // Auto network ID
-  const autoNetworkId = 'mainnet01';
+  const autoNetworkId = 'mainnet01'
 
   // Filtered logs
   const filteredLogs = logLevel === 'all' ? logs : logs.filter((l) => l.type === logLevel);
@@ -135,29 +131,43 @@ const BLEPage = () => {
   };
 
   return (
-    <PageContainer
-      title={
-        <Space>
-          <WifiOutlined />
-          <span>BLE Device Provisioning</span>
-        </Space>
-      }
-      subTitle="Configure and manage Bluetooth Low Energy device connections"
-      header={{
-        style: { padding: '16px 0' }
-      }}
-    >
-      <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-        <Title level={3}>BLE Device Provisioning</Title>
-        <Text type="secondary">
-          This page is currently being updated with improved UI. Please check back soon.
-        </Text>
-        <div style={{ marginTop: '20px' }}>
-          <Text>The BLE provisioning functionality is preserved and will be available with enhanced design shortly.</Text>
-        </div>
-      </div>
-    </PageContainer>
-  );
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Box
+        sx={{
+          textAlign: 'center',
+          p: 6,
+          background: (theme) => theme.palette.background.paper,
+          borderRadius: 2,
+          boxShadow: 1
+        }}
+      >
+        <Stack direction="row" alignItems="center" justifyContent="center" spacing={2} sx={{ mb: 3 }}>
+          <Wifi color="primary" sx={{ fontSize: 40 }} />
+          <Typography variant="h4" component="h1">
+            BLE Device Provisioning
+          </Typography>
+        </Stack>
+
+        <Typography variant="h6" sx={{ mb: 2, color: 'text.secondary' }}>
+          Configure and manage Bluetooth Low Energy device connections
+        </Typography>
+
+        <Card sx={{ mt: 4, maxWidth: 600, mx: 'auto' }}>
+          <CardContent sx={{ textAlign: 'center', py: 4 }}>
+            <Typography variant="h5" gutterBottom>
+              BLE Device Provisioning
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 3, color: 'text.secondary' }}>
+              This page is currently being updated with improved UI. Please check back soon.
+            </Typography>
+            <Alert severity="info" sx={{ mt: 2 }}>
+              The BLE provisioning functionality is preserved and will be available with enhanced design shortly.
+            </Alert>
+          </CardContent>
+        </Card>
+      </Box>
+    </Container>
+  )
 };
 
 export default BLEPage;

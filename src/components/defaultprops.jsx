@@ -1,15 +1,15 @@
 import {
-    MessageOutlined,
-    DatabaseOutlined,
-    DashboardOutlined,
-    ArrowsAltOutlined,
-    VideoCameraOutlined,
-    CloudServerOutlined,
-    TransactionOutlined,
-    FileAddOutlined,
-    NodeIndexOutlined
-    } from '@ant-design/icons';
-    import { FiMapPin } from "react-icons/fi";
+    Dashboard,
+    Message,
+    Storage,
+    Hub,
+    Call,
+    Cloud,
+    Receipt,
+    UploadFile,
+    Lan
+    } from '@mui/icons-material';
+import { FiMapPin } from "react-icons/fi";
 import { KRoundedKdacolorBlack } from '@kadena/kode-icons/brand'
 import { getHost } from '../services/node-services';
 
@@ -20,32 +20,32 @@ const config = {
       {
         path: '/',
         name: 'Dashboard',
-        icon: <DashboardOutlined />,
+        icon: <Dashboard />,
         component: './MainContent',
       },
       {
         path: '/mynode',
         name: 'My Nodes',
-        icon: <CloudServerOutlined />,
+        icon: <Cloud />,
         component: '../pages/mynode',
       },
       {
         path: '/nodes',
         name: 'Nodes',
-        icon: < NodeIndexOutlined/>,
+        icon: <Lan />,
         component: '../pages/nodelist',
       },
       {
         path: '/tools',
         name: 'DB tools',
-        icon: <DatabaseOutlined />,
+        icon: <Storage />,
         component: '../pages/db-tools',
       },
   
       {
         path: '/pubsub',
         name: 'Pub Sub',
-        icon: <MessageOutlined />,
+        icon: <Message />,
         component: '../pages/pubsub',
       },
        /*{
@@ -70,7 +70,7 @@ const config = {
       {
         path: '/dialer',
         name: 'Connection checker',
-        icon: <ArrowsAltOutlined />,
+        icon: <Call />,
         component: '../pages/dialer',
       },
       /*{

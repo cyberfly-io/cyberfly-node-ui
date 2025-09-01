@@ -1,91 +1,94 @@
-import { PageContainer } from '@ant-design/pro-components'
 import React, { useState } from 'react'
 import {
-  Form, Input, Button, Flex, notification, Card, Row, Col,
-  Space, Typography, Avatar, Tag, Alert, Spin, Empty, Divider
-} from 'antd';
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  TextField,
+  Button,
+  Grid,
+  Stack,
+  Chip,
+  Alert,
+  CircularProgress,
+  Container,
+  Snackbar
+} from '@mui/material'
 import {
-  GlobalOutlined, SearchOutlined, CheckCircleOutlined,
-  CloseCircleOutlined, LoadingOutlined, NodeIndexOutlined,
-  ThunderboltOutlined, WifiOutlined, DatabaseOutlined
-} from '@ant-design/icons';
-import { dialNode, findPeer } from '../services/node-services';
-import ReactJson from 'react-json-view';
-import { useDarkMode } from '../contexts/DarkModeContext';
-import { getNode } from '../services/pact-services';
-
-const { Title, Text } = Typography;
-const { TextArea } = Input;
+  Wifi,
+  ElectricBolt,
+  Search,
+  CheckCircle,
+  Cancel,
+  Hub,
+  Storage
+} from '@mui/icons-material'
+import { dialNode, findPeer } from '../services/node-services'
+import ReactJson from 'react-json-view'
+import { useDarkMode } from '../contexts/DarkModeContext'
+import { getNode } from '../services/pact-services'
 
 const Dialer = () => {
-  const [api, contextHolder] = notification.useNotification();
   const [peerInfo, setPeerInfo] = useState(null)
   const [nodeInfo, setNodeInfo] = useState(null)
   const [loadingDial, setLoadingDial] = useState(false)
   const [loadingPeer, setLoadingPeer] = useState(false)
   const [dialStatus, setDialStatus] = useState(null)
   const [peerStatus, setPeerStatus] = useState(null)
-  const { isDarkMode } = useDarkMode();
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' })
+  const { isDarkMode } = useDarkMode()
+
+  const showSnackbar = (message, severity = 'info') => {
+    setSnackbar({ open: true, message, severity })
+  }
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false })
+  }
 
   const onFinish = async (values) => {
-    console.log('Received values:', values);
-    setLoadingDial(true);
-    setDialStatus('loading');
+    console.log('Received values:', values)
+    setLoadingDial(true)
+    setDialStatus('loading')
 
     try {
-      const data = await dialNode(values.multiaddr);
-      console.log(data);
-      setDialStatus('success');
-      api.success({
-        message: 'Connection Test Successful',
-        description: data.info,
-        placement: 'topRight'
-      });
+      const data = await dialNode(values.multiaddr)
+      console.log(data)
+      setDialStatus('success')
+      showSnackbar('Connection Test Successful', 'success')
     } catch (error) {
-      setDialStatus('error');
-      api.error({
-        message: 'Connection Test Failed',
-        description: 'Unable to establish connection to the provided multi-address',
-        placement: 'topRight'
-      });
+      setDialStatus('error')
+      showSnackbar('Connection Test Failed: Unable to establish connection to the provided multi-address', 'error')
     } finally {
-      setLoadingDial(false);
+      setLoadingDial(false)
     }
-  };
+  }
 
   const onFindPeer = async (values) => {
-    console.log('Received values:', values);
-    setLoadingPeer(true);
-    setPeerStatus('loading');
+    console.log('Received values:', values)
+    setLoadingPeer(true)
+    setPeerStatus('loading')
 
     try {
       // Get node info from pact services
-      const nodeRes = await getNode(values.peerId);
-      setNodeInfo(nodeRes);
+      const nodeRes = await getNode(values.peerId)
+      setNodeInfo(nodeRes)
 
       // Get peer info from node services
-      const peerData = await findPeer(values.peerId);
-      setPeerInfo(peerData);
+      const peerData = await findPeer(values.peerId)
+      setPeerInfo(peerData)
 
-      setPeerStatus('success');
-      api.success({
-        message: 'Peer Found Successfully',
-        description: `Found peer: ${values.peerId.slice(0, 20)}...`,
-        placement: 'topRight'
-      });
+      setPeerStatus('success')
+      showSnackbar(`Peer Found Successfully: ${values.peerId.slice(0, 20)}...`, 'success')
     } catch (error) {
-      setPeerStatus('error');
-      setPeerInfo(null);
-      setNodeInfo(null);
-      api.error({
-        message: 'Peer Not Found',
-        description: 'Unable to find the specified peer or retrieve node information',
-        placement: 'topRight'
-      });
+      setPeerStatus('error')
+      setPeerInfo(null)
+      setNodeInfo(null)
+      showSnackbar('Peer Not Found: Unable to find the specified peer or retrieve node information', 'error')
     } finally {
-      setLoadingPeer(false);
+      setLoadingPeer(false)
     }
-  };
+  }
 
   const onFinishFailed = (errorInfo) => {
     console.log('Failed:', errorInfo);
@@ -99,359 +102,322 @@ const Dialer = () => {
   };
 
   return (
-    <PageContainer
-      title={
-        <Space>
-          <GlobalOutlined />
-          <span>Network Connection Tools</span>
-        </Space>
-      }
-      subTitle="Test multi-address connections and find network peers"
-      header={{
-        style: {
-          padding: '16px 0',
-          background: isDarkMode
+    <Container maxWidth="xl" sx={{ py: 3 }}>
+      <Box
+        sx={{
+          p: 3,
+          mb: 3,
+          background: (theme) => isDarkMode
             ? 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
             : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          borderRadius: '8px',
-          marginBottom: '24px'
-        }
-      }}
-      extra={[
-        (peerInfo || nodeInfo) && (
-          <Button
-            size="small"
-            icon={<CloseCircleOutlined />}
-            onClick={clearResults}
-            danger
-          >
-            Clear Results
-          </Button>
-        )
-      ].filter(Boolean)}
-    >
-      {contextHolder}
+          borderRadius: 2,
+          color: 'white'
+        }}
+      >
+        <Stack direction="row" justifyContent="space-between" alignItems="center">
+          <Box>
+            <Typography variant="h4" component="h1" gutterBottom>
+              Network Connection Tools
+            </Typography>
+            <Typography variant="body1">
+              Test multi-address connections and find network peers
+            </Typography>
+          </Box>
+          {(peerInfo || nodeInfo) && (
+            <Button
+              size="small"
+              variant="outlined"
+              color="error"
+              startIcon={<Cancel />}
+              onClick={clearResults}
+              sx={{ color: 'white', borderColor: 'white' }}
+            >
+              Clear Results
+            </Button>
+          )}
+        </Stack>
+      </Box>
 
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
-        <Row gutter={[24, 24]}>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+
+      <Stack spacing={3}>
+        <Grid container spacing={3}>
           {/* Multi-Address Connection Test */}
-          <Col xs={24} lg={12}>
+          <Grid item xs={12} lg={6}>
             <Card
-              title={
-                <Space>
-                  <ThunderboltOutlined />
-                  <span>Connection Test</span>
-                </Space>
-              }
-              bordered={false}
-              style={{
-                borderRadius: '12px',
-                boxShadow: isDarkMode
-                  ? '0 4px 12px rgba(0,0,0,0.3)'
-                  : '0 4px 12px rgba(0,0,0,0.1)',
+              sx={{
+                borderRadius: 3,
+                boxShadow: (theme) => theme.shadows[isDarkMode ? 3 : 1],
                 height: '100%'
               }}
-              extra={
-                dialStatus && (
-                  <Tag
-                    color={
-                      dialStatus === 'success' ? 'success' :
-                      dialStatus === 'error' ? 'error' : 'processing'
-                    }
-                    icon={
-                      dialStatus === 'success' ? <CheckCircleOutlined /> :
-                      dialStatus === 'error' ? <CloseCircleOutlined /> :
-                      <LoadingOutlined />
-                    }
-                  >
-                    {dialStatus === 'success' ? 'Connected' :
-                     dialStatus === 'error' ? 'Failed' : 'Testing...'}
-                  </Tag>
-                )
-              }
             >
-              <Form
-                name="dialForm"
-                layout="vertical"
-                onFinish={onFinish}
-                onFinishFailed={onFinishFailed}
-              >
-                <Form.Item
-                  label={
-                    <Text style={{ color: isDarkMode ? '#e0e0e0' : undefined }}>
-                      Multi-Address
-                    </Text>
-                  }
-                  name="multiaddr"
-                  rules={[
-                    {
-                      required: true,
-                      message: 'Please input multi-address!',
-                    },
-                  ]}
-                >
-                  <Input
-                    size='large'
+              <CardContent>
+                <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
+                  <ElectricBolt color="primary" />
+                  <Typography variant="h6" component="div">
+                    Connection Test
+                  </Typography>
+                  {dialStatus && (
+                    <Chip
+                      label={
+                        dialStatus === 'success' ? 'Connected' :
+                        dialStatus === 'error' ? 'Failed' : 'Testing...'
+                      }
+                      color={
+                        dialStatus === 'success' ? 'success' :
+                        dialStatus === 'error' ? 'error' : 'warning'
+                      }
+                      icon={
+                        dialStatus === 'success' ? <CheckCircle /> :
+                        dialStatus === 'error' ? <Cancel /> :
+                        <CircularProgress size={16} />
+                      }
+                      size="small"
+                    />
+                  )}
+                </Stack>
+                <Box component="form" onSubmit={(e) => {
+                  e.preventDefault()
+                  const formData = new FormData(e.target)
+                  onFinish({ multiaddr: formData.get('multiaddr') })
+                }}>
+                  <TextField
+                    fullWidth
+                    label="Multi-Address"
+                    name="multiaddr"
                     placeholder="Enter multi-address to test connection"
-                    style={{
-                      background: isDarkMode ? '#1f1f1f' : undefined,
-                      color: isDarkMode ? '#e0e0e0' : undefined
+                    variant="outlined"
+                    size="medium"
+                    required
+                    InputProps={{
+                      startAdornment: <ElectricBolt sx={{ mr: 1, color: 'action.active' }} />
                     }}
-                    prefix={<WifiOutlined style={{ color: isDarkMode ? '#b0b0b0' : undefined }} />}
+                    sx={{ mb: 2 }}
                   />
-                </Form.Item>
 
-                <Form.Item>
                   <Button
-                    type="primary"
-                    htmlType="submit"
+                    type="submit"
+                    variant="contained"
                     size="large"
-                    loading={loadingDial}
-                    icon={<ThunderboltOutlined />}
-                    style={{
-                      width: '100%',
-                      background: isDarkMode
-                        ? 'linear-gradient(135deg, #1890ff 0%, #40a9ff 100%)'
-                        : 'linear-gradient(135deg, #1890ff 0%, #40a9ff 100%)',
-                      border: 'none',
-                      height: '48px'
+                    fullWidth
+                    disabled={loadingDial}
+                    startIcon={loadingDial ? <CircularProgress size={20} /> : <ElectricBolt />}
+                    sx={{
+                      height: 48,
+                      background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
+                      '&:hover': {
+                        background: 'linear-gradient(135deg, #1565c0 0%, #1976d2 100%)'
+                      }
                     }}
                   >
                     {loadingDial ? 'Testing Connection...' : 'Test Connection'}
                   </Button>
-                </Form.Item>
-              </Form>
+                </Box>
 
-              {dialStatus === 'success' && (
-                <Alert
-                  message="Connection Successful"
-                  description="The multi-address is reachable and responding correctly."
-                  type="success"
-                  showIcon
-                  style={{ marginTop: '16px' }}
-                />
-              )}
+                {dialStatus === 'success' && (
+                  <Alert severity="success" sx={{ mt: 2 }}>
+                    Connection Successful - The multi-address is reachable and responding correctly.
+                  </Alert>
+                )}
 
-              {dialStatus === 'error' && (
-                <Alert
-                  message="Connection Failed"
-                  description="Unable to establish connection. Please check the multi-address and try again."
-                  type="error"
-                  showIcon
-                  style={{ marginTop: '16px' }}
-                />
-              )}
+                {dialStatus === 'error' && (
+                  <Alert severity="error" sx={{ mt: 2 }}>
+                    Connection Failed - Unable to establish connection. Please check the multi-address and try again.
+                  </Alert>
+                )}
+              </CardContent>
             </Card>
-          </Col>
+          </Grid>
 
           {/* Peer Discovery */}
-          <Col xs={24} lg={12}>
+          <Grid item xs={12} lg={6}>
             <Card
-              title={
-                <Space>
-                  <SearchOutlined />
-                  <span>Peer Discovery</span>
-                </Space>
-              }
-              bordered={false}
-              style={{
-                borderRadius: '12px',
-                boxShadow: isDarkMode
-                  ? '0 4px 12px rgba(0,0,0,0.3)'
-                  : '0 4px 12px rgba(0,0,0,0.1)',
+              sx={{
+                borderRadius: 3,
+                boxShadow: (theme) => theme.shadows[isDarkMode ? 3 : 1],
                 height: '100%'
               }}
-              extra={
-                peerStatus && (
-                  <Tag
-                    color={
-                      peerStatus === 'success' ? 'success' :
-                      peerStatus === 'error' ? 'error' : 'processing'
-                    }
-                    icon={
-                      peerStatus === 'success' ? <CheckCircleOutlined /> :
-                      peerStatus === 'error' ? <CloseCircleOutlined /> :
-                      <LoadingOutlined />
-                    }
-                  >
-                    {peerStatus === 'success' ? 'Found' :
-                     peerStatus === 'error' ? 'Not Found' : 'Searching...'}
-                  </Tag>
-                )
-              }
             >
-              <Form
-                name="peerForm"
-                layout="vertical"
-                onFinish={onFindPeer}
-              >
-                <Form.Item
-                  label={
-                    <Text style={{ color: isDarkMode ? '#e0e0e0' : undefined }}>
-                      Peer ID
-                    </Text>
-                  }
-                  name="peerId"
-                  rules={[
-                    {
-                      required: true,
-                      message: 'Please input peer ID!',
-                    },
-                  ]}
-                >
-                  <Input
-                    size='large'
+              <CardContent>
+                <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
+                  <Search color="primary" />
+                  <Typography variant="h6" component="div">
+                    Peer Discovery
+                  </Typography>
+                  {peerStatus && (
+                    <Chip
+                      label={
+                        peerStatus === 'success' ? 'Found' :
+                        peerStatus === 'error' ? 'Not Found' : 'Searching...'
+                      }
+                      color={
+                        peerStatus === 'success' ? 'success' :
+                        peerStatus === 'error' ? 'error' : 'warning'
+                      }
+                      icon={
+                        peerStatus === 'success' ? <CheckCircle /> :
+                        peerStatus === 'error' ? <Cancel /> :
+                        <CircularProgress size={16} />
+                      }
+                      size="small"
+                    />
+                  )}
+                </Stack>
+                <Box component="form" onSubmit={(e) => {
+                  e.preventDefault()
+                  const formData = new FormData(e.target)
+                  onFindPeer({ peerId: formData.get('peerId') })
+                }}>
+                  <TextField
+                    fullWidth
+                    label="Peer ID"
+                    name="peerId"
                     placeholder="Enter peer ID to search"
-                    style={{
-                      background: isDarkMode ? '#1f1f1f' : undefined,
-                      color: isDarkMode ? '#e0e0e0' : undefined
+                    variant="outlined"
+                    size="medium"
+                    required
+                    InputProps={{
+                      startAdornment: <Hub sx={{ mr: 1, color: 'action.active' }} />
                     }}
-                    prefix={<NodeIndexOutlined style={{ color: isDarkMode ? '#b0b0b0' : undefined }} />}
+                    sx={{ mb: 2 }}
                   />
-                </Form.Item>
 
-                <Form.Item>
                   <Button
-                    type="primary"
-                    htmlType="submit"
+                    type="submit"
+                    variant="contained"
                     size="large"
-                    loading={loadingPeer}
-                    icon={<SearchOutlined />}
-                    style={{
-                      width: '100%',
-                      background: isDarkMode
-                        ? 'linear-gradient(135deg, #52c41a 0%, #73d13d 100%)'
-                        : 'linear-gradient(135deg, #52c41a 0%, #73d13d 100%)',
-                      border: 'none',
-                      height: '48px'
+                    fullWidth
+                    disabled={loadingPeer}
+                    startIcon={loadingPeer ? <CircularProgress size={20} /> : <Search />}
+                    sx={{
+                      height: 48,
+                      background: 'linear-gradient(135deg, #4caf50 0%, #81c784 100%)',
+                      '&:hover': {
+                        background: 'linear-gradient(135deg, #388e3c 0%, #4caf50 100%)'
+                      }
                     }}
                   >
                     {loadingPeer ? 'Searching...' : 'Find Peer'}
                   </Button>
-                </Form.Item>
-              </Form>
+                </Box>
 
-              {peerStatus === 'success' && (
-                <Alert
-                  message="Peer Found"
-                  description="Successfully retrieved peer and node information."
-                  type="success"
-                  showIcon
-                  style={{ marginTop: '16px' }}
-                />
-              )}
+                {peerStatus === 'success' && (
+                  <Alert severity="success" sx={{ mt: 2 }}>
+                    Peer Found Successfully - Found peer and node information.
+                  </Alert>
+                )}
 
-              {peerStatus === 'error' && (
-                <Alert
-                  message="Peer Not Found"
-                  description="The specified peer ID could not be found in the network."
-                  type="error"
-                  showIcon
-                  style={{ marginTop: '16px' }}
-                />
-              )}
+                {peerStatus === 'error' && (
+                  <Alert severity="error" sx={{ mt: 2 }}>
+                    Peer Not Found - The specified peer ID could not be found in the network.
+                  </Alert>
+                )}
+              </CardContent>
             </Card>
-          </Col>
-        </Row>
+          </Grid>
+        </Grid>
 
         {/* Results Section */}
         {(peerInfo || nodeInfo) && (
           <Card
-            title={
-              <Space>
-                <DatabaseOutlined />
-                <span>Query Results</span>
-              </Space>
-            }
-            bordered={false}
-            style={{
-              borderRadius: '12px',
-              boxShadow: isDarkMode
-                ? '0 4px 12px rgba(0,0,0,0.3)'
-                : '0 4px 12px rgba(0,0,0,0.1)'
+            sx={{
+              borderRadius: 3,
+              boxShadow: (theme) => theme.shadows[isDarkMode ? 3 : 1]
             }}
           >
-            <Space direction="vertical" size="large" style={{ width: '100%' }}>
-              {peerInfo && (
-                <div>
-                  <Title level={4} style={{ color: isDarkMode ? '#e0e0e0' : undefined }}>
-                    <Space>
-                      <NodeIndexOutlined />
-                      Peer Information
-                    </Space>
-                  </Title>
-                  <Card
-                    size="small"
-                    style={{
-                      background: isDarkMode ? '#1f1f1f' : '#fafafa',
-                      borderRadius: '8px'
-                    }}
-                  >
-                    <ReactJson
-                      src={peerInfo}
-                      theme={isDarkMode ? 'apathy' : 'apathy:inverted'}
-                      style={{ fontSize: '12px' }}
-                    />
-                  </Card>
-                </div>
-              )}
+            <CardContent>
+              <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 3 }}>
+                <Storage color="primary" />
+                <Typography variant="h6" component="div">
+                  Query Results
+                </Typography>
+              </Stack>
 
-              {nodeInfo && (
-                <div>
-                  <Title level={4} style={{ color: isDarkMode ? '#e0e0e0' : undefined }}>
-                    <Space>
-                      <DatabaseOutlined />
+              <Stack spacing={3}>
+                {peerInfo && (
+                  <Box>
+                    <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Hub />
+                      Peer Information
+                    </Typography>
+                    <Card
+                      variant="outlined"
+                      sx={{
+                        backgroundColor: (theme) => isDarkMode ? '#1f1f1f' : '#fafafa',
+                        borderRadius: 2
+                      }}
+                    >
+                      <CardContent sx={{ p: 2 }}>
+                        <ReactJson
+                          src={peerInfo}
+                          theme={isDarkMode ? 'apathy' : 'apathy:inverted'}
+                          style={{ fontSize: '12px' }}
+                        />
+                      </CardContent>
+                    </Card>
+                  </Box>
+                )}
+
+                {nodeInfo && (
+                  <Box>
+                    <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Storage />
                       Node Information
-                    </Space>
-                  </Title>
-                  <Card
-                    size="small"
-                    style={{
-                      background: isDarkMode ? '#1f1f1f' : '#fafafa',
-                      borderRadius: '8px'
-                    }}
-                  >
-                    <ReactJson
-                      src={nodeInfo}
-                      theme={isDarkMode ? 'apathy' : 'apathy:inverted'}
-                      style={{ fontSize: '12px' }}
-                    />
-                  </Card>
-                </div>
-              )}
-            </Space>
+                    </Typography>
+                    <Card
+                      variant="outlined"
+                      sx={{
+                        backgroundColor: (theme) => isDarkMode ? '#1f1f1f' : '#fafafa',
+                        borderRadius: 2
+                      }}
+                    >
+                      <CardContent sx={{ p: 2 }}>
+                        <ReactJson
+                          src={nodeInfo}
+                          theme={isDarkMode ? 'apathy' : 'apathy:inverted'}
+                          style={{ fontSize: '12px' }}
+                        />
+                      </CardContent>
+                    </Card>
+                  </Box>
+                )}
+              </Stack>
+            </CardContent>
           </Card>
         )}
 
         {/* Empty State */}
         {!peerInfo && !nodeInfo && !loadingDial && !loadingPeer && (
           <Card
-            bordered={false}
-            style={{
-              borderRadius: '12px',
-              boxShadow: isDarkMode
-                ? '0 4px 12px rgba(0,0,0,0.3)'
-                : '0 4px 12px rgba(0,0,0,0.1)',
+            sx={{
+              borderRadius: 3,
+              boxShadow: (theme) => theme.shadows[isDarkMode ? 3 : 1],
               textAlign: 'center'
             }}
           >
-            <Empty
-              image={Empty.PRESENTED_IMAGE_SIMPLE}
-              description={
-                <Space direction="vertical">
-                  <Text style={{ color: isDarkMode ? '#e0e0e0' : undefined }}>
-                    No results yet
-                  </Text>
-                  <Text type="secondary" style={{ color: isDarkMode ? '#b0b0b0' : undefined }}>
-                    Use the tools above to test connections or find peers
-                  </Text>
-                </Space>
-              }
-            />
+            <CardContent>
+              <Stack spacing={2} alignItems="center">
+                <Typography variant="h6" sx={{ color: 'text.secondary' }}>
+                  No results yet
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  Use the tools above to test connections or find peers
+                </Typography>
+              </Stack>
+            </CardContent>
           </Card>
         )}
-      </Space>
-    </PageContainer>
+      </Stack>
+    </Container>
   )
 }
 

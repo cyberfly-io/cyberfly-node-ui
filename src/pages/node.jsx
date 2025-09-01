@@ -1,597 +1,610 @@
-import { PageContainer } from "@ant-design/pro-components";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { getNodeStake, getNode, getNodeClaimable, getAPY, claimReward, nodeStake, nodeUnStake } from "../services/pact-services";
-import { Button, Card, Col, Row, Tag, message as msg, Grid, Avatar, Divider, Progress } from "antd";
-import { Space } from "antd";
-import { Typography } from "antd";
-import ReactJson from "react-json-view";
-import { useDarkMode } from '../contexts/DarkModeContext';
-import { Statistic } from "antd";
 import {
-  CheckCircleOutlined,
-  ClockCircleOutlined,
-  DollarOutlined,
-  WalletOutlined,
-  NodeIndexOutlined,
-  TrophyOutlined,
-  ThunderboltOutlined,
-  GlobalOutlined,
-  UserOutlined,
-  CrownOutlined,
-  FireOutlined,
-  CalendarOutlined,
-  GiftOutlined,
-  ArrowUpOutlined,
-  ArrowDownOutlined,
-  InfoCircleOutlined
-} from "@ant-design/icons";
+  Button, Card, CardContent, Typography, Box, Grid, Chip, Avatar, Divider,
+  Stack, useTheme, useMediaQuery, Snackbar, Alert, CircularProgress
+} from "@mui/material";
+import {
+  CheckCircle as CheckCircleOutlined,
+  Schedule as ClockCircleOutlined,
+  AttachMoney as DollarOutlined,
+  AccountBalanceWallet as WalletOutlined,
+  AccountTree as NodeIndexOutlined,
+  EmojiEvents as TrophyOutlined,
+  ElectricBolt as ThunderboltOutlined,
+  Public as GlobalOutlined,
+  Person as UserOutlined,
+  EmojiEvents as CrownOutlined,
+  LocalFireDepartment as FireOutlined,
+  CalendarToday as CalendarOutlined,
+  CardGiftcard as GiftOutlined,
+  ArrowUpward as ArrowUpOutlined,
+  ArrowDownward as ArrowDownOutlined,
+  Info as InfoCircleOutlined
+} from "@mui/icons-material";
 import { useParams } from 'react-router-dom';
 import { useKadenaWalletContext } from "../contexts/kadenaWalletContext";
-import { Result } from "antd";
-const { Countdown } = Statistic;
-
-const { Text, Title } = Typography;
-const { useBreakpoint } = Grid;
+import { useDarkMode } from '../contexts/DarkModeContext';
+import ReactJson from "react-json-view";
 
 const NodeDetail = () => {
-  const { account, initializeKadenaWallet  } = useKadenaWalletContext()
-  const [messageApi, contextHolder] = msg.useMessage();
+  const { account, initializeKadenaWallet } = useKadenaWalletContext();
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
+  const [nodeInfo, setNodeInfo] = useState(null);
+  const [claimable, setClaimable] = useState(null);
+  const [apy, setApy] = useState(null);
+  const [nodeStakeInfo, setNodeStakeInfo] = useState(null);
+  const [canStake, setCanStake] = useState(true);
+  const [deadline, setDeadline] = useState(Date.now());
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const { isDarkMode } = useDarkMode();
+  const { peerId } = useParams();
 
-    const [nodeInfo, setNodeInfo] = useState(null);
-    const [claimable, setClaimable] = useState(null);
-    const [apy, setApy] = useState(null);
-    const [nodeStakeInfo, setNodeStakeInfo] = useState(null);
-    const [canStake, setCanStake] = useState(true)
-    const [deadline, setDeadline] = useState(Date.now());
-    const screens = useBreakpoint();
+  const showMessage = (message, severity = 'info') => {
+    setSnackbar({ open: true, message, severity });
+  };
 
-    const { isDarkMode } = useDarkMode();
-    const {peerId} = useParams()
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
 
-    useEffect(() => {
-        if (peerId) {
-            getNode(peerId).then((data) => {
-              setNodeInfo(data);
-                console.log(data)
-                getNodeStake(peerId).then((data) => {
-                    setNodeStakeInfo(data);
+  useEffect(() => {
+    if (peerId) {
+      getNode(peerId).then((data) => {
+        setNodeInfo(data);
+        console.log(data);
+        getNodeStake(peerId).then((data) => {
+          setNodeStakeInfo(data);
 
-                  if(data){
-                    if(data.active)
-                      setCanStake(false)
-                    const originalDate = new Date(data.last_claim.timep);
-                    const nextTime = new Date(originalDate);
-                    nextTime.setHours(originalDate.getHours() + 6);
-                    setDeadline(nextTime);
-                  }
-                });
-            });
+          if (data) {
+            if (data.active)
+              setCanStake(false);
+            const originalDate = new Date(data.last_claim.timep);
+            const nextTime = new Date(originalDate);
+            nextTime.setHours(originalDate.getHours() + 6);
+            setDeadline(nextTime);
+          }
+        });
+      });
 
-               getNodeClaimable(peerId).then((reward)=>{
-                    if(reward)
-                      setClaimable(reward.reward)
+      getNodeClaimable(peerId).then((reward) => {
+        if (reward)
+          setClaimable(reward.reward);
+      });
 
-                  })
-                      getAPY().then((data)=>{
-                          setApy(data)
-                        })
-        }
-    }, [peerId]);
-    const formatDate = (dateString) => {
-      return new Date(dateString).toLocaleString();
-    };
-    return (
-        <PageContainer
-            title={
-                <Space>
-                    <NodeIndexOutlined />
-                    Node Details
-                </Space>
-            }
-            subTitle={peerId ? `Peer ID: ${screens.xs ? peerId.slice(0, 12) + '...' : peerId.slice(0, 24) + '...'}` : 'Loading node information'}
-            loading={!nodeInfo}
-            header={{
-                style: {
-                    padding: '16px 0',
-                    background: isDarkMode
-                        ? 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
-                        : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    borderRadius: '8px',
-                    marginBottom: '24px'
-                }
+      getAPY().then((data) => {
+        setApy(data);
+      });
+    }
+  }, [peerId]);
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleString();
+  };
+  return (
+    <Box sx={{ padding: '24px' }}>
+      {/* Header */}
+      <Box
+        sx={{
+          padding: '16px 0',
+          background: isDarkMode
+            ? 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
+            : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          borderRadius: '8px',
+          marginBottom: '24px',
+          color: 'white'
+        }}
+      >
+        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ px: 3 }}>
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <NodeIndexOutlined />
+            <Typography variant="h5">Node Details</Typography>
+          </Stack>
+          <Stack direction="row" spacing={2}>
+            {nodeInfo && (
+              <Chip
+                icon={nodeInfo.status === 'active' ? <CheckCircleOutlined /> : <ClockCircleOutlined />}
+                label={nodeInfo.status === 'active' ? 'Active' : 'Inactive'}
+                color={nodeInfo.status === 'active' ? 'success' : 'error'}
+                sx={{ fontSize: '14px', padding: '4px 12px' }}
+              />
+            )}
+            {apy && (
+              <Chip
+                icon={<TrophyOutlined />}
+                label={`${apy}% APY`}
+                color="warning"
+                sx={{ fontSize: '14px', padding: '4px 12px' }}
+              />
+            )}
+          </Stack>
+        </Stack>
+        {peerId && (
+          <Typography variant="body2" sx={{ px: 3, mt: 1, opacity: 0.8 }}>
+            Peer ID: {isMobile ? peerId.slice(0, 12) + '...' : peerId.slice(0, 24) + '...'}
+          </Typography>
+        )}
+      </Box>
+
+      {!nodeInfo && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
+          <CircularProgress />
+          <Typography variant="body1" sx={{ ml: 2 }}>Loading node information...</Typography>
+        </Box>
+      )}
+
+      <Stack direction="column" spacing={3} sx={{ width: '100%' }}>
+        {/* Node Overview Card */}
+        {nodeInfo && (
+          <Card
+            sx={{
+              borderRadius: '12px',
+              boxShadow: isDarkMode
+                ? '0 4px 12px rgba(0,0,0,0.3)'
+                : '0 4px 12px rgba(0,0,0,0.1)',
+              background: isDarkMode
+                ? 'linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%)'
+                : 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)'
             }}
-            extra={[
-                nodeInfo && (
-                    <Tag
-                        color={nodeInfo.status === 'active' ? 'success' : 'error'}
-                        icon={nodeInfo.status === 'active' ? <CheckCircleOutlined /> : <ClockCircleOutlined />}
-                        style={{ fontSize: '14px', padding: '4px 12px' }}
-                    >
-                        {nodeInfo.status === 'active' ? 'Active' : 'Inactive'}
-                    </Tag>
-                ),
-                apy && (
-                    <Tag
-                        color="processing"
-                        icon={<TrophyOutlined />}
-                        style={{ fontSize: '14px', padding: '4px 12px' }}
-                    >
-                        {apy}% APY
-                    </Tag>
-                )
-            ].filter(Boolean)}
-        >
-            {contextHolder}
+          >
+            <CardContent>
+              <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
+                <GlobalOutlined />
+                <Typography variant="h6">Node Overview</Typography>
+                <Chip
+                  icon={nodeInfo.status === 'active' ? <ThunderboltOutlined /> : <ClockCircleOutlined />}
+                  label={nodeInfo.status === 'active' ? 'Online' : 'Offline'}
+                  color={nodeInfo.status === 'active' ? 'success' : 'error'}
+                />
+              </Stack>
 
-            <Space direction="vertical" size="large" style={{ width: '100%' }}>
-                {/* Node Overview Card */}
-                {nodeInfo && (
-                    <Card
-                        title={
-                            <Space>
-                                <GlobalOutlined />
-                                <span>Node Overview</span>
-                            </Space>
-                        }
-                        bordered={false}
-                        style={{
-                            boxShadow: isDarkMode
-                                ? '0 4px 12px rgba(0,0,0,0.3)'
-                                : '0 4px 12px rgba(0,0,0,0.1)',
-                            borderRadius: '12px',
-                            background: isDarkMode
-                                ? 'linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%)'
-                                : 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)'
-                        }}
-                        extra={
-                            <Space>
-                                <Tag
-                                    color={nodeInfo.status === 'active' ? 'success' : 'error'}
-                                    icon={nodeInfo.status === 'active' ? <ThunderboltOutlined /> : <ClockCircleOutlined />}
-                                >
-                                    {nodeInfo.status === 'active' ? 'Online' : 'Offline'}
-                                </Tag>
-                            </Space>
-                        }
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={6} lg={4}>
+                  <Box sx={{
+                    textAlign: 'center',
+                    padding: '16px',
+                    background: isDarkMode ? '#1f1f1f' : 'white',
+                    borderRadius: '8px'
+                  }}>
+                    <UserOutlined sx={{ fontSize: '24px', color: 'primary.main', mb: 1 }} />
+                    <Typography variant="body2" color="text.secondary">Account</Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        wordBreak: 'break-all',
+                        fontFamily: 'monospace',
+                        fontSize: '13px',
+                        mt: 1,
+                        cursor: 'pointer',
+                        '&:hover': { textDecoration: 'underline' }
+                      }}
+                      onClick={() => navigator.clipboard.writeText(nodeInfo.account)}
                     >
-                        <Row gutter={[24, 16]}>
-                            <Col xs={24} sm={12} lg={8}>
-                                <div style={{ textAlign: 'center', padding: '16px', background: isDarkMode ? '#1f1f1f' : 'white', borderRadius: '8px' }}>
-                                    <UserOutlined style={{ fontSize: '24px', color: '#1890ff', marginBottom: '8px' }} />
-                                    <div>
-                                        <Text type="secondary" style={{ fontSize: '12px', color: isDarkMode ? '#b0b0b0' : undefined }}>Account</Text>
-                                        <div style={{ marginTop: '4px' }}>
-                                            <Text
-                                                copyable={{ text: nodeInfo.account, tooltips: ['Copy', 'Copied'] }}
-                                                style={{
-                                                    wordBreak: 'break-all',
-                                                    fontFamily: 'monospace',
-                                                    fontSize: '13px',
-                                                    display: 'block',
-                                                    color: isDarkMode ? '#e0e0e0' : undefined
-                                                }}
-                                            >
-                                                {screens.xs ? nodeInfo.account.slice(0, 20) + '...' : nodeInfo.account.slice(0, 32) + '...'}
-                                            </Text>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Col>
-                            <Col xs={24} sm={12} lg={8}>
-                                <div style={{ textAlign: 'center', padding: '16px', background: isDarkMode ? '#1f1f1f' : 'white', borderRadius: '8px' }}>
-                                    <NodeIndexOutlined style={{ fontSize: '24px', color: '#52c41a', marginBottom: '8px' }} />
-                                    <div>
-                                        <Text type="secondary" style={{ fontSize: '12px', color: isDarkMode ? '#b0b0b0' : undefined }}>Peer ID</Text>
-                                        <div style={{ marginTop: '4px' }}>
-                                            <Text
-                                                copyable={{ text: peerId, tooltips: ['Copy', 'Copied'] }}
-                                                style={{
-                                                    wordBreak: 'break-all',
-                                                    fontFamily: 'monospace',
-                                                    fontSize: '13px',
-                                                    display: 'block',
-                                                    color: isDarkMode ? '#e0e0e0' : undefined
-                                                }}
-                                            >
-                                                {screens.xs ? peerId.slice(0, 20) + '...' : peerId.slice(0, 32) + '...'}
-                                            </Text>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Col>
-                            <Col xs={24} sm={12} lg={8}>
-                                <div style={{ textAlign: 'center', padding: '16px', background: isDarkMode ? '#1f1f1f' : 'white', borderRadius: '8px' }}>
-                                    <GlobalOutlined style={{ fontSize: '24px', color: '#fa8c16', marginBottom: '8px' }} />
-                                    <div>
-                                        <Text type="secondary" style={{ fontSize: '12px', color: isDarkMode ? '#b0b0b0' : undefined }}>Multiaddr</Text>
-                                        <div style={{ marginTop: '4px' }}>
-                                            <Text
-                                                copyable={{ text: nodeInfo.multiaddr, tooltips: ['Copy', 'Copied'] }}
-                                                style={{
-                                                    wordBreak: 'break-all',
-                                                    fontFamily: 'monospace',
-                                                    fontSize: '13px',
-                                                    display: 'block',
-                                                    color: isDarkMode ? '#e0e0e0' : undefined
-                                                }}
-                                            >
-                                                {screens.xs ? nodeInfo.multiaddr.slice(0, 20) + '...' : nodeInfo.multiaddr.slice(0, 32) + '...'}
-                                            </Text>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Col>
-                        </Row>
+                      {isMobile ? nodeInfo.account.slice(0, 20) + '...' : nodeInfo.account.slice(0, 32) + '...'}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={6} lg={4}>
+                  <Box sx={{
+                    textAlign: 'center',
+                    padding: '16px',
+                    background: isDarkMode ? '#1f1f1f' : 'white',
+                    borderRadius: '8px'
+                  }}>
+                    <NodeIndexOutlined sx={{ fontSize: '24px', color: 'success.main', mb: 1 }} />
+                    <Typography variant="body2" color="text.secondary">Peer ID</Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        wordBreak: 'break-all',
+                        fontFamily: 'monospace',
+                        fontSize: '13px',
+                        mt: 1,
+                        cursor: 'pointer',
+                        '&:hover': { textDecoration: 'underline' }
+                      }}
+                      onClick={() => navigator.clipboard.writeText(peerId)}
+                    >
+                      {isMobile ? peerId.slice(0, 20) + '...' : peerId.slice(0, 32) + '...'}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={6} lg={4}>
+                  <Box sx={{
+                    textAlign: 'center',
+                    padding: '16px',
+                    background: isDarkMode ? '#1f1f1f' : 'white',
+                    borderRadius: '8px'
+                  }}>
+                    <GlobalOutlined sx={{ fontSize: '24px', color: 'warning.main', mb: 1 }} />
+                    <Typography variant="body2" color="text.secondary">Multiaddr</Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        wordBreak: 'break-all',
+                        fontFamily: 'monospace',
+                        fontSize: '13px',
+                        mt: 1,
+                        cursor: 'pointer',
+                        '&:hover': { textDecoration: 'underline' }
+                      }}
+                      onClick={() => navigator.clipboard.writeText(nodeInfo.multiaddr)}
+                    >
+                      {isMobile ? nodeInfo.multiaddr.slice(0, 20) + '...' : nodeInfo.multiaddr.slice(0, 32) + '...'}
+                    </Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Staking Information Card */}
+        {nodeStakeInfo && (
+          <Card sx={{
+            borderRadius: '12px',
+            boxShadow: isDarkMode
+              ? '0 4px 12px rgba(0,0,0,0.3)'
+              : '0 4px 12px rgba(0,0,0,0.1)'
+          }}>
+            <CardContent>
+              <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
+                <Stack direction="row" alignItems="center" spacing={2}>
+                  <CrownOutlined />
+                  <Typography variant="h6">Staking Dashboard</Typography>
+                </Stack>
+                <Stack direction="row" spacing={2}>
+                  <Chip
+                    icon={<TrophyOutlined />}
+                    label={`${apy}% APY`}
+                    color="warning"
+                  />
+                  <Chip
+                    icon={nodeStakeInfo.active ? <CheckCircleOutlined /> : <ClockCircleOutlined />}
+                    label={nodeStakeInfo.active ? 'Stake Active' : 'Stake Inactive'}
+                    color={nodeStakeInfo.active ? 'success' : 'error'}
+                  />
+                </Stack>
+              </Stack>
+
+              <Stack direction="column" spacing={3} sx={{ width: '100%' }}>
+                {/* Statistics Row */}
+                <Grid container spacing={3}>
+                  <Grid item xs={12} sm={6} lg={3}>
+                    <Card sx={{
+                      textAlign: 'center',
+                      background: isDarkMode
+                        ? 'linear-gradient(135deg, #1a237e 0%, #311b92 100%)'
+                        : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      color: 'white',
+                      borderRadius: '12px'
+                    }}>
+                      <CardContent>
+                        <Stack direction="row" alignItems="center" justifyContent="center" spacing={1} sx={{ mb: 1 }}>
+                          <DollarOutlined />
+                          <Typography variant="body2" sx={{ opacity: 0.8 }}>Staked Amount</Typography>
+                        </Stack>
+                        <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+                          {nodeStakeInfo.amount} CFLY
+                        </Typography>
+                      </CardContent>
                     </Card>
+                  </Grid>
+                  <Grid item xs={12} sm={6} lg={3}>
+                    <Card sx={{
+                      textAlign: 'center',
+                      background: isDarkMode
+                        ? 'linear-gradient(135deg, #7b1fa2 0%, #c2185b 100%)'
+                        : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                      color: 'white',
+                      borderRadius: '12px'
+                    }}>
+                      <CardContent>
+                        <Stack direction="row" alignItems="center" justifyContent="center" spacing={1} sx={{ mb: 1 }}>
+                          <GiftOutlined />
+                          <Typography variant="body2" sx={{ opacity: 0.8 }}>Claimed Rewards</Typography>
+                        </Stack>
+                        <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+                          {nodeStakeInfo.claimed} CFLY
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} sm={6} lg={3}>
+                    <Card sx={{
+                      textAlign: 'center',
+                      background: claimable > 0
+                        ? (isDarkMode
+                            ? 'linear-gradient(135deg, #0277bd 0%, #00acc1 100%)'
+                            : 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)')
+                        : (isDarkMode
+                            ? 'linear-gradient(135deg, #424242 0%, #616161 100%)'
+                            : 'linear-gradient(135deg, #e0e0e0 0%, #c0c0c0 100%)'),
+                      color: 'white',
+                      borderRadius: '12px'
+                    }}>
+                      <CardContent>
+                        <Stack direction="row" alignItems="center" justifyContent="center" spacing={1} sx={{ mb: 1 }}>
+                          <FireOutlined />
+                          <Typography variant="body2" sx={{ opacity: 0.8 }}>Claimable Rewards</Typography>
+                        </Stack>
+                        <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+                          {claimable || 0} CFLY
+                        </Typography>
+                        {claimable > 0 && account && nodeStakeInfo.active && (
+                          <Button
+                            variant="contained"
+                            size="small"
+                            startIcon={<GiftOutlined />}
+                            sx={{
+                              mt: 2,
+                              background: 'rgba(255,255,255,0.2)',
+                              border: '1px solid rgba(255,255,255,0.3)',
+                              '&:hover': {
+                                background: 'rgba(255,255,255,0.3)'
+                              }
+                            }}
+                            onClick={() => {
+                              claimReward(account, peerId, claimable).then(data => {
+                                if (data) {
+                                  showMessage("Reward claimed successfully!", "success");
+                                }
+                              });
+                            }}
+                          >
+                            Claim
+                          </Button>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} sm={6} lg={3}>
+                    <Card sx={{
+                      textAlign: 'center',
+                      background: isDarkMode
+                        ? 'linear-gradient(135deg, #2e7d32 0%, #4caf50 100%)'
+                        : 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                      color: 'white',
+                      borderRadius: '12px'
+                    }}>
+                      <CardContent>
+                        <Stack direction="row" alignItems="center" justifyContent="center" spacing={1} sx={{ mb: 1 }}>
+                          <TrophyOutlined />
+                          <Typography variant="body2" sx={{ opacity: 0.8 }}>Current APY</Typography>
+                        </Stack>
+                        <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+                          {apy}%
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                </Grid>
+
+                {/* Timeline Information */}
+                <Grid container spacing={3}>
+                  <Grid item xs={12} sm={6}>
+                    <Card sx={{ borderRadius: '8px' }}>
+                      <CardContent>
+                        <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
+                          <CalendarOutlined />
+                          <Typography variant="h6">Last Claim</Typography>
+                        </Stack>
+                        <Typography variant="h5" sx={{ textAlign: 'center', fontWeight: 'bold' }}>
+                          {formatDate(nodeStakeInfo.last_claim.timep)}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Card sx={{ borderRadius: '8px' }}>
+                      <CardContent>
+                        <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
+                          <CalendarOutlined />
+                          <Typography variant="h6">Stake Time</Typography>
+                        </Stack>
+                        <Typography variant="h5" sx={{ textAlign: 'center', fontWeight: 'bold' }}>
+                          {formatDate(nodeStakeInfo.stake_time.timep)}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                </Grid>
+
+                {/* Countdown Timer */}
+                {!(claimable > 0) && nodeStakeInfo.active && nodeInfo.status === "active" && (
+                  <Card sx={{
+                    borderRadius: '8px',
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    color: 'white'
+                  }}>
+                    <CardContent>
+                      <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
+                        <ClockCircleOutlined />
+                        <Typography variant="h6">Next Claim Countdown</Typography>
+                      </Stack>
+                      <Typography variant="h3" sx={{ textAlign: 'center', fontWeight: 'bold' }}>
+                        {new Date(deadline - Date.now()).toISOString().substr(11, 8)}
+                      </Typography>
+                    </CardContent>
+                  </Card>
                 )}
 
-                {/* Staking Information Card */}
-                {nodeStakeInfo && (
-                    <Card
-                        title={
-                            <Space>
-                                <CrownOutlined />
-                                <span>Staking Dashboard</span>
-                            </Space>
-                        }
-                        bordered={false}
-                        style={{
-                            boxShadow: isDarkMode
-                                ? '0 4px 12px rgba(0,0,0,0.3)'
-                                : '0 4px 12px rgba(0,0,0,0.1)',
-                            borderRadius: '12px'
-                        }}
-                        extra={
-                            <Space>
-                                <Tag
-                                    color="processing"
-                                    icon={<TrophyOutlined />}
-                                    style={{ fontSize: '14px', padding: '4px 12px' }}
-                                >
-                                    {apy}% APY
-                                </Tag>
-                                <Tag
-                                    color={nodeStakeInfo.active ? 'success' : 'error'}
-                                    icon={nodeStakeInfo.active ? <CheckCircleOutlined /> : <ClockCircleOutlined />}
-                                    style={{ fontSize: '14px', padding: '4px 12px' }}
-                                >
-                                    {nodeStakeInfo.active ? 'Stake Active' : 'Stake Inactive'}
-                                </Tag>
-                            </Space>
-                        }
-                    >
-                        <Space direction="vertical" size="large" style={{ width: '100%' }}>
-                            {/* Statistics Row */}
-                            <Row gutter={[24, 24]}>
-                                <Col xs={24} sm={12} lg={6}>
-                                    <Card
-                                        size="small"
-                                        style={{
-                                            textAlign: 'center',
-                                            background: isDarkMode
-                                                ? 'linear-gradient(135deg, #1a237e 0%, #311b92 100%)'
-                                                : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                            color: 'white',
-                                            border: 'none'
-                                        }}
-                                    >
-                                        <Statistic
-                                            title={<Text style={{ color: 'rgba(255,255,255,0.8)' }}>Staked Amount</Text>}
-                                            value={nodeStakeInfo.amount}
-                                            precision={2}
-                                            suffix="CFLY"
-                                            valueStyle={{ color: 'white', fontSize: '24px' }}
-                                            prefix={<DollarOutlined />}
-                                        />
-                                    </Card>
-                                </Col>
-                                <Col xs={24} sm={12} lg={6}>
-                                    <Card
-                                        size="small"
-                                        style={{
-                                            textAlign: 'center',
-                                            background: isDarkMode
-                                                ? 'linear-gradient(135deg, #7b1fa2 0%, #c2185b 100%)'
-                                                : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-                                            color: 'white',
-                                            border: 'none'
-                                        }}
-                                    >
-                                        <Statistic
-                                            title={<Text style={{ color: 'rgba(255,255,255,0.8)' }}>Claimed Rewards</Text>}
-                                            value={nodeStakeInfo.claimed}
-                                            precision={2}
-                                            suffix="CFLY"
-                                            valueStyle={{ color: 'white', fontSize: '24px' }}
-                                            prefix={<GiftOutlined />}
-                                        />
-                                    </Card>
-                                </Col>
-                                <Col xs={24} sm={12} lg={6}>
-                                    <Card
-                                        size="small"
-                                        style={{
-                                            textAlign: 'center',
-                                            background: claimable > 0
-                                                ? (isDarkMode
-                                                    ? 'linear-gradient(135deg, #0277bd 0%, #00acc1 100%)'
-                                                    : 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)')
-                                                : (isDarkMode
-                                                    ? 'linear-gradient(135deg, #424242 0%, #616161 100%)'
-                                                    : 'linear-gradient(135deg, #e0e0e0 0%, #c0c0c0 100%)'),
-                                            color: 'white',
-                                            border: 'none'
-                                        }}
-                                    >
-                                        <Statistic
-                                            title={<Text style={{ color: 'rgba(255,255,255,0.8)' }}>Claimable Rewards</Text>}
-                                            value={claimable || 0}
-                                            precision={2}
-                                            suffix="CFLY"
-                                            valueStyle={{ color: 'white', fontSize: '24px' }}
-                                            prefix={<FireOutlined />}
-                                        />
-                                        {claimable > 0 && account && nodeStakeInfo.active && (
-                                            <Button
-                                                type="primary"
-                                                size="small"
-                                                icon={<GiftOutlined />}
-                                                style={{
-                                                    marginTop: '12px',
-                                                    background: 'rgba(255,255,255,0.2)',
-                                                    border: '1px solid rgba(255,255,255,0.3)'
-                                                }}
-                                                onClick={() => {
-                                                    claimReward(account, peerId, claimable).then(data => {
-                                                        // Handle success
-                                                    });
-                                                }}
-                                            >
-                                                Claim
-                                            </Button>
-                                        )}
-                                    </Card>
-                                </Col>
-                                <Col xs={24} sm={12} lg={6}>
-                                    <Card
-                                        size="small"
-                                        style={{
-                                            textAlign: 'center',
-                                            background: isDarkMode
-                                                ? 'linear-gradient(135deg, #2e7d32 0%, #4caf50 100%)'
-                                                : 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-                                            color: 'white',
-                                            border: 'none'
-                                        }}
-                                    >
-                                        <Statistic
-                                            title={<Text style={{ color: 'rgba(255,255,255,0.8)' }}>Current APY</Text>}
-                                            value={apy}
-                                            suffix="%"
-                                            valueStyle={{ color: 'white', fontSize: '24px' }}
-                                            prefix={<TrophyOutlined />}
-                                        />
-                                    </Card>
-                                </Col>
-                            </Row>
-
-                            {/* Timeline Information */}
-                            <Row gutter={[24, 24]}>
-                                <Col xs={24} sm={12}>
-                                    <Card
-                                        size="small"
-                                        title={
-                                            <Space>
-                                                <CalendarOutlined />
-                                                <span>Last Claim</span>
-                                            </Space>
-                                        }
-                                        style={{ borderRadius: '8px' }}
-                                    >
-                                        <div style={{ textAlign: 'center', padding: '8px' }}>
-                                            <Text style={{ fontSize: '16px', fontWeight: 'bold' }}>
-                                                {formatDate(nodeStakeInfo.last_claim.timep)}
-                                            </Text>
-                                        </div>
-                                    </Card>
-                                </Col>
-                                <Col xs={24} sm={12}>
-                                    <Card
-                                        size="small"
-                                        title={
-                                            <Space>
-                                                <CalendarOutlined />
-                                                <span>Stake Time</span>
-                                            </Space>
-                                        }
-                                        style={{ borderRadius: '8px' }}
-                                    >
-                                        <div style={{ textAlign: 'center', padding: '8px' }}>
-                                            <Text style={{ fontSize: '16px', fontWeight: 'bold' }}>
-                                                {formatDate(nodeStakeInfo.stake_time.timep)}
-                                            </Text>
-                                        </div>
-                                    </Card>
-                                </Col>
-                            </Row>
-
-                            {/* Countdown Timer */}
-                            {!claimable > 0 && nodeStakeInfo.active && nodeInfo.status === "active" && (
-                                <Card
-                                    title={
-                                        <Space>
-                                            <ClockCircleOutlined />
-                                            <span>Next Claim Countdown</span>
-                                        </Space>
-                                    }
-                                    style={{
-                                        borderRadius: '8px',
-                                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                        color: 'white'
-                                    }}
-                                >
-                                    <div style={{ textAlign: 'center', padding: '16px' }}>
-                                        <Countdown
-                                            title={<Text style={{ color: 'rgba(255,255,255,0.8)' }}>Time until next claim</Text>}
-                                            value={deadline}
-                                            format="HH:mm:ss"
-                                            valueStyle={{ color: 'white', fontSize: '32px', fontWeight: 'bold' }}
-                                        />
-                                    </div>
-                                </Card>
-                            )}
-
-                            {/* Action Buttons */}
-                            {account ? (
-                                <Card
-                                    style={{
-                                        borderRadius: '8px',
-                                        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)'
-                                    }}
-                                >
-                                    <div style={{ textAlign: 'center', padding: '16px' }}>
-                                        <Space size="large">
-                                            {canStake ? (
-                                                <Button
-                                                    type="primary"
-                                                    size="large"
-                                                    icon={<ArrowUpOutlined />}
-                                                    style={{
-                                                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                                        border: 'none',
-                                                        height: '48px',
-                                                        fontSize: '16px',
-                                                        padding: '0 32px'
-                                                    }}
-                                                    onClick={() => {
-                                                        nodeStake(account, peerId).then(data => {
-                                                            if (data) {
-                                                                messageApi.info({ content: "Submitted, Please wait a while" });
-                                                            }
-                                                        });
-                                                    }}
-                                                >
-                                                    Stake Node
-                                                </Button>
-                                            ) : (
-                                                <Button
-                                                    danger
-                                                    size="large"
-                                                    icon={<ArrowDownOutlined />}
-                                                    style={{
-                                                        background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%)',
-                                                        border: 'none',
-                                                        height: '48px',
-                                                        fontSize: '16px',
-                                                        padding: '0 32px'
-                                                    }}
-                                                    onClick={() => {
-                                                        nodeUnStake(account, peerId).then(data => {
-                                                            if (data) {
-                                                                messageApi.info({ content: "Submitted, Please wait a while" });
-                                                            }
-                                                        });
-                                                    }}
-                                                >
-                                                    Unstake Node
-                                                </Button>
-                                            )}
-                                        </Space>
-                                    </div>
-                                </Card>
-                            ) : (
-                                <Result
-                                    icon={<WalletOutlined style={{ fontSize: '64px', color: '#1890ff' }} />}
-                                    title={<Text style={{ fontSize: '20px', fontWeight: 'bold' }}>Connect Your Wallet</Text>}
-                                    subTitle={<Text type="secondary">Connect your Kadena wallet to manage staking and claim rewards</Text>}
-                                    extra={
-                                        <Button
-                                            type="primary"
-                                            size="large"
-                                            icon={<WalletOutlined />}
-                                            style={{
-                                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                                border: 'none',
-                                                height: '48px',
-                                                fontSize: '16px',
-                                                padding: '0 32px'
-                                            }}
-                                            onClick={() => initializeKadenaWallet("eckoWallet")}
-                                        >
-                                            Connect Wallet
-                                        </Button>
-                                    }
-                                />
-                            )}
-                        </Space>
-                    </Card>
+                {/* Action Buttons */}
+                {account ? (
+                  <Card sx={{
+                    borderRadius: '8px',
+                    background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)'
+                  }}>
+                    <CardContent>
+                      <Stack direction="row" justifyContent="center" spacing={3}>
+                        {canStake ? (
+                          <Button
+                            variant="contained"
+                            size="large"
+                            startIcon={<ArrowUpOutlined />}
+                            sx={{
+                              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                              height: '48px',
+                              fontSize: '16px',
+                              padding: '0 32px',
+                              borderRadius: '8px',
+                              '&:hover': {
+                                background: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)'
+                              }
+                            }}
+                            onClick={() => {
+                              nodeStake(account, peerId).then(data => {
+                                if (data) {
+                                  showMessage("Submitted, Please wait a while");
+                                }
+                              });
+                            }}
+                          >
+                            Stake Node
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="contained"
+                            color="error"
+                            size="large"
+                            startIcon={<ArrowDownOutlined />}
+                            sx={{
+                              background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%)',
+                              height: '48px',
+                              fontSize: '16px',
+                              padding: '0 32px',
+                              borderRadius: '8px',
+                              '&:hover': {
+                                background: 'linear-gradient(135deg, #ee5a52 0%, #ff6b6b 100%)'
+                              }
+                            }}
+                            onClick={() => {
+                              nodeUnStake(account, peerId).then(data => {
+                                if (data) {
+                                  showMessage("Submitted, Please wait a while");
+                                }
+                              });
+                            }}
+                          >
+                            Unstake Node
+                          </Button>
+                        )}
+                      </Stack>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <Card sx={{
+                    textAlign: 'center',
+                    borderRadius: '12px',
+                    boxShadow: isDarkMode
+                      ? '0 4px 12px rgba(0,0,0,0.3)'
+                      : '0 4px 12px rgba(0,0,0,0.1)',
+                    padding: '40px'
+                  }}>
+                    <CardContent>
+                      <Stack direction="column" alignItems="center" spacing={3}>
+                        <WalletOutlined sx={{ fontSize: 64, color: 'primary.main' }} />
+                        <Typography variant="h4">Connect Your Wallet</Typography>
+                        <Typography variant="body1" color="text.secondary">
+                          Connect your Kadena wallet to manage staking and claim rewards
+                        </Typography>
+                        <Button
+                          variant="contained"
+                          size="large"
+                          startIcon={<WalletOutlined />}
+                          sx={{
+                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            height: '48px',
+                            fontSize: '16px',
+                            padding: '0 32px',
+                            borderRadius: '8px',
+                            '&:hover': {
+                              background: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)'
+                            }
+                          }}
+                          onClick={() => initializeKadenaWallet("eckoWallet")}
+                        >
+                          Connect Wallet
+                        </Button>
+                      </Stack>
+                    </CardContent>
+                  </Card>
                 )}
+              </Stack>
+            </CardContent>
+          </Card>
+        )}
 
-                {/* Node Technical Details */}
-                {nodeInfo && (
-                    <Card
-                        title={
-                            <Space>
-                                <InfoCircleOutlined />
-                                <span>Technical Details</span>
-                            </Space>
+        {/* Node Technical Details */}
+        {nodeInfo && (
+          <Card sx={{
+            borderRadius: '12px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+          }}>
+            <CardContent>
+              <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
+                <Stack direction="row" alignItems="center" spacing={2}>
+                  <InfoCircleOutlined />
+                  <Typography variant="h6">Technical Details</Typography>
+                </Stack>
+                {canStake && !nodeStakeInfo && (
+                  <Button
+                    variant="contained"
+                    size="small"
+                    startIcon={<CrownOutlined />}
+                    onClick={() => {
+                      nodeStake(account, peerId).then(data => {
+                        if (data) {
+                          showMessage("Submitted, Please wait a while");
                         }
-                        bordered={false}
-                        style={{
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                            borderRadius: '12px'
-                        }}
-                        extra={
-                            <Space>
-                                {canStake && !nodeStakeInfo && (
-                                    <Button
-                                        type="primary"
-                                        size="small"
-                                        icon={<CrownOutlined />}
-                                        onClick={() => {
-                                            nodeStake(account, peerId).then(data => {
-                                                if (data) {
-                                                    messageApi.info({ content: "Submitted, Please wait a while" });
-                                                }
-                                            });
-                                        }}
-                                    >
-                                        Stake Node
-                                    </Button>
-                                )}
-                            </Space>
-                        }
-                    >
-                        <Space direction="vertical" size="large" style={{ width: '100%' }}>
-                            {/* Guard Information */}
-                            <div>
-                                <Title level={5} style={{ marginBottom: '12px' }}>
-                                    <Space>
-                                        <UserOutlined />
-                                        Guard Configuration
-                                    </Space>
-                                </Title>
-                                <Card
-                                    size="small"
-                                    style={{
-                                        background: '#f8f9fa',
-                                        borderRadius: '8px'
-                                    }}
-                                >
-                                    <ReactJson
-                                        collapsed={screens.xs}
-                                        src={nodeInfo.guard}
-                                        theme={isDarkMode ? 'apathy' : 'apathy:inverted'}
-                                        style={{ fontSize: '12px' }}
-                                    />
-                                </Card>
-                            </div>
-                        </Space>
-                    </Card>
+                      });
+                    }}
+                  >
+                    Stake Node
+                  </Button>
                 )}
-            </Space>
-        </PageContainer>
-    );
-}
- 
+              </Stack>
+
+              <Stack direction="column" spacing={3}>
+                {/* Guard Information */}
+                <Box>
+                  <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
+                    <UserOutlined />
+                    <Typography variant="h6">Guard Configuration</Typography>
+                  </Stack>
+                  <Card sx={{
+                    background: '#f8f9fa',
+                    borderRadius: '8px'
+                  }}>
+                    <CardContent>
+                      <ReactJson
+                        collapsed={isMobile}
+                        src={nodeInfo.guard}
+                        theme={isDarkMode ? 'apathy' : 'apathy:inverted'}
+                        style={{ fontSize: '12px' }}
+                      />
+                    </CardContent>
+                  </Card>
+                </Box>
+              </Stack>
+            </CardContent>
+          </Card>
+        )}
+      </Stack>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+    </Box>
+  );
+};
+
 export default NodeDetail;
