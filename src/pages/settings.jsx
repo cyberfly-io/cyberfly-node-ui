@@ -101,13 +101,13 @@ const Settings = () => {
   }
 
   return (
-    <Container maxWidth="xl" sx={{ py: 3 }}>
+    <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 } }}>
       {/* Header */}
       <Paper
         elevation={2}
         sx={{
-          p: 3,
-          mb: 3,
+          p: { xs: 2, md: 3 },
+          mb: { xs: 2, md: 3 },
           background: isDarkMode
             ? 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
             : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -115,35 +115,52 @@ const Settings = () => {
           borderRadius: 2
         }}
       >
-        <Stack direction="row" alignItems="center" justifyContent="space-between">
-          <Stack direction="row" alignItems="center" spacing={2}>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ flexWrap: 'wrap', gap: 2 }}>
+          <Stack direction="row" alignItems="center" spacing={2} sx={{ minWidth: 0, flex: 1 }}>
             <SettingsIcon fontSize="large" />
-            <Box>
-              <Typography variant="h4" component="h1" fontWeight="bold">
+            <Box sx={{ minWidth: 0, flex: 1 }}>
+              <Typography variant="h4" component="h1" fontWeight="bold" sx={{ fontSize: { xs: '1.5rem', md: '2.125rem' } }}>
                 Settings
               </Typography>
-              <Typography variant="body1" sx={{ opacity: 0.8 }}>
+              <Typography variant="body1" sx={{ opacity: 0.8, fontSize: { xs: '0.875rem', md: '1rem' } }}>
                 Configure your node and application preferences
               </Typography>
             </Box>
           </Stack>
-          <Stack direction="row" spacing={2}>
+          <Stack direction="row" spacing={1} sx={{ flexShrink: 0 }}>
             <Button
               variant="outlined"
               startIcon={<RefreshIcon />}
               onClick={loadNodeInfo}
               disabled={loading}
-              sx={{ color: 'white', borderColor: 'white' }}
+              sx={{
+                color: 'white',
+                borderColor: 'white',
+                fontSize: { xs: '0.75rem', md: '0.875rem' },
+                px: { xs: 1, md: 2 },
+                py: { xs: 0.5, md: 1 },
+                minWidth: 'auto'
+              }}
             >
-              Refresh
+              <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>Refresh</Box>
+              <RefreshIcon sx={{ display: { xs: 'block', sm: 'none' } }} />
             </Button>
             <Button
               variant="contained"
               startIcon={<SaveIcon />}
               onClick={saveSettings}
-              sx={{ bgcolor: 'white', color: 'primary.main', '&:hover': { bgcolor: 'grey.100' } }}
+              sx={{
+                bgcolor: 'white',
+                color: 'primary.main',
+                '&:hover': { bgcolor: 'grey.100' },
+                fontSize: { xs: '0.75rem', md: '0.875rem' },
+                px: { xs: 1, md: 2 },
+                py: { xs: 0.5, md: 1 },
+                minWidth: 'auto'
+              }}
             >
-              Save Settings
+              <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>Save</Box>
+              <SaveIcon sx={{ display: { xs: 'block', sm: 'none' } }} />
             </Button>
           </Stack>
         </Stack>
@@ -156,22 +173,22 @@ const Settings = () => {
         </Stack>
       </Backdrop>
       {/* Node Information Section */}
-      <Card elevation={2} sx={{ mb: 3 }}>
-        <CardContent>
-          <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 3 }}>
+      <Card elevation={2} sx={{ mb: { xs: 2, md: 3 } }}>
+        <CardContent sx={{ p: { xs: 2, md: 3 } }}>
+          <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: { xs: 2, md: 3 } }}>
             <HubIcon color="primary" />
-            <Typography variant="h5" component="h2" fontWeight="bold">
+            <Typography variant="h5" component="h2" fontWeight="bold" sx={{ fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
               Node Information
             </Typography>
           </Stack>
-          <Grid container spacing={3}>
+          <Grid container spacing={{ xs: 2, md: 3 }}>
             <Grid item xs={12} sm={6} lg={4}>
-              <Box>
+              <Box sx={{ p: { xs: 1.5, md: 2 }, borderRadius: 1, bgcolor: 'background.paper', border: 1, borderColor: 'divider' }}>
                 <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-                  <HubIcon color="action" />
-                  <Typography variant="h6">Peer ID</Typography>
+                  <HubIcon color="action" sx={{ fontSize: { xs: '1.25rem', md: '1.5rem' } }} />
+                  <Typography variant="h6" sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }}>Peer ID</Typography>
                 </Stack>
-                <Typography variant="body1" sx={{ mb: 1 }}>
+                <Typography variant="body1" sx={{ mb: 1, fontSize: { xs: '0.875rem', md: '1rem' }, wordBreak: 'break-all' }}>
                   {nodeInfo?.peerId ? `${nodeInfo.peerId.substring(0, 12)}...` : 'Not available'}
                 </Typography>
                 {nodeInfo?.peerId && (
@@ -179,7 +196,7 @@ const Settings = () => {
                     size="small"
                     startIcon={<ContentCopyIcon />}
                     onClick={() => navigator.clipboard.writeText(nodeInfo.peerId)}
-                    sx={{ textTransform: 'none' }}
+                    sx={{ textTransform: 'none', fontSize: { xs: '0.75rem', md: '0.875rem' }, px: { xs: 1, md: 2 } }}
                   >
                     Copy full peer ID
                   </Button>
@@ -187,12 +204,12 @@ const Settings = () => {
               </Box>
             </Grid>
             <Grid item xs={12} sm={6} lg={4}>
-              <Box>
+              <Box sx={{ p: { xs: 1.5, md: 2 }, borderRadius: 1, bgcolor: 'background.paper', border: 1, borderColor: 'divider' }}>
                 <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-                  <PersonIcon color="action" />
-                  <Typography variant="h6">Node Owner</Typography>
+                  <PersonIcon color="action" sx={{ fontSize: { xs: '1.25rem', md: '1.5rem' } }} />
+                  <Typography variant="h6" sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }}>Node Owner</Typography>
                 </Stack>
-                <Typography variant="body1" sx={{ mb: 1 }}>
+                <Typography variant="body1" sx={{ mb: 1, fontSize: { xs: '0.875rem', md: '1rem' }, wordBreak: 'break-all' }}>
                   {nodeInfo?.account ? `${nodeInfo.account.substring(0, 12)}...` : 'Not available'}
                 </Typography>
                 {nodeInfo?.account && (
@@ -200,7 +217,7 @@ const Settings = () => {
                     size="small"
                     startIcon={<ContentCopyIcon />}
                     onClick={() => navigator.clipboard.writeText(nodeInfo.account)}
-                    sx={{ textTransform: 'none' }}
+                    sx={{ textTransform: 'none', fontSize: { xs: '0.75rem', md: '0.875rem' }, px: { xs: 1, md: 2 } }}
                   >
                     Copy full account
                   </Button>
@@ -208,12 +225,12 @@ const Settings = () => {
               </Box>
             </Grid>
             <Grid item xs={12} sm={6} lg={4}>
-              <Box>
+              <Box sx={{ p: { xs: 1.5, md: 2 }, borderRadius: 1, bgcolor: 'background.paper', border: 1, borderColor: 'divider' }}>
                 <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-                  <FlashIcon color="action" />
-                  <Typography variant="h6">Version</Typography>
+                  <FlashIcon color="action" sx={{ fontSize: { xs: '1.25rem', md: '1.5rem' } }} />
+                  <Typography variant="h6" sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }}>Version</Typography>
                 </Stack>
-                <Typography variant="body1">
+                <Typography variant="body1" sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }}>
                   {nodeInfo?.version || 'Unknown'}
                 </Typography>
               </Box>
@@ -222,48 +239,61 @@ const Settings = () => {
 
           {networkNode && (
             <>
-              <Divider sx={{ my: 3 }} />
-              <Grid container spacing={3}>
-                <Grid item xs={12} sm={6} lg={3}>
-                  <Box>
-                    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-                      <PublicIcon color="action" />
-                      <Typography variant="h6">Connected Peers</Typography>
+              <Divider sx={{ my: { xs: 2, md: 3 } }} />
+              <Grid container spacing={{ xs: 2, md: 3 }}>
+                <Grid item xs={6} sm={3} lg={3}>
+                  <Box sx={{ textAlign: 'center', p: { xs: 1, md: 2 } }}>
+                    <Stack direction="row" alignItems="center" justifyContent="center" spacing={1} sx={{ mb: 1 }}>
+                      <PublicIcon color="action" sx={{ fontSize: { xs: '1.25rem', md: '1.5rem' } }} />
+                      <Typography variant="h6" sx={{ fontSize: { xs: '0.875rem', md: '1.25rem' }, textAlign: 'center' }}>
+                        Connected Peers
+                      </Typography>
                     </Stack>
-                    <Typography variant="h4" color="primary">
+                    <Typography variant="h4" color="primary" sx={{ fontSize: { xs: '1.5rem', md: '2.125rem' } }}>
                       {networkNode.connected || 0}
                     </Typography>
                   </Box>
                 </Grid>
-                <Grid item xs={12} sm={6} lg={3}>
-                  <Box>
-                    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-                      <ApiIcon color="action" />
-                      <Typography variant="h6">Discovered Peers</Typography>
+                <Grid item xs={6} sm={3} lg={3}>
+                  <Box sx={{ textAlign: 'center', p: { xs: 1, md: 2 } }}>
+                    <Stack direction="row" alignItems="center" justifyContent="center" spacing={1} sx={{ mb: 1 }}>
+                      <ApiIcon color="action" sx={{ fontSize: { xs: '1.25rem', md: '1.5rem' } }} />
+                      <Typography variant="h6" sx={{ fontSize: { xs: '0.875rem', md: '1.25rem' }, textAlign: 'center' }}>
+                        Discovered Peers
+                      </Typography>
                     </Stack>
-                    <Typography variant="h4" color="primary">
+                    <Typography variant="h4" color="primary" sx={{ fontSize: { xs: '1.5rem', md: '2.125rem' } }}>
                       {networkNode.discovered || 0}
                     </Typography>
                   </Box>
                 </Grid>
-                <Grid item xs={12} sm={6} lg={3}>
-                  <Box>
-                    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-                      <StorageIcon color="action" />
-                      <Typography variant="h6">Active Stakes</Typography>
+                <Grid item xs={6} sm={3} lg={3}>
+                  <Box sx={{ textAlign: 'center', p: { xs: 1, md: 2 } }}>
+                    <Stack direction="row" alignItems="center" justifyContent="center" spacing={1} sx={{ mb: 1 }}>
+                      <StorageIcon color="action" sx={{ fontSize: { xs: '1.25rem', md: '1.5rem' } }} />
+                      <Typography variant="h6" sx={{ fontSize: { xs: '0.875rem', md: '1.25rem' }, textAlign: 'center' }}>
+                        Active Stakes
+                      </Typography>
                     </Stack>
-                    <Typography variant="h4" color="primary">
+                    <Typography variant="h4" color="primary" sx={{ fontSize: { xs: '1.5rem', md: '2.125rem' } }}>
                       {networkNode.stakes || 0}
                     </Typography>
                   </Box>
                 </Grid>
-                <Grid item xs={12} sm={6} lg={3}>
-                  <Box>
-                    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-                      <FlashIcon color="success" />
-                      <Typography variant="h6">Network Status</Typography>
+                <Grid item xs={6} sm={3} lg={3}>
+                  <Box sx={{ textAlign: 'center', p: { xs: 1, md: 2 } }}>
+                    <Stack direction="row" alignItems="center" justifyContent="center" spacing={1} sx={{ mb: 1 }}>
+                      <FlashIcon color="success" sx={{ fontSize: { xs: '1.25rem', md: '1.5rem' } }} />
+                      <Typography variant="h6" sx={{ fontSize: { xs: '0.875rem', md: '1.25rem' }, textAlign: 'center' }}>
+                        Network Status
+                      </Typography>
                     </Stack>
-                    <Chip label="Online" color="success" variant="outlined" />
+                    <Chip
+                      label="Online"
+                      color="success"
+                      variant="outlined"
+                      sx={{ mt: 1, fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                    />
                   </Box>
                 </Grid>
               </Grid>
@@ -273,63 +303,67 @@ const Settings = () => {
       </Card>
 
       {/* Application Settings */}
-      <Card elevation={2} sx={{ mb: 3 }}>
-        <CardContent>
-          <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 3 }}>
+      <Card elevation={2} sx={{ mb: { xs: 2, md: 3 } }}>
+        <CardContent sx={{ p: { xs: 2, md: 3 } }}>
+          <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: { xs: 2, md: 3 } }}>
             <SettingsIcon color="primary" />
-            <Typography variant="h5" component="h2" fontWeight="bold">
+            <Typography variant="h5" component="h2" fontWeight="bold" sx={{ fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
               Application Settings
             </Typography>
           </Stack>
-          <Grid container spacing={3}>
+          <Grid container spacing={{ xs: 2, md: 3 }}>
             <Grid item xs={12} sm={6} lg={3}>
-              <FormControl fullWidth>
-                <InputLabel>Theme</InputLabel>
+              <FormControl fullWidth size="small">
+                <InputLabel sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }}>Theme</InputLabel>
                 <Select
                   value={settings.theme}
                   label="Theme"
                   onChange={(e) => handleSettingChange('theme', e.target.value)}
+                  sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }}
                 >
-                  <MenuItem value="light">Light</MenuItem>
-                  <MenuItem value="dark">Dark</MenuItem>
+                  <MenuItem value="light" sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }}>Light</MenuItem>
+                  <MenuItem value="dark" sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }}>Dark</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
             <Grid item xs={12} sm={6} lg={3}>
-              <Box>
-                <Typography variant="body1" fontWeight="bold" sx={{ mb: 1 }}>
+              <Box sx={{ p: { xs: 1.5, md: 2 }, borderRadius: 1, bgcolor: 'background.paper', border: 1, borderColor: 'divider' }}>
+                <Typography variant="body1" fontWeight="bold" sx={{ mb: 1, fontSize: { xs: '0.875rem', md: '1rem' } }}>
                   Notifications
                 </Typography>
                 <Switch
                   checked={settings.notifications}
                   onChange={(e) => handleSettingChange('notifications', e.target.checked)}
+                  size="small"
                 />
               </Box>
             </Grid>
             <Grid item xs={12} sm={6} lg={3}>
-              <Box>
-                <Typography variant="body1" fontWeight="bold" sx={{ mb: 1 }}>
+              <Box sx={{ p: { xs: 1.5, md: 2 }, borderRadius: 1, bgcolor: 'background.paper', border: 1, borderColor: 'divider' }}>
+                <Typography variant="body1" fontWeight="bold" sx={{ mb: 1, fontSize: { xs: '0.875rem', md: '1rem' } }}>
                   Auto Refresh
                 </Typography>
                 <Switch
                   checked={settings.autoRefresh}
                   onChange={(e) => handleSettingChange('autoRefresh', e.target.checked)}
+                  size="small"
                 />
               </Box>
             </Grid>
             <Grid item xs={12} sm={6} lg={3}>
-              <FormControl fullWidth>
-                <InputLabel>Refresh Interval</InputLabel>
+              <FormControl fullWidth size="small" disabled={!settings.autoRefresh}>
+                <InputLabel sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }}>Refresh Interval</InputLabel>
                 <Select
                   value={settings.refreshInterval}
                   label="Refresh Interval"
                   onChange={(e) => handleSettingChange('refreshInterval', e.target.value)}
                   disabled={!settings.autoRefresh}
+                  sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }}
                 >
-                  <MenuItem value={2000}>2 seconds</MenuItem>
-                  <MenuItem value={5000}>5 seconds</MenuItem>
-                  <MenuItem value={10000}>10 seconds</MenuItem>
-                  <MenuItem value={30000}>30 seconds</MenuItem>
+                  <MenuItem value={2000} sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }}>2 seconds</MenuItem>
+                  <MenuItem value={5000} sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }}>5 seconds</MenuItem>
+                  <MenuItem value={10000} sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }}>10 seconds</MenuItem>
+                  <MenuItem value={30000} sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }}>30 seconds</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
@@ -339,42 +373,43 @@ const Settings = () => {
 
       {/* System Information */}
       <Card elevation={2}>
-        <CardContent>
-          <Typography variant="h5" component="h2" fontWeight="bold" sx={{ mb: 3 }}>
+        <CardContent sx={{ p: { xs: 2, md: 3 } }}>
+          <Typography variant="h5" component="h2" fontWeight="bold" sx={{ mb: { xs: 2, md: 3 }, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
             System Information
           </Typography>
-          <Grid container spacing={3}>
+          <Grid container spacing={{ xs: 2, md: 3 }}>
             <Grid item xs={12} sm={6} lg={3}>
-              <Box>
-                <Typography variant="h6" sx={{ mb: 1 }}>Browser</Typography>
-                <Typography variant="body2" color="text.secondary">
+              <Box sx={{ p: { xs: 1.5, md: 2 }, borderRadius: 1, bgcolor: 'background.paper', border: 1, borderColor: 'divider' }}>
+                <Typography variant="h6" sx={{ mb: 1, fontSize: { xs: '1rem', md: '1.25rem' } }}>Browser</Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' }, wordBreak: 'break-word' }}>
                   {navigator.userAgent.split(' ').pop()}
                 </Typography>
               </Box>
             </Grid>
             <Grid item xs={12} sm={6} lg={3}>
-              <Box>
-                <Typography variant="h6" sx={{ mb: 1 }}>Platform</Typography>
-                <Typography variant="body2" color="text.secondary">
+              <Box sx={{ p: { xs: 1.5, md: 2 }, borderRadius: 1, bgcolor: 'background.paper', border: 1, borderColor: 'divider' }}>
+                <Typography variant="h6" sx={{ mb: 1, fontSize: { xs: '1rem', md: '1.25rem' } }}>Platform</Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' }, wordBreak: 'break-word' }}>
                   {navigator.platform}
                 </Typography>
               </Box>
             </Grid>
             <Grid item xs={12} sm={6} lg={3}>
-              <Box>
-                <Typography variant="h6" sx={{ mb: 1 }}>Language</Typography>
-                <Typography variant="body2" color="text.secondary">
+              <Box sx={{ p: { xs: 1.5, md: 2 }, borderRadius: 1, bgcolor: 'background.paper', border: 1, borderColor: 'divider' }}>
+                <Typography variant="h6" sx={{ mb: 1, fontSize: { xs: '1rem', md: '1.25rem' } }}>Language</Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}>
                   {navigator.language}
                 </Typography>
               </Box>
             </Grid>
             <Grid item xs={12} sm={6} lg={3}>
-              <Box>
-                <Typography variant="h6" sx={{ mb: 1 }}>Online</Typography>
+              <Box sx={{ p: { xs: 1.5, md: 2 }, borderRadius: 1, bgcolor: 'background.paper', border: 1, borderColor: 'divider' }}>
+                <Typography variant="h6" sx={{ mb: 1, fontSize: { xs: '1rem', md: '1.25rem' } }}>Online</Typography>
                 <Chip
                   label={navigator.onLine ? 'Yes' : 'No'}
                   color={navigator.onLine ? 'success' : 'error'}
                   variant="outlined"
+                  sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
                 />
               </Box>
             </Grid>

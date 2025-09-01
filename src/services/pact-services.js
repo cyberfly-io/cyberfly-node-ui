@@ -1,12 +1,10 @@
 import { createClient, Pact, createSignWithEckoWallet } from '@kadena/client';
-// Simple notification utility to replace antd notification
 import { checkStatus, connect, isConnected, isInstalled } from '../utils/eckoCommon'
 import { claimRequest, getLocalResultForTransaction, sendTransaction, stakeRequest, unStakeRequest } from './pactUtils';
 import { newRequest, requestData } from '../utils/utils';
 const notification = {
   error: (config) => {
     console.error(config.message || config);
-    // You can replace this with a custom notification system later
     if (typeof config === 'object' && config.message) {
       alert(`Error: ${config.message}`);
     } else {

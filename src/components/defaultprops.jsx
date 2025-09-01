@@ -2,10 +2,8 @@ import {
     Dashboard,
     Message,
     Storage,
-    Hub,
     Call,
     Cloud,
-    Receipt,
     UploadFile,
     Lan,
     Map,
@@ -14,8 +12,6 @@ import {
     AccountBalanceWallet,
     VpnKey
     } from '@mui/icons-material';
-import { FiMapPin } from "react-icons/fi";
-import { KRoundedKdacolorBlack } from '@kadena/kode-icons/brand'
 import { getHost } from '../services/node-services';
 
 const config = {

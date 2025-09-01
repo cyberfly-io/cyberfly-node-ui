@@ -1,6 +1,5 @@
 import React, { useState, createContext, useEffect, useCallback, useContext } from 'react';
 import useLocalStorage from '../hooks/useLocalStorage';
-import { connect } from '@kadena/spirekey-sdk';
 import { NETWORKID} from '../constants/contextConstants'
 import { newRequest } from '../utils/utils';
 import { Snackbar, Alert } from '@mui/material';
@@ -77,16 +76,7 @@ const initialKadenaWalletState = {
   
 
 
-    const connectAccount = async () => {
-      try {
-        const account = await connect('mainnet01', '1');
-        // Wait for the account to be ready before proceeding
-        await account.isReady();
-        return account;
-      } catch (error) {
-        console.warn('User canceled sign-in', error);
-      }
-    };
+  
 
     const initializeKadenaWallet = async (wallet_name) => {
       if (window.flutter_inappwebview) {
@@ -114,18 +104,6 @@ const initialKadenaWalletState = {
                 showNotification('Wallet Connected', 'success');
               }
             }
-          }
-        } else if (wallet_name === "spireKey") {
-          const account = await connectAccount();
-          const ready = await account.isReady();
-          console.log(account);
-          if (ready) {
-            await setAccount({ account: account.accountName, guard: null, balance: 0 });
-            setKadenaWalletState({
-              account: account.accountName,
-              isInstalled: true,
-              isConnected: true,
-            });
           }
         }
       }

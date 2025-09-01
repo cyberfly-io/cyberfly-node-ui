@@ -48,10 +48,11 @@ const App = () => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const [pathname, setPathname] = useState('/');
   const [open, setOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
-  const bg = isDarkMode ? "linear-gradient(135deg, #000066 0%, #003366 50%, #004d4d 100%)" : "linear-gradient(135deg, #0061ff 0%, #60efff 50%, #00ff87  100%);";
+  const bg = isDarkMode
+    ? "linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1a1a2e 100%)"
+    : "linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%)";
   const muiTheme = useTheme();
 
   const showModal = () => {
@@ -134,7 +135,7 @@ const App = () => {
                 
                   <img
                     src="https://cyberfly.io/assets/images/newlogo.png"
-                    alt="Cyberfly Node"
+                    alt="Cyberfly Network"
                     style={{
                       height: 52,
                       width: 'auto',
@@ -157,7 +158,7 @@ const App = () => {
                       WebkitTextFillColor: 'transparent'
                     }}
                   >
-                    Cyberfly Node
+                    Cyberfly Network
                   </Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
                     <NetworkCheck sx={{
@@ -172,7 +173,7 @@ const App = () => {
                         fontSize: '0.7rem'
                       }}
                     >
-                      Decentralized Network
+                      Connect Everything
                     </Typography>
                   </Box>
                 </Box>
