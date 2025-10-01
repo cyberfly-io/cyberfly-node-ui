@@ -19,6 +19,7 @@ import KadenaTools from './pages/kadena-tools';
 import NodeList from './pages/nodelist';
 import NodeDetail from './pages/node';
 import BLEPage from './pages/ble';
+import StreamPage from './pages/stream';
 import {
   Box,
   Button,
@@ -46,7 +47,6 @@ import {
 
 const App = () => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
-  const [pathname, setPathname] = useState('/');
   const [open, setOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -279,7 +279,6 @@ const App = () => {
                       component={Link}
                       to={item.path}
                       onClick={() => {
-                        setPathname(item.path || '/');
                         setDrawerOpen(false);
                       }}
                       sx={{
@@ -346,6 +345,7 @@ const App = () => {
               <Route path="/kadena-tools" element={<KadenaTools />} />
               <Route path="/nodes" element={<NodeList />} />
               <Route path="/node/:peerId" element={<NodeDetail />} />
+              <Route path="/stream" element={<StreamPage />} />
             </Routes>
           </Box>
 

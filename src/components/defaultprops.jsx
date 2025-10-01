@@ -12,6 +12,7 @@ import {
     AccountBalanceWallet,
     VpnKey
     } from '@mui/icons-material';
+import { VideoCameraFront } from '@mui/icons-material';
 import { getHost } from '../services/node-services';
 
 const config = {
@@ -83,6 +84,12 @@ const config = {
         name: 'Kadena Tools',
         icon: <VpnKey />,
         component: '../pages/kadena-tools',
+      },
+      {
+        path: '/stream',
+        name: 'Stream',
+        icon: <VideoCameraFront />,
+        component: '../pages/stream',
       },
       {
         path: '/settings',

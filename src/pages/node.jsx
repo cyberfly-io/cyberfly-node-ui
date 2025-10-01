@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getNodeStake, getNode, getNodeClaimable, getAPY, claimReward, nodeStake, nodeUnStake } from "../services/pact-services";
 import {
-  Button, Card, CardContent, Typography, Box, Grid, Chip, Avatar, Divider,
+  Button, Card, CardContent, Typography, Box, Grid, Chip, Avatar,
   Stack, useTheme, useMediaQuery, Snackbar, Alert, CircularProgress, Container,
   Paper
 } from "@mui/material";
@@ -304,7 +304,7 @@ const NodeDetail = () => {
                 />
               </Stack>
 
-              <Grid container spacing={3}>
+              <Grid container spacing={{ xs: 2, sm: 3 }}>
                 <Grid item xs={12} sm={6} lg={4}>
                   <Box sx={{
                     textAlign: 'center',
@@ -394,7 +394,7 @@ const NodeDetail = () => {
               : '0 4px 12px rgba(0,0,0,0.1)'
           }}>
             <CardContent>
-              <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
+              <Stack direction={{ xs: 'column', sm: 'row' }} alignItems={{ xs: 'flex-start', sm: 'center' }} justifyContent="space-between" sx={{ mb: 2, gap: { xs: 1.5, sm: 0 } }}>
                 <Stack direction="row" alignItems="center" spacing={2}>
                   <CrownOutlined />
                   <Typography variant="h6">Staking Dashboard</Typography>
@@ -1000,6 +1000,7 @@ const NodeDetail = () => {
                       <Stack direction="row" justifyContent="center" spacing={3}>
                         {canStake ? (
                           <Button
+                            fullWidth={isMobile}
                             variant="contained"
                             size="large"
                             startIcon={<ArrowUpOutlined />}
@@ -1007,11 +1008,12 @@ const NodeDetail = () => {
                               background: isDarkMode
                                 ? 'linear-gradient(135deg, #1a237e 0%, #311b92 100%)'
                                 : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                              height: '56px',
-                              fontSize: '16px',
-                              padding: '0 40px',
+                              height: 56,
+                              fontSize: 16,
+                              px: { xs: 3, sm: 5 },
                               borderRadius: 3,
                               fontWeight: 700,
+                              width: { xs: '100%', sm: 'auto' },
                               boxShadow: isDarkMode
                                 ? '0 4px 16px rgba(26, 35, 126, 0.3)'
                                 : '0 4px 16px rgba(102, 126, 234, 0.3)',
@@ -1038,6 +1040,7 @@ const NodeDetail = () => {
                           </Button>
                         ) : (
                           <Button
+                            fullWidth={isMobile}
                             variant="contained"
                             size="large"
                             startIcon={<ArrowDownOutlined />}
@@ -1045,11 +1048,12 @@ const NodeDetail = () => {
                               background: isDarkMode
                                 ? 'linear-gradient(135deg, #7b1fa2 0%, #c2185b 100%)'
                                 : 'linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%)',
-                              height: '56px',
-                              fontSize: '16px',
-                              padding: '0 40px',
+                              height: 56,
+                              fontSize: 16,
+                              px: { xs: 3, sm: 5 },
                               borderRadius: 3,
                               fontWeight: 700,
+                              width: { xs: '100%', sm: 'auto' },
                               boxShadow: isDarkMode
                                 ? '0 4px 16px rgba(123, 31, 162, 0.3)'
                                 : '0 4px 16px rgba(255, 107, 107, 0.3)',
@@ -1229,12 +1233,14 @@ const NodeDetail = () => {
                     borderRadius: '8px'
                   }}>
                     <CardContent>
-                      <ReactJson
-                        collapsed={isMobile}
-                        src={nodeInfo.guard}
-                        theme={isDarkMode ? 'apathy' : 'apathy:inverted'}
-                        style={{ fontSize: '12px' }}
-                      />
+                      <Box sx={{ maxHeight: { xs: 260, sm: 400 }, overflow: 'auto', pr: 1 }}>
+                        <ReactJson
+                          collapsed={isMobile}
+                          src={nodeInfo.guard}
+                          theme={isDarkMode ? 'apathy' : 'apathy:inverted'}
+                          style={{ fontSize: '12px', wordBreak: 'break-word' }}
+                        />
+                      </Box>
                     </CardContent>
                   </Card>
                 </Box>

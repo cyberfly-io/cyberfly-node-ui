@@ -7,11 +7,12 @@ import { createLibp2p } from 'libp2p'
 import { webSockets } from '@libp2p/websockets'
 import {mplex} from "@libp2p/mplex";
 import { bootstrap } from '@libp2p/bootstrap';
-import { bootStrapNode } from '../constants/contextConstants';
-import { webRTC } from '@libp2p/webrtc'
+import { webRTC, webRTCDirect } from '@libp2p/webrtc'
 import { all } from '@libp2p/websockets/filters'
 import { preSharedKey } from '@libp2p/pnet'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
+import { circuitRelayTransport } from '@libp2p/circuit-relay-v2'
+import { webTransport } from '@libp2p/webtransport'
 
 const swarmKey = `/key/swarm/psk/1.0.0/
 /base16/
@@ -24,8 +25,8 @@ const swarmKey = `/key/swarm/psk/1.0.0/
     },
     peerDiscovery: [
       bootstrap({
-        list: [bootStrapNode],
-        timeout: 0,
+        list: ['/ip4/67.211.219.34/tcp/31002/ws/p2p/12D3KooWA8mwP9wGUc65abVDMuYccaAMAkXhKUqpwKUZSN5McDrw'],
+        timeout: 10,
       }),
     pubsubPeerDiscovery({
       interval: 10000,
@@ -37,19 +38,25 @@ const swarmKey = `/key/swarm/psk/1.0.0/
       psk: uint8ArrayFromString(swarmKey) 
     }),
     addresses: {
-      listen: ['/webrtc']
+      listen: ['/webrtc',       
+        '/p2p-circuit',
+]
     },
     transports: [
         webSockets({
             filter: all
           }),
           webRTC(),
-  
+                webRTCDirect(),
+      webTransport(),
+
+          circuitRelayTransport(),
     ],
-    connectionEncryption: [noise()],
+    connectionEncrypters: [noise()],
     streamMuxers: [yamux(), mplex()],
     services: {
       identify: identify(),
+      // Enable emitSelf so publisher can observe its own messages for diagnostics
       pubsub: gossipsub({ allowPublishToZeroTopicPeers: true }),
     }
   }
@@ -59,6 +66,10 @@ export const startLibp2pNode = async()=>{
   try{
     const libp2p = await createLibp2p(getLibp2pOptions())
     console.log(libp2p)
+    // Expose globally for manual console diagnostics
+    if (typeof window !== 'undefined') {
+      window.__lp = libp2p
+    }
     return libp2p
   }
   catch(e){

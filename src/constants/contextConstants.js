@@ -16,5 +16,3 @@ export const NETWORK = `${process.env.REACT_APP_KDA_NETWORK}/chainweb/${NETWORK_
 export const creationTime = () => Math.round(new Date().getTime() / 1000) - 10;
 
 export const isMainnet = () => NETWORK_TYPE === 'mainnet';
-
-export const bootStrapNode = "/dns4/node.cyberfly.io/tcp/443/wss/p2p/12D3KooWA8mwP9wGUc65abVDMuYccaAMAkXhKUqpwKUZSN5McDrw"

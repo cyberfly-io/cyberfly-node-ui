@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import FileUpload from '../components/FileUpload';
+import P2PTransfer from '../components/P2PTransfer';
 import {
   Card,
   CardContent,
@@ -11,32 +12,24 @@ import {
   Paper,
   Chip,
   Avatar,
-  Button,
   Fade,
   Grow,
-  Zoom,
-  useTheme,
-  useMediaQuery
+  Zoom
 } from '@mui/material';
 import {
   FilePresent,
   CloudUpload,
   Info,
-  NoteAdd,
   Security,
   Speed,
   Share,
-  CheckCircle,
-  ArrowForward
+  CheckCircle
 } from '@mui/icons-material';
 import { useDarkMode } from '../contexts/DarkModeContext';
 
 const Files = () => {
   const { isDarkMode } = useDarkMode();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [hoveredCard, setHoveredCard] = useState(null);
-  const [animationDelay, setAnimationDelay] = useState(0);
 
   const features = [
     {
@@ -199,7 +192,7 @@ const Files = () => {
         </Grow>
 
         {/* Enhanced File Upload Component */}
-        <Grow in={true} timeout={1000} style={{ transitionDelay: '600ms' }}>
+  <Grow in={true} timeout={1000} style={{ transitionDelay: '600ms' }}>
           <Card
             elevation={4}
             sx={{
@@ -256,6 +249,7 @@ const Files = () => {
                 </Box>
               </Box>
               <FileUpload />
+              <P2PTransfer />
             </CardContent>
           </Card>
         </Grow>
