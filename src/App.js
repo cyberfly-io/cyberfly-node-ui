@@ -345,7 +345,7 @@ const App = () => {
               <Route path="/kadena-tools" element={<KadenaTools />} />
               <Route path="/nodes" element={<NodeList />} />
               <Route path="/node/:peerId" element={<NodeDetail />} />
-              <Route path="/stream" element={<StreamPage />} />
+               <Route path="/stream" element={<StreamPage />} /> 
             </Routes>
           </Box>
 
