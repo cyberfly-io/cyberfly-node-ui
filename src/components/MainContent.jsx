@@ -11,19 +11,16 @@ import {
   Chip,
   Button,
   Box,
-  Paper,
   Accordion,
   AccordionSummary,
   AccordionDetails,
   Badge,
   Avatar,
- 
   IconButton,
 } from '@mui/material';
 import {
   ExpandMore as ExpandMoreIcon,
   Apartment as ApartmentIcon,
-  Info as InfoIcon,
   Dns as DeploymentUnitIcon,
   ShowChart as RadarChartIcon,
   AttachMoney as DollarIcon,
@@ -107,13 +104,10 @@ const MainContent = () => {
     }
   }, [peers]);
 
-  // Calculate network health percentage
-  const networkHealth = Math.min(100, (cCount / Math.max(activeNodes, 1)) * 100);
-
   return (
-    <Container maxWidth="xl" sx={{ 
-      px: { xs: 2, sm: 3 }, 
-      py: { xs: 2, sm: 3 },
+    <Container maxWidth="lg" sx={{ 
+      px: { xs: 1, sm: 1.5 }, 
+      py: { xs: 1, sm: 1.5 },
       background: isDarkMode
         ? 'linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%)'
         : 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
@@ -123,12 +117,123 @@ const MainContent = () => {
         <CircularProgress color="inherit" />
       </Backdrop>
 
-   
+      {/* Hero Section */}
+      <Box
+        sx={{
+          mb: { xs: 1, sm: 1.5 },
+          p: { xs: 1.5, sm: 2 },
+          borderRadius: 2,
+          background: isDarkMode
+            ? 'linear-gradient(135deg, rgba(66, 133, 244, 0.15) 0%, rgba(156, 39, 176, 0.15) 100%)'
+            : 'linear-gradient(135deg, rgba(66, 133, 244, 0.1) 0%, rgba(156, 39, 176, 0.1) 100%)',
+          backdropFilter: 'blur(30px)',
+          border: isDarkMode
+            ? '1px solid rgba(255, 255, 255, 0.1)'
+            : '1px solid rgba(255, 255, 255, 0.3)',
+          boxShadow: isDarkMode
+            ? '0 12px 48px rgba(0, 0, 0, 0.4)'
+            : '0 12px 48px rgba(0, 0, 0, 0.15)',
+          position: 'relative',
+          overflow: 'hidden',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: isDarkMode
+              ? 'radial-gradient(circle at 30% 50%, rgba(66, 133, 244, 0.1) 0%, transparent 50%)'
+              : 'radial-gradient(circle at 30% 50%, rgba(66, 133, 244, 0.05) 0%, transparent 50%)',
+            borderRadius: 4,
+            pointerEvents: 'none'
+          }
+        }}
+      >
+        <Stack spacing={1.5} sx={{ position: 'relative', zIndex: 1 }}>
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <Avatar
+              sx={{
+                width: { xs: 44, sm: 52 },
+                height: { xs: 44, sm: 52 },
+                background: 'linear-gradient(135deg, #4285f4 0%, #9c27b0 100%)',
+                boxShadow: '0 8px 24px rgba(66, 133, 244, 0.4)'
+              }}
+            >
+              <PublicIcon sx={{ fontSize: { xs: 26, sm: 32 }, color: 'white' }} />
+            </Avatar>
+            <Box>
+              <Typography
+                variant="h3"
+                sx={{
+                  fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' },
+                  fontWeight: 800,
+                  background: isDarkMode
+                    ? 'linear-gradient(135deg, #fff 0%, #e0e0e0 100%)'
+                    : 'linear-gradient(135deg, #1a1a1a 0%, #424242 100%)',
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  mb: 0.5
+                }}
+              >
+                Cyberfly Network
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{
+                  fontSize: { xs: '0.875rem', sm: '1rem' },
+                  color: 'text.secondary',
+                  fontWeight: 500
+                }}
+              >
+                Decentralized P2P Network Dashboard
+              </Typography>
+            </Box>
+          </Stack>
+          
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            spacing={1.5}
+            sx={{ mt: 1.5 }}
+          >
+            <Chip
+              icon={<WifiIcon />}
+              label={`${cCount} Connected`}
+              color="success"
+              sx={{
+                px: 1,
+                fontWeight: 600,
+                fontSize: { xs: '0.875rem', sm: '1rem' }
+              }}
+            />
+            <Chip
+              icon={<PublicIcon />}
+              label={`${dCount} Discovered`}
+              color="primary"
+              sx={{
+                px: 1,
+                fontWeight: 600,
+                fontSize: { xs: '0.875rem', sm: '1rem' }
+              }}
+            />
+            {activeNodes && (
+              <Chip
+                icon={<ApartmentIcon />}
+                label={`${activeNodes} Active Nodes`}
+                color="info"
+                sx={{
+                  px: 1,
+                  fontWeight: 600,
+                  fontSize: { xs: '0.875rem', sm: '1rem' }
+                }}
+              />
+            )}
+          </Stack>
+        </Stack>
+      </Box>
 
       <Stack spacing={{ xs: 2, sm: 3 }} sx={{ width: '100%' }}>
-        {/* Node Information Card */}
-      
-
         {/* Network Statistics Card */}
         <Card
           elevation={0}
@@ -148,18 +253,18 @@ const MainContent = () => {
             overflow: 'hidden'
           }}
         >
-          <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+          <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
             <Stack
               direction="row"
               alignItems="center"
-              spacing={2}
-              sx={{ mb: { xs: 2, sm: 3 } }}
+              spacing={1.5}
+              sx={{ mb: { xs: 1.5, sm: 2 } }}
             >
-              <RadarChartIcon color="primary" sx={{ fontSize: { xs: 28, sm: 32 } }} />
+              <RadarChartIcon color="primary" sx={{ fontSize: { xs: 20, sm: 24 } }} />
               <Typography
                 variant="h6"
                 sx={{
-                  fontSize: { xs: '1.1rem', sm: '1.25rem' },
+                  fontSize: { xs: '0.9375rem', sm: '1.0625rem' },
                   fontWeight: 600
                 }}
               >
@@ -167,11 +272,11 @@ const MainContent = () => {
               </Typography>
             </Stack>
 
-            <Grid container spacing={{ xs: 2, sm: 3 }}>
+            <Grid container spacing={{ xs: 1.5, sm: 2 }}>
               <Grid item xs={12} sm={6} lg={4}>
                 <Box
                   sx={{
-                    p: { xs: 2, sm: 3 },
+                    p: { xs: 1.5, sm: 2 },
                     borderRadius: 2,
                     background: isDarkMode
                       ? 'rgba(255, 255, 255, 0.05)'
@@ -204,12 +309,12 @@ const MainContent = () => {
                       Connected Peers
                     </Typography>
                     <Stack direction="row" alignItems="center" spacing={1}>
-                      <ApartmentIcon color="primary" sx={{ fontSize: { xs: 24, sm: 28 } }} />
+                      <ApartmentIcon color="primary" sx={{ fontSize: { xs: 18, sm: 22 } }} />
                       <Typography
                         variant="h4"
                         color="primary.main"
                         sx={{
-                          fontSize: { xs: '1.5rem', sm: '2.125rem' },
+                          fontSize: { xs: '1.25rem', sm: '1.75rem' },
                           fontWeight: 700
                         }}
                       >
@@ -222,7 +327,7 @@ const MainContent = () => {
               <Grid item xs={12} sm={6} lg={4}>
                 <Box
                   sx={{
-                    p: { xs: 2, sm: 3 },
+                    p: { xs: 1.5, sm: 2 },
                     borderRadius: 2,
                     background: isDarkMode
                       ? 'rgba(255, 255, 255, 0.05)'
@@ -255,12 +360,12 @@ const MainContent = () => {
                       Discovered Peers
                     </Typography>
                     <Stack direction="row" alignItems="center" spacing={1}>
-                      <WifiIcon color="success" sx={{ fontSize: { xs: 24, sm: 28 } }} />
+                      <WifiIcon color="success" sx={{ fontSize: { xs: 20, sm: 24 } }} />
                       <Typography
                         variant="h4"
                         color="success.main"
                         sx={{
-                          fontSize: { xs: '1.5rem', sm: '2.125rem' },
+                          fontSize: { xs: '1.25rem', sm: '1.75rem' },
                           fontWeight: 700
                         }}
                       >
@@ -273,7 +378,7 @@ const MainContent = () => {
               <Grid item xs={12} sm={6} lg={4}>
                 <Box
                   sx={{
-                    p: { xs: 2, sm: 3 },
+                    p: { xs: 1.5, sm: 2 },
                     borderRadius: 2,
                     background: isDarkMode
                       ? 'rgba(255, 255, 255, 0.05)'
@@ -306,12 +411,12 @@ const MainContent = () => {
                       Active Nodes
                     </Typography>
                     <Stack direction="row" alignItems="center" spacing={1}>
-                      <PublicIcon color="warning" sx={{ fontSize: { xs: 24, sm: 28 } }} />
+                      <PublicIcon color="warning" sx={{ fontSize: { xs: 20, sm: 24 } }} />
                       <Typography
                         variant="h4"
                         color="warning.main"
                         sx={{
-                          fontSize: { xs: '1.5rem', sm: '2.125rem' },
+                          fontSize: { xs: '1.25rem', sm: '1.75rem' },
                           fontWeight: 700
                         }}
                       >
@@ -329,7 +434,7 @@ const MainContent = () => {
         <Card
           elevation={0}
           sx={{
-            borderRadius: 3,
+            borderRadius: 2,
             background: isDarkMode
               ? 'rgba(42, 42, 42, 0.8)'
               : 'rgba(255, 255, 255, 0.8)',
@@ -344,18 +449,18 @@ const MainContent = () => {
             overflow: 'hidden'
           }}
         >
-          <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+          <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
             <Stack
               direction="row"
               alignItems="center"
-              spacing={2}
-              sx={{ mb: { xs: 2, sm: 3 } }}
+              spacing={1.5}
+              sx={{ mb: { xs: 1.5, sm: 2 } }}
             >
-              <LockIcon color="primary" sx={{ fontSize: { xs: 28, sm: 32 } }} />
+              <LockIcon color="primary" sx={{ fontSize: { xs: 20, sm: 24 } }} />
               <Typography
                 variant="h6"
                 sx={{
-                  fontSize: { xs: '1.1rem', sm: '1.25rem' },
+                  fontSize: { xs: '0.9375rem', sm: '1.0625rem' },
                   fontWeight: 600
                 }}
               >
@@ -363,11 +468,11 @@ const MainContent = () => {
               </Typography>
             </Stack>
 
-            <Grid container spacing={{ xs: 2, sm: 3 }}>
+            <Grid container spacing={{ xs: 1.5, sm: 2 }}>
               <Grid item xs={12} sm={6} lg={4}>
                 <Box
                   sx={{
-                    p: { xs: 2, sm: 3 },
+                    p: { xs: 1.5, sm: 2 },
                     borderRadius: 2,
                     background: isDarkMode
                       ? 'rgba(255, 255, 255, 0.05)'
@@ -400,12 +505,12 @@ const MainContent = () => {
                       Total Stakes
                     </Typography>
                     <Stack direction="row" alignItems="center" spacing={1}>
-                      <ApiIcon color="success" sx={{ fontSize: { xs: 24, sm: 28 } }} />
+                      <ApiIcon color="success" sx={{ fontSize: { xs: 20, sm: 24 } }} />
                       <Typography
                         variant="h4"
                         color="success.main"
                         sx={{
-                          fontSize: { xs: '1.5rem', sm: '2.125rem' },
+                          fontSize: { xs: '1.25rem', sm: '1.75rem' },
                           fontWeight: 700
                         }}
                       >
@@ -418,7 +523,7 @@ const MainContent = () => {
               <Grid item xs={12} sm={6} lg={4}>
                 <Box
                   sx={{
-                    p: { xs: 2, sm: 3 },
+                    p: { xs: 1.5, sm: 2 },
                     borderRadius: 2,
                     background: isDarkMode
                       ? 'rgba(255, 255, 255, 0.05)'
@@ -451,12 +556,12 @@ const MainContent = () => {
                       Locked Supply
                     </Typography>
                     <Stack direction="row" alignItems="center" spacing={1}>
-                      <DollarIcon color="warning" sx={{ fontSize: { xs: 24, sm: 28 } }} />
+                      <DollarIcon color="warning" sx={{ fontSize: { xs: 20, sm: 24 } }} />
                       <Typography
                         variant="h4"
                         color="warning.main"
                         sx={{
-                          fontSize: { xs: '1.5rem', sm: '2.125rem' },
+                          fontSize: { xs: '1.25rem', sm: '1.75rem' },
                           fontWeight: 700
                         }}
                       >
@@ -476,7 +581,7 @@ const MainContent = () => {
               <Grid item xs={12} sm={6} lg={4}>
                 <Box
                   sx={{
-                    p: { xs: 2, sm: 3 },
+                    p: { xs: 1.5, sm: 2 },
                     borderRadius: 2,
                     background: isDarkMode
                       ? 'rgba(255, 255, 255, 0.05)'
@@ -509,12 +614,12 @@ const MainContent = () => {
                       Reward Rate
                     </Typography>
                     <Stack direction="row" alignItems="center" spacing={1}>
-                      <PercentIcon color="secondary" sx={{ fontSize: { xs: 24, sm: 28 } }} />
+                      <PercentIcon color="secondary" sx={{ fontSize: { xs: 20, sm: 24 } }} />
                       <Typography
                         variant="h4"
                         color="secondary.main"
                         sx={{
-                          fontSize: { xs: '1.5rem', sm: '2.125rem' },
+                          fontSize: { xs: '1.25rem', sm: '1.75rem' },
                           fontWeight: 700
                         }}
                       >
@@ -538,7 +643,7 @@ const MainContent = () => {
           <Card
             elevation={0}
             sx={{
-              borderRadius: 3,
+              borderRadius: 2,
               background: isDarkMode
                 ? 'rgba(42, 42, 42, 0.8)'
                 : 'rgba(255, 255, 255, 0.8)',
@@ -553,18 +658,18 @@ const MainContent = () => {
               overflow: 'hidden'
             }}
           >
-            <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+            <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
               <Stack
                 direction={{ xs: 'column', sm: 'row' }}
                 alignItems={{ xs: 'flex-start', sm: 'center' }}
-                spacing={{ xs: 1, sm: 2 }}
-                sx={{ mb: { xs: 2, sm: 3 } }}
+                spacing={{ xs: 1, sm: 1.5 }}
+                sx={{ mb: { xs: 1.5, sm: 2 } }}
               >
-                <DeploymentUnitIcon color="primary" sx={{ fontSize: { xs: 28, sm: 32 } }} />
+                <DeploymentUnitIcon color="primary" sx={{ fontSize: { xs: 24, sm: 28 } }} />
                 <Typography
                   variant="h6"
                   sx={{
-                    fontSize: { xs: '1.1rem', sm: '1.25rem' },
+                    fontSize: { xs: '0.9375rem', sm: '1.0625rem' },
                     fontWeight: 600
                   }}
                 >
