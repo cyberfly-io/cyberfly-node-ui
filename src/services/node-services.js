@@ -96,3 +96,27 @@ export const findPeer = async(peerId)=>{
   const data = await res.json()
 return data
 }
+
+export const getBridgeMetrics = async()=>{
+  const host = getHost();
+  const protocol = window.location.protocol;
+  const url = `${protocol}//${host}/api/bridge/metrics`;
+  const res = await fetch(url, {headers:{ 
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+  }})
+  const data = await res.json()
+  return data
+}
+
+export const getBridgeHealth = async()=>{
+  const host = getHost();
+  const protocol = window.location.protocol;
+  const url = `${protocol}//${host}/api/bridge/health`;
+  const res = await fetch(url, {headers:{ 
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+  }})
+  const data = await res.json()
+  return data
+}

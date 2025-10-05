@@ -10,7 +10,8 @@ import {
     Settings,
     Bluetooth,
     AccountBalanceWallet,
-    VpnKey
+    VpnKey,
+    Cable
     } from '@mui/icons-material';
 import { VideoCameraFront } from '@mui/icons-material';
 import { getHost } from '../services/node-services';
@@ -24,6 +25,12 @@ const config = {
         name: 'Dashboard',
         icon: <Dashboard />,
         component: './MainContent',
+      },
+          {
+        path: '/bridge',
+        name: 'Bridge Monitor',
+        icon: <Cable />,
+        component: '../pages/bridge-monitor',
       },
       {
         path: '/mynode',

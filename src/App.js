@@ -20,6 +20,7 @@ import NodeList from './pages/nodelist';
 import NodeDetail from './pages/node';
 import BLEPage from './pages/ble';
 import StreamPage from './pages/stream';
+import BridgeMonitor from './pages/bridge-monitor';
 import {
   Box,
   Button,
@@ -346,6 +347,7 @@ const App = () => {
               <Route path="/nodes" element={<NodeList />} />
               <Route path="/node/:peerId" element={<NodeDetail />} />
                <Route path="/stream" element={<StreamPage />} /> 
+               <Route path="/bridge" element={<BridgeMonitor />} />
             </Routes>
           </Box>
 
